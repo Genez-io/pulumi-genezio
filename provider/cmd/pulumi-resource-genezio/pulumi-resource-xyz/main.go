@@ -17,8 +17,8 @@ package main
 import (
 	p "github.com/pulumi/pulumi-go-provider"
 
-	xyz "github.com/pulumi/pulumi-xyz/provider"
+	genezio "github.com/Genez-io/pulumi-genezio/provider"
 )
 
 // Serve the provider against Pulumi's Provider protocol.
-func main() { p.RunProvider(xyz.Name, xyz.Version, xyz.Provider()) }
+func main() { p.RunProvider(genezio.Name, genezio.Version, genezio.Provider()) }

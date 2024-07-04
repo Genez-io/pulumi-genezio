@@ -1,13 +1,13 @@
-name: provider-xyz-native
+name: provider-genezio-native
 runtime: yaml
 plugins:
   providers:
-    - name: xyz
+    - name: genezio
       path: ../../bin
 
 resources:
   myRandomResource:
-    type: xyz:Random
+    type: genezio:Random
     properties:
       length: 24
 
