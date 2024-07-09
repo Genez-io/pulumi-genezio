@@ -18,6 +18,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
@@ -34,7 +35,7 @@ func Provider() p.Provider {
 	return infer.Provider(infer.Options{
 		Resources: []infer.InferredResource{
 			infer.Resource[Random, RandomArgs, RandomState](),
-			infer.Resource[Function, FunctionArgs, FunctionState](),
+			infer.Resource[ServerlessFunction, ServerlessFunctionArgs, ServerlessFunctionState](),
 		},
 		ModuleMap: map[tokens.ModuleName]tokens.ModuleName{
 			"provider": "index",
@@ -91,32 +92,81 @@ func makeRandom(length int) string {
 	return "1234"
 }
 
-type Function struct{}
+type ServerlessFunction struct{}
 
-type FunctionArgs struct {
+type ServerlessFunctionArgs struct {
 	Path string `pulumi:"path"` 
 	ProjectName  string `pulumi:"projectName"`
 	Name string `pulumi:"name"`
 	Region	   string `pulumi:"region"`
 	Entry string `pulumi:"entry"`
 	Handler string `pulumi:"handler"`
+	AuthToken string `pulumi:"authToken"`
 }
 
-type FunctionState struct {
-	FunctionArgs
+type ServerlessFunctionState struct {
+	ServerlessFunctionArgs
 
 	ID string `pulumi:"functionId"`
 	URL string `pulumi:"url"`
 }
 
-func (Function) Create(ctx p.Context, name string, input FunctionArgs, preview bool) (string, FunctionState, error) {
-	state := FunctionState{FunctionArgs: input}
+func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
+	state := ServerlessFunctionState{ServerlessFunctionArgs: input}
 	if preview {
 		return name, state, nil
 	}
+
+	backendPath := "."
+
+	projectConfiguration := utils.ProjectConfiguration{
+		Name: input.ProjectName,
+		Region: input.Region,
+		Options: utils.Options{
+			NodeRuntime: "nodejs20.x",
+			Architecture: "arm64",
+		},
+		CloudProvider: "genezio-cloud",
+		Workspace: utils.Workspace{
+			Backend: backendPath,
+		},
+		AstSummary: utils.AstSummary{
+			Version: "2",
+			Classes: []string{},
+		},
+		Classes: []string{},
+		Functions: []utils.FunctionConfiguration{
+			{
+				Name: input.Name,
+				Path: input.Path,
+				Language: "ts",
+				Handler: input.Handler,
+				Entry: input.Entry,
+				Type: "aws",
+			},
+		},
+	}
+
+	cloudInput, err := utils.FunctionToCloudInput(projectConfiguration.Functions[0], backendPath)
+	if err != nil {
+		return "", ServerlessFunctionState{}, err
+	}
+	cloudInputs := []utils.GenezioCloudInput{cloudInput}
+	
+	
+ 
+
+
+
+
 	state.ID = "1234"
 	state.URL = "https://example.com"
 	return name, state, nil
 }
+
+
+
+
+
 
 
