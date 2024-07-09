@@ -11,11 +11,11 @@ _utilities.register(
     resource_modules="""
 [
  {
-  "pkg": "xyz",
+  "pkg": "genezio",
   "mod": "index",
-  "fqn": "pulumi_xyz",
+  "fqn": "pulumi_genezio",
   "classes": {
-   "xyz:index:Random": "Random"
+   "genezio:index:Random": "Random"
   }
  }
 ]
@@ -23,9 +23,9 @@ _utilities.register(
     resource_packages="""
 [
  {
-  "pkg": "xyz",
-  "token": "pulumi:providers:xyz",
-  "fqn": "pulumi_xyz",
+  "pkg": "genezio",
+  "token": "pulumi:providers:genezio",
+  "fqn": "pulumi_genezio",
   "class": "Provider"
  }
 ]
