@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Pulumi;
-using genezio = Pulumi.genezio;
+using Genezio = Pulumi.Genezio;
 
 return await Deployment.RunAsync(() => 
 {
-    var myRandomResource = new genezio.Random("myRandomResource", new()
+    var myRandomResource = new Genezio.Random("myRandomResource", new()
     {
         Length = 24,
     });

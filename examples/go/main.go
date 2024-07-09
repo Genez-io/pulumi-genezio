@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Genez-io/pulumi-genezio/sdk/go/genezio"
+	"github.com/pulumi/pulumi-genezio/sdk/go/genezio"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
