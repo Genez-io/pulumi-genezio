@@ -5,6 +5,7 @@
 from . import _utilities
 import typing
 # Export this package's modules as members:
+from .function import *
 from .provider import *
 from .random import *
 _utilities.register(
@@ -15,6 +16,7 @@ _utilities.register(
   "mod": "index",
   "fqn": "pulumi_genezio",
   "classes": {
+   "genezio:index:Function": "Function",
    "genezio:index:Random": "Random"
   }
  }

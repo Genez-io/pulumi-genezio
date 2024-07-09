@@ -13,6 +13,7 @@
         "strict": true
     },
     "files": [
+        "function.ts",
         "index.ts",
         "provider.ts",
         "random.ts",

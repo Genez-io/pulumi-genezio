@@ -34,6 +34,7 @@ func Provider() p.Provider {
 	return infer.Provider(infer.Options{
 		Resources: []infer.InferredResource{
 			infer.Resource[Random, RandomArgs, RandomState](),
+			infer.Resource[Function, FunctionArgs, FunctionState](),
 		},
 		ModuleMap: map[tokens.ModuleName]tokens.ModuleName{
 			"provider": "index",
@@ -87,5 +88,35 @@ func makeRandom(length int) string {
 	for i := range result {
 		result[i] = charset[seededRand.Intn(len(charset))]
 	}
-	return string(result)
+	return "1234"
 }
+
+type Function struct{}
+
+type FunctionArgs struct {
+	Path string `pulumi:"path"` 
+	ProjectName  string `pulumi:"projectName"`
+	Name string `pulumi:"name"`
+	Region	   string `pulumi:"region"`
+	Entry string `pulumi:"entry"`
+	Handler string `pulumi:"handler"`
+}
+
+type FunctionState struct {
+	FunctionArgs
+
+	ID string `pulumi:"functionId"`
+	URL string `pulumi:"url"`
+}
+
+func (Function) Create(ctx p.Context, name string, input FunctionArgs, preview bool) (string, FunctionState, error) {
+	state := FunctionState{FunctionArgs: input}
+	if preview {
+		return name, state, nil
+	}
+	state.ID = "1234"
+	state.URL = "https://example.com"
+	return name, state, nil
+}
+
+
