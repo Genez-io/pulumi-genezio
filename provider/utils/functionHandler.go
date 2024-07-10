@@ -1,23 +1,29 @@
 package utils
 
 import (
-	"context"
 	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
+
+	"github.com/Genez-io/pulumi-genezio/provider/domain"
 )
 
 type FunctionHandlerProvider interface {
-	Write(ctx context.Context, outputPath string, handlerFileName string, functionConfiguration FunctionConfiguration) (error)
+	Write(outputPath string, handlerFileName string, functionConfiguration domain.FunctionConfiguration) (error)
 }
 
-type AwsFunctionHandlerProvider struct {
+type awsFunctionHandlerProvider struct {
 
 }
 
-func (p *AwsFunctionHandlerProvider) Write( outputPath string, handlerFileName string, functionConfiguration FunctionConfiguration) (error) {
+func NewAwsFunctionHandlerProvider() FunctionHandlerProvider {
+	return &awsFunctionHandlerProvider{}
+}
+
+func (p *awsFunctionHandlerProvider) Write( outputPath string, handlerFileName string, functionConfiguration domain.FunctionConfiguration) (error) {
 
 	streamifyOverrideFileContent := `global.awslambda = {
         streamifyResponse: function (handler) {
@@ -27,11 +33,12 @@ func (p *AwsFunctionHandlerProvider) Write( outputPath string, handlerFileName s
         },
 };`
 
-	randomFileId := make([]byte, 8)
-	_, err := rand.Read(randomFileId)
+	randomFileIdBytes := make([]byte, 8)
+	_, err := rand.Read(randomFileIdBytes)
 	if err != nil {
 		return err
 	}
+	randomFileId := hex.EncodeToString(randomFileIdBytes)
 
 	handlerContent := fmt.Sprintf(`import './setupLambdaGlobals_%s.mjs';
 	import { %s as genezioDeploy } from "./%s";
@@ -132,26 +139,31 @@ func (p *AwsFunctionHandlerProvider) Write( outputPath string, handlerFileName s
 
 }
 
-func FunctionToCloudInput(functionElement FunctionConfiguration, backendPath string) (GenezioCloudInput, error) {
-	handlerProvider := AwsFunctionHandlerProvider{}
+func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendPath string) (domain.GenezioCloudInput, error) {
+	handlerProvider := NewAwsFunctionHandlerProvider()
 
+	fmt.Println("Creating temporary folder")
 	tmpFolderPath, err := CreateTemporaryFolder(nil, nil);
 	if err != nil {
-		return GenezioCloudInput{}, err
+		return domain.GenezioCloudInput{}, err
 	}
+	fmt.Println("Creating temporary folder 2")
 
 	archivePath := filepath.Join(tmpFolderPath, "genezioDeploy.zip")
 
 	err = CopyFileOrFolder(filepath.Join(backendPath, functionElement.Path), tmpFolderPath)
 	if err != nil {
-		return GenezioCloudInput{}, err
+		return domain.GenezioCloudInput{}, err
 	}
+	fmt.Println("Creating temporary folder 3")
 
 
 	unzippedBundleSize,err :=  GetBundleFolderSizeLimit(tmpFolderPath)
 	if err != nil {
-		return GenezioCloudInput{}, err
+		return domain.GenezioCloudInput{}, err
 	}
+
+	fmt.Println("Creating temporary folder 4")
 
 	entryFileName := "index.mjs"
 
@@ -160,25 +172,29 @@ func FunctionToCloudInput(functionElement FunctionConfiguration, backendPath str
 		_, err := rand.Read(randomName)
 		
 		if err != nil {
-			return GenezioCloudInput{},err
+			return domain.GenezioCloudInput{},err
 		}
 		tmpName := fmt.Sprintf("%x", randomName)
 		entryFileName = fmt.Sprintf("index-%s.mjs",tmpName )
 
 	}
 
+
+	fmt.Printf("Creating temporary folder 5 %s",entryFileName)
 	err = handlerProvider.Write(tmpFolderPath, entryFileName, functionElement)
 	if err != nil {
-		return GenezioCloudInput{}, err
+		return domain.GenezioCloudInput{}, err
 	}
+	fmt.Println("Creating temporary folder 6")
 
 	exclussionList := []string{".git",".github"}
 	err = ZipDirectory(tmpFolderPath, archivePath,exclussionList)
 	if err != nil {
-		return GenezioCloudInput{}, err
+		return domain.GenezioCloudInput{}, err
 	}
+	fmt.Println("Creating temporary folder 7")
 
-	return GenezioCloudInput{
+	return domain.GenezioCloudInput{
 		Type: "function",
 		Name: functionElement.Name,
 		ArchivePath: archivePath,

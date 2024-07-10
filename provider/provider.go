@@ -15,9 +15,11 @@
 package provider
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
+	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -117,25 +119,26 @@ func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFun
 		return name, state, nil
 	}
 
+
 	backendPath := "."
 
-	projectConfiguration := utils.ProjectConfiguration{
+	projectConfiguration := domain.ProjectConfiguration{
 		Name: input.ProjectName,
 		Region: input.Region,
-		Options: utils.Options{
+		Options: domain.Options{
 			NodeRuntime: "nodejs20.x",
 			Architecture: "arm64",
 		},
 		CloudProvider: "genezio-cloud",
-		Workspace: utils.Workspace{
+		Workspace: domain.Workspace{
 			Backend: backendPath,
 		},
-		AstSummary: utils.AstSummary{
+		AstSummary: domain.AstSummary{
 			Version: "2",
 			Classes: []string{},
 		},
 		Classes: []string{},
-		Functions: []utils.FunctionConfiguration{
+		Functions: []domain.FunctionConfiguration{
 			{
 				Name: input.Name,
 				Path: input.Path,
@@ -151,16 +154,19 @@ func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFun
 	if err != nil {
 		return "", ServerlessFunctionState{}, err
 	}
-	cloudInputs := []utils.GenezioCloudInput{cloudInput}
-	
-	
- 
+	cloudInputs := []domain.GenezioCloudInput{cloudInput}
+
+	cloudAdapter := utils.NewGenezioCloudAdapter()
+
+	response, err := cloudAdapter.Deploy(cloudInputs, projectConfiguration, utils.CloudAdapterOptions{Stage: nil}, nil, input.AuthToken)
+	if err != nil {
+		fmt.Println("An error occurred")
+		return "", ServerlessFunctionState{}, err
+	}
 
 
-
-
-	state.ID = "1234"
-	state.URL = "https://example.com"
+	state.ID = response.Functions[0].ID	
+	state.URL = response.Functions[0].CloudUrl
 	return name, state, nil
 }
 

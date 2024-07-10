@@ -5,9 +5,9 @@
 from . import _utilities
 import typing
 # Export this package's modules as members:
-from .function import *
 from .provider import *
 from .random import *
+from .serverless_function import *
 _utilities.register(
     resource_modules="""
 [
@@ -16,8 +16,8 @@ _utilities.register(
   "mod": "index",
   "fqn": "pulumi_genezio",
   "classes": {
-   "genezio:index:Function": "Function",
-   "genezio:index:Random": "Random"
+   "genezio:index:Random": "Random",
+   "genezio:index:ServerlessFunction": "ServerlessFunction"
   }
  }
 ]

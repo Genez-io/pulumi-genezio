@@ -5,13 +5,14 @@ const myRandomResource = new genezio.Random("myRandomResource", { length: 26 });
 export const output = {
   value: myRandomResource.result,
 };
-const myFunction = new genezio.Function("MyFunction", {
-  path: "function/path",
-  projectName: "projectName",
-  region: "region",
-  entry: "entry",
+const myFunction = new genezio.ServerlessFunction("MyFunction", {
+  path: "./function",
+  projectName: "project-function-pulumi",
+  region: "dev-fkt",
+  entry: "app.mjs",
   handler: "handler",
-  name: "name",
+  name: "my-function",
+  authToken: "",
 });
 
 export const functionOutput = {

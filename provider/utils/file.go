@@ -121,15 +121,18 @@ func CopyFolder(source string, dest string) error {
 		return err
 	}
 
+	fmt.Println("Copying folder 2")
 	for _, entry := range directory {
 		srcFilePath := filepath.Join(source, entry.Name())
 		destFilePath := filepath.Join(dest, entry.Name())
 		if entry.IsDir() {
 			if err := CopyFolder(srcFilePath, destFilePath); err != nil {
+				fmt.Printf("Error copying folder %s", err)
 				return err
 			}
 		} else {
 			if err := CopyFile(srcFilePath, destFilePath); err != nil {
+				fmt.Printf("Error copying file %s", err)
 				return err
 			}
 		}
@@ -143,8 +146,10 @@ func CopyFileOrFolder(source string, dest string) error {
 		return err
 	}
 	if srcInfo.IsDir() {
+		fmt.Println("Copying folder")
 		return CopyFolder(source, dest)
 	}
+	fmt.Println("Copying file")
 	return CopyFile(source, dest)
 }
 

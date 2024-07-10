@@ -5,11 +5,6 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 // Export members:
-export { FunctionArgs } from "./function";
-export type Function = import("./function").Function;
-export const Function: typeof import("./function").Function = null as any;
-utilities.lazyLoad(exports, ["Function"], () => require("./function"));
-
 export { ProviderArgs } from "./provider";
 export type Provider = import("./provider").Provider;
 export const Provider: typeof import("./provider").Provider = null as any;
@@ -20,15 +15,20 @@ export type Random = import("./random").Random;
 export const Random: typeof import("./random").Random = null as any;
 utilities.lazyLoad(exports, ["Random"], () => require("./random"));
 
+export { ServerlessFunctionArgs } from "./serverlessFunction";
+export type ServerlessFunction = import("./serverlessFunction").ServerlessFunction;
+export const ServerlessFunction: typeof import("./serverlessFunction").ServerlessFunction = null as any;
+utilities.lazyLoad(exports, ["ServerlessFunction"], () => require("./serverlessFunction"));
+
 
 const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
-            case "genezio:index:Function":
-                return new Function(name, <any>undefined, { urn })
             case "genezio:index:Random":
                 return new Random(name, <any>undefined, { urn })
+            case "genezio:index:ServerlessFunction":
+                return new ServerlessFunction(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }
