@@ -32,7 +32,7 @@ func (g *genezioCloudAdapter) Deploy(input []domain.GenezioCloudInput, projectCo
 			if err != nil {
 				return domain.GenezioCloudOutput{}, err
 			}
-			fmt.Printf("Uploading to S3 2 %s", presignedUrl)
+			fmt.Printf("Uploading to S3 2\n")
 
 			err = requests.UploadContentToS3(&presignedUrl, element.ArchivePath, nil)
 			if err != nil {
@@ -47,8 +47,6 @@ func (g *genezioCloudAdapter) Deploy(input []domain.GenezioCloudInput, projectCo
 			return domain.GenezioCloudOutput{}, err
 		}
 		fmt.Println("Uploading to S3 5")
-
-		fmt.Println(response)
 
 	return domain.GenezioCloudOutput{
 		ProjectID: response.ProjectID,

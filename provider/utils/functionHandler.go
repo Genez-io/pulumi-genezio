@@ -149,7 +149,13 @@ func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendP
 	}
 	fmt.Println("Creating temporary folder 2")
 
-	archivePath := filepath.Join(tmpFolderPath, "genezioDeploy.zip")
+
+	tmpFolderArchivePath,err := CreateTemporaryFolder(nil, nil);
+	if err != nil {
+		return domain.GenezioCloudInput{}, err
+	}
+
+	archivePath := filepath.Join(tmpFolderArchivePath, "genezioDeploy.zip")
 
 	err = CopyFileOrFolder(filepath.Join(backendPath, functionElement.Path), tmpFolderPath)
 	if err != nil {
@@ -180,19 +186,19 @@ func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendP
 	}
 
 
-	fmt.Printf("Creating temporary folder 5 %s",entryFileName)
+	fmt.Printf("Creating temporary folder 5 %s\n",entryFileName)
 	err = handlerProvider.Write(tmpFolderPath, entryFileName, functionElement)
 	if err != nil {
 		return domain.GenezioCloudInput{}, err
 	}
-	fmt.Println("Creating temporary folder 6")
+	fmt.Printf("Creating temporary folder 6 with archive path %s and tmpFolderPath %s\n",archivePath,tmpFolderPath)
 
 	exclussionList := []string{".git",".github"}
 	err = ZipDirectory(tmpFolderPath, archivePath,exclussionList)
 	if err != nil {
 		return domain.GenezioCloudInput{}, err
 	}
-	fmt.Println("Creating temporary folder 7")
+	fmt.Println("Creating temporary folder 7 with archive path: ",archivePath)
 
 	return domain.GenezioCloudInput{
 		Type: "function",

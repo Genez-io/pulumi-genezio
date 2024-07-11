@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/Genez-io/pulumi-genezio/provider/constants"
 )
 
 func GetPresignedUrl(
@@ -43,14 +45,14 @@ func GetPresignedUrl(
 		return "", err
 	}
 
-	req, err := http.NewRequest("GET", "https://dev.api.genez.io/core/deployment-url", bytes.NewBuffer(jsonMarshal))
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/core/deployment-url",constants.API_URL), bytes.NewBuffer(jsonMarshal))
 	if err != nil {
 		return "", err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+authToken)
-	req.Header.Set("Accept-Version", "genezio-webapp/0.3.0")
+	req.Header.Set("Accept-Version", "genezio-cli/2.2.0")
 
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -70,7 +72,10 @@ func GetPresignedUrl(
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(string(body))
+
+	if resp.StatusCode != 200 {
+		return "", fmt.Errorf("error: %s", string(body))
+	}
 
 	var data responseData
 	err = json.Unmarshal(body, &data)

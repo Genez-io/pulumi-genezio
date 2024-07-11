@@ -8,7 +8,7 @@ export const output = {
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
   path: "./function",
   projectName: "project-function-pulumi",
-  region: "dev-fkt",
+  region: "us-east-1",
   entry: "app.mjs",
   handler: "handler",
   name: "my-function",

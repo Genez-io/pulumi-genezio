@@ -79,14 +79,14 @@ func CreateTemporaryFolder(name *string, shouldDeleteContents *bool) (string, er
 				return "", err
 			}
 		} else {
+			err := os.Mkdir(tmpFolder, 0755)
+			if err != nil {
+				return "", err
+			}
 			return tmpFolder, nil
 		}
 	}
 
-	err := os.Mkdir(tmpFolder, 0755)
-	if err != nil {
-		return "", err
-	}
 
 	return tmpFolder, nil
 } 
@@ -154,12 +154,15 @@ func CopyFileOrFolder(source string, dest string) error {
 }
 
 func ZipDirectory(source string, destination string, exclussion []string) error {
+
+	fmt.Printf("\nZipping %s to %s\n", source, destination)
 	zipFile, err := os.Create(destination)
 	if err != nil {
 		return err
 	}
 	defer zipFile.Close()
 
+	fmt.Println("Creating zip file")
 	zipWriter := zip.NewWriter(zipFile)
 	defer zipWriter.Close()
 

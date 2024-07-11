@@ -3,9 +3,11 @@ package requests
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
+	"github.com/Genez-io/pulumi-genezio/provider/constants"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 )
 
@@ -53,6 +55,8 @@ func DeployRequest(
 			EntryFile: entryFile,
 		})
 	}
+
+	fmt.Printf("Functions Mapping: %v\n", functionsMappping)
 	
 	data := request{
 		Options: projectConfiguration.Options,
@@ -70,13 +74,13 @@ func DeployRequest(
 		return domain.DeployCodeResponse{}, err
 	}
 
-	req, err := http.NewRequest("PUT", "https://dev.api.genez.io/core/deployment", bytes.NewBuffer(jsonMarshal))
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/core/deployment",constants.API_URL), bytes.NewBuffer(jsonMarshal))
 	if err != nil {
 		return domain.DeployCodeResponse{}, err
 	}
 
 	req.Header.Set("Authorization", "Bearer "+authToken)
-	req.Header.Set("Accept-Version", "genezio-webapp/0.3.0")
+	req.Header.Set("Accept-Version", "genezio-cli/2.2.0")
 
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -90,11 +94,16 @@ func DeployRequest(
 		return domain.DeployCodeResponse{}, err
 	}
 
+	
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return domain.DeployCodeResponse{}, err
+	}
+
+	if resp.StatusCode != 200 {
+		return domain.DeployCodeResponse{}, fmt.Errorf("error: %s", string(body))
 	}
 
 	var dataResponse domain.DeployCodeResponse
