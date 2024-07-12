@@ -142,16 +142,16 @@ func (p *awsFunctionHandlerProvider) Write( outputPath string, handlerFileName s
 func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendPath string) (domain.GenezioCloudInput, error) {
 	handlerProvider := NewAwsFunctionHandlerProvider()
 
-	fmt.Println("Creating temporary folder")
 	tmpFolderPath, err := CreateTemporaryFolder(nil, nil);
 	if err != nil {
+		fmt.Printf("An error occurred while trying to create a temporary folder %v\n", err)
 		return domain.GenezioCloudInput{}, err
 	}
-	fmt.Println("Creating temporary folder 2")
 
 
 	tmpFolderArchivePath,err := CreateTemporaryFolder(nil, nil);
 	if err != nil {
+		fmt.Printf("An error occurred while trying to create a temporary folder for the archive %v\n", err)
 		return domain.GenezioCloudInput{}, err
 	}
 
@@ -159,17 +159,16 @@ func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendP
 
 	err = CopyFileOrFolder(filepath.Join(backendPath, functionElement.Path), tmpFolderPath)
 	if err != nil {
+		fmt.Printf("An error occurred while trying to copy the function folder %v\n", err)
 		return domain.GenezioCloudInput{}, err
 	}
-	fmt.Println("Creating temporary folder 3")
 
 
 	unzippedBundleSize,err :=  GetBundleFolderSizeLimit(tmpFolderPath)
 	if err != nil {
+		fmt.Printf("An error occurred while trying to get the size of the bundle %v\n", err)
 		return domain.GenezioCloudInput{}, err
 	}
-
-	fmt.Println("Creating temporary folder 4")
 
 	entryFileName := "index.mjs"
 
@@ -178,6 +177,7 @@ func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendP
 		_, err := rand.Read(randomName)
 		
 		if err != nil {
+			fmt.Printf("An error occurred while trying to generate a random name %v\n", err)
 			return domain.GenezioCloudInput{},err
 		}
 		tmpName := fmt.Sprintf("%x", randomName)
@@ -185,20 +185,18 @@ func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendP
 
 	}
 
-
-	fmt.Printf("Creating temporary folder 5 %s\n",entryFileName)
 	err = handlerProvider.Write(tmpFolderPath, entryFileName, functionElement)
 	if err != nil {
+		fmt.Printf("An error occurred while trying to write the handler %v\n", err)
 		return domain.GenezioCloudInput{}, err
 	}
-	fmt.Printf("Creating temporary folder 6 with archive path %s and tmpFolderPath %s\n",archivePath,tmpFolderPath)
 
 	exclussionList := []string{".git",".github"}
 	err = ZipDirectory(tmpFolderPath, archivePath,exclussionList)
 	if err != nil {
+		fmt.Printf("An error occurred while trying to zip the directory %v\n", err)
 		return domain.GenezioCloudInput{}, err
 	}
-	fmt.Println("Creating temporary folder 7 with archive path: ",archivePath)
 
 	return domain.GenezioCloudInput{
 		Type: "function",

@@ -152,6 +152,7 @@ func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFun
 
 	cloudInput, err := utils.FunctionToCloudInput(projectConfiguration.Functions[0], backendPath)
 	if err != nil {
+		fmt.Printf("An error occurred while trying to convert the function to cloud input %v", err)
 		return "", ServerlessFunctionState{}, err
 	}
 	cloudInputs := []domain.GenezioCloudInput{cloudInput}
@@ -160,7 +161,7 @@ func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFun
 
 	response, err := cloudAdapter.Deploy(cloudInputs, projectConfiguration, utils.CloudAdapterOptions{Stage: nil}, nil, input.AuthToken)
 	if err != nil {
-		fmt.Println("An error occurred")
+		fmt.Printf("An error occurred while trying to deploy the function %v", err)
 		return "", ServerlessFunctionState{}, err
 	}
 

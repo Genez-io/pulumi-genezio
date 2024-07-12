@@ -121,18 +121,17 @@ func CopyFolder(source string, dest string) error {
 		return err
 	}
 
-	fmt.Println("Copying folder 2")
 	for _, entry := range directory {
 		srcFilePath := filepath.Join(source, entry.Name())
 		destFilePath := filepath.Join(dest, entry.Name())
 		if entry.IsDir() {
 			if err := CopyFolder(srcFilePath, destFilePath); err != nil {
-				fmt.Printf("Error copying folder %s", err)
+				fmt.Printf("Error copying folder %s\n", err)
 				return err
 			}
 		} else {
 			if err := CopyFile(srcFilePath, destFilePath); err != nil {
-				fmt.Printf("Error copying file %s", err)
+				fmt.Printf("Error copying file %s\n", err)
 				return err
 			}
 		}
@@ -146,26 +145,21 @@ func CopyFileOrFolder(source string, dest string) error {
 		return err
 	}
 	if srcInfo.IsDir() {
-		fmt.Println("Copying folder")
 		return CopyFolder(source, dest)
 	}
-	fmt.Println("Copying file")
 	return CopyFile(source, dest)
 }
 
 func ZipDirectory(source string, destination string, exclussion []string) error {
 
-	fmt.Printf("\nZipping %s to %s\n", source, destination)
+	fmt.Printf("Zipping %s to %s\n", source, destination)
 	zipFile, err := os.Create(destination)
 	if err != nil {
 		return err
 	}
 	defer zipFile.Close()
 
-	fmt.Println("Creating zip file")
 	zipWriter := zip.NewWriter(zipFile)
-	defer zipWriter.Close()
-
 	err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -183,40 +177,32 @@ func ZipDirectory(source string, destination string, exclussion []string) error 
 			}
 		}
 
-		header, err := zip.FileInfoHeader(info)
-		if err != nil {
-			return err
-		}
-
-		header.Name = filepath.ToSlash(relPath)
-
 		if info.IsDir() {
-			header.Name += "/"
-		} else {
-			header.Method = zip.Deflate
+			return nil
 		}
 
-		writer, err := zipWriter.CreateHeader(header)
+		f1, err := os.Open(path)
 		if err != nil {
 			return err
 		}
 
-		if !info.IsDir() {
-			file, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer file.Close()
+		defer f1.Close()
 
-			_, err = io.Copy(writer, file)
-			if err != nil {
-				return err
-			}
+		w1, err := zipWriter.Create(relPath)
+		if err != nil {
+			return err
+		}
+
+		if _,err := io.Copy(w1, f1); err != nil {
+			return err
 		}
 
 		return nil
 	})
+	if err != nil {
+		return err
+	}
 
-return err
+	return  zipWriter.Close()
 
 }

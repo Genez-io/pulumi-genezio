@@ -55,8 +55,6 @@ func DeployRequest(
 			EntryFile: entryFile,
 		})
 	}
-
-	fmt.Printf("Functions Mapping: %v\n", functionsMappping)
 	
 	data := request{
 		Options: projectConfiguration.Options,
@@ -102,7 +100,7 @@ func DeployRequest(
 		return domain.DeployCodeResponse{}, err
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return domain.DeployCodeResponse{}, fmt.Errorf("error: %s", string(body))
 	}
 

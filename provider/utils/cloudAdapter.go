@@ -27,26 +27,24 @@ func (g *genezioCloudAdapter) Deploy(input []domain.GenezioCloudInput, projectCo
 	}
 	
 		for _, element := range input {
-			fmt.Println("Uploading to S3 1")
 			presignedUrl,err := requests.GetPresignedUrl(projectConfiguration.Region, "genezioDeploy.zip",projectConfiguration.Name, element.Name, authToken)
 			if err != nil {
+				fmt.Printf("An error occurred while trying to get the presigned url %v\n", err)
 				return domain.GenezioCloudOutput{}, err
 			}
-			fmt.Printf("Uploading to S3 2\n")
 
 			err = requests.UploadContentToS3(&presignedUrl, element.ArchivePath, nil)
 			if err != nil {
+				fmt.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
 				return domain.GenezioCloudOutput{}, err
 			}
-			fmt.Println("Uploading to S3 3")
 		} 
 	
-		fmt.Println("Uploading to S3 4")
 		response, err:= requests.DeployRequest(projectConfiguration, input, stage, nil, authToken) 
 		if err != nil {
+			fmt.Printf("An error occurred while trying to deploy the request %v\n", err)
 			return domain.GenezioCloudOutput{}, err
 		}
-		fmt.Println("Uploading to S3 5")
 
 	return domain.GenezioCloudOutput{
 		ProjectID: response.ProjectID,
