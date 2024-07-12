@@ -1,4 +1,4 @@
-package utils
+package cloud_adapters
 
 import (
 	"fmt"
@@ -33,11 +33,15 @@ func (g *genezioCloudAdapter) Deploy(input []domain.GenezioCloudInput, projectCo
 				return domain.GenezioCloudOutput{}, err
 			}
 
+
+
 			err = requests.UploadContentToS3(&presignedUrl, element.ArchivePath, nil)
 			if err != nil {
 				fmt.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
 				return domain.GenezioCloudOutput{}, err
 			}
+
+			
 		} 
 	
 		response, err:= requests.DeployRequest(projectConfiguration, input, stage, nil, authToken) 

@@ -33,6 +33,7 @@ export class ServerlessFunction extends pulumi.CustomResource {
 
     public readonly authToken!: pulumi.Output<string>;
     public readonly entry!: pulumi.Output<string>;
+    public readonly folderHash!: pulumi.Output<string>;
     public /*out*/ readonly functionId!: pulumi.Output<string>;
     public readonly handler!: pulumi.Output<string>;
     public readonly name!: pulumi.Output<string>;
@@ -58,6 +59,9 @@ export class ServerlessFunction extends pulumi.CustomResource {
             if ((!args || args.entry === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'entry'");
             }
+            if ((!args || args.folderHash === undefined) && !opts.urn) {
+                throw new Error("Missing required property 'folderHash'");
+            }
             if ((!args || args.handler === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'handler'");
             }
@@ -75,6 +79,7 @@ export class ServerlessFunction extends pulumi.CustomResource {
             }
             resourceInputs["authToken"] = args ? args.authToken : undefined;
             resourceInputs["entry"] = args ? args.entry : undefined;
+            resourceInputs["folderHash"] = args ? args.folderHash : undefined;
             resourceInputs["handler"] = args ? args.handler : undefined;
             resourceInputs["name"] = args ? args.name : undefined;
             resourceInputs["path"] = args ? args.path : undefined;
@@ -85,6 +90,7 @@ export class ServerlessFunction extends pulumi.CustomResource {
         } else {
             resourceInputs["authToken"] = undefined /*out*/;
             resourceInputs["entry"] = undefined /*out*/;
+            resourceInputs["folderHash"] = undefined /*out*/;
             resourceInputs["functionId"] = undefined /*out*/;
             resourceInputs["handler"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
@@ -104,6 +110,7 @@ export class ServerlessFunction extends pulumi.CustomResource {
 export interface ServerlessFunctionArgs {
     authToken: pulumi.Input<string>;
     entry: pulumi.Input<string>;
+    folderHash: pulumi.Input<string>;
     handler: pulumi.Input<string>;
     name: pulumi.Input<string>;
     path: pulumi.Input<string>;

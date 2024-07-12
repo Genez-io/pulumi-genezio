@@ -19,8 +19,9 @@ import (
 	"math/rand"
 	"time"
 
+	ca "github.com/Genez-io/pulumi-genezio/provider/cloud_adapters"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
-	"github.com/Genez-io/pulumi-genezio/provider/utils"
+	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
@@ -104,6 +105,7 @@ type ServerlessFunctionArgs struct {
 	Entry string `pulumi:"entry"`
 	Handler string `pulumi:"handler"`
 	AuthToken string `pulumi:"authToken"`
+	FolderHash *string `pulumi:"folderHash"`
 }
 
 type ServerlessFunctionState struct {
@@ -150,16 +152,16 @@ func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFun
 		},
 	}
 
-	cloudInput, err := utils.FunctionToCloudInput(projectConfiguration.Functions[0], backendPath)
+	cloudInput, err := fhp.FunctionToCloudInput(projectConfiguration.Functions[0], backendPath)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to convert the function to cloud input %v", err)
 		return "", ServerlessFunctionState{}, err
 	}
 	cloudInputs := []domain.GenezioCloudInput{cloudInput}
 
-	cloudAdapter := utils.NewGenezioCloudAdapter()
+	cloudAdapter := ca.NewGenezioCloudAdapter()
 
-	response, err := cloudAdapter.Deploy(cloudInputs, projectConfiguration, utils.CloudAdapterOptions{Stage: nil}, nil, input.AuthToken)
+	response, err := cloudAdapter.Deploy(cloudInputs, projectConfiguration, ca.CloudAdapterOptions{Stage: nil}, nil, input.AuthToken)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to deploy the function %v", err)
 		return "", ServerlessFunctionState{}, err
@@ -168,6 +170,7 @@ func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFun
 
 	state.ID = response.Functions[0].ID	
 	state.URL = response.Functions[0].CloudUrl
+
 	return name, state, nil
 }
 

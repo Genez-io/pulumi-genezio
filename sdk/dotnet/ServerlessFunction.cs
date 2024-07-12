@@ -18,6 +18,9 @@ namespace Pulumi.Genezio
         [Output("entry")]
         public Output<string> Entry { get; private set; } = null!;
 
+        [Output("folderHash")]
+        public Output<string> FolderHash { get; private set; } = null!;
+
         [Output("functionId")]
         public Output<string> FunctionId { get; private set; } = null!;
 
@@ -89,6 +92,9 @@ namespace Pulumi.Genezio
 
         [Input("entry", required: true)]
         public Input<string> Entry { get; set; } = null!;
+
+        [Input("folderHash", required: true)]
+        public Input<string> FolderHash { get; set; } = null!;
 
         [Input("handler", required: true)]
         public Input<string> Handler { get; set; } = null!;

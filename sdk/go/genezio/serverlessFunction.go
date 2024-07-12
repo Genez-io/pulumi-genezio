@@ -17,6 +17,7 @@ type ServerlessFunction struct {
 
 	AuthToken   pulumi.StringOutput `pulumi:"authToken"`
 	Entry       pulumi.StringOutput `pulumi:"entry"`
+	FolderHash  pulumi.StringOutput `pulumi:"folderHash"`
 	FunctionId  pulumi.StringOutput `pulumi:"functionId"`
 	Handler     pulumi.StringOutput `pulumi:"handler"`
 	Name        pulumi.StringOutput `pulumi:"name"`
@@ -38,6 +39,9 @@ func NewServerlessFunction(ctx *pulumi.Context,
 	}
 	if args.Entry == nil {
 		return nil, errors.New("invalid value for required argument 'Entry'")
+	}
+	if args.FolderHash == nil {
+		return nil, errors.New("invalid value for required argument 'FolderHash'")
 	}
 	if args.Handler == nil {
 		return nil, errors.New("invalid value for required argument 'Handler'")
@@ -89,6 +93,7 @@ func (ServerlessFunctionState) ElementType() reflect.Type {
 type serverlessFunctionArgs struct {
 	AuthToken   string `pulumi:"authToken"`
 	Entry       string `pulumi:"entry"`
+	FolderHash  string `pulumi:"folderHash"`
 	Handler     string `pulumi:"handler"`
 	Name        string `pulumi:"name"`
 	Path        string `pulumi:"path"`
@@ -100,6 +105,7 @@ type serverlessFunctionArgs struct {
 type ServerlessFunctionArgs struct {
 	AuthToken   pulumi.StringInput
 	Entry       pulumi.StringInput
+	FolderHash  pulumi.StringInput
 	Handler     pulumi.StringInput
 	Name        pulumi.StringInput
 	Path        pulumi.StringInput
@@ -150,6 +156,10 @@ func (o ServerlessFunctionOutput) AuthToken() pulumi.StringOutput {
 
 func (o ServerlessFunctionOutput) Entry() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Entry }).(pulumi.StringOutput)
+}
+
+func (o ServerlessFunctionOutput) FolderHash() pulumi.StringOutput {
+	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.FolderHash }).(pulumi.StringOutput)
 }
 
 func (o ServerlessFunctionOutput) FunctionId() pulumi.StringOutput {

@@ -1,4 +1,4 @@
-package utils
+package function_handler_provider
 
 import (
 	"crypto/rand"
@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
 )
 
 type FunctionHandlerProvider interface {
@@ -125,12 +126,12 @@ func (p *awsFunctionHandlerProvider) Write( outputPath string, handlerFileName s
 	
 	export { handler };`, randomFileId, functionConfiguration.Handler, functionConfiguration.Entry)
 
-	err = WriteToFile(outputPath,handlerFileName,handlerContent,false)
+	err = utils.WriteToFile(outputPath,handlerFileName,handlerContent,false)
 	if err != nil {
 		return err
 	}
 
-	err = WriteToFile(outputPath,fmt.Sprintf("setupLambdaGlobals_%s.mjs",randomFileId),streamifyOverrideFileContent,false)
+	err = utils.WriteToFile(outputPath,fmt.Sprintf("setupLambdaGlobals_%s.mjs",randomFileId),streamifyOverrideFileContent,false)
 	if err != nil {
 		return err
 	}
@@ -142,14 +143,14 @@ func (p *awsFunctionHandlerProvider) Write( outputPath string, handlerFileName s
 func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendPath string) (domain.GenezioCloudInput, error) {
 	handlerProvider := NewAwsFunctionHandlerProvider()
 
-	tmpFolderPath, err := CreateTemporaryFolder(nil, nil);
+	tmpFolderPath, err := utils.CreateTemporaryFolder(nil, nil);
 	if err != nil {
 		fmt.Printf("An error occurred while trying to create a temporary folder %v\n", err)
 		return domain.GenezioCloudInput{}, err
 	}
 
 
-	tmpFolderArchivePath,err := CreateTemporaryFolder(nil, nil);
+	tmpFolderArchivePath,err := utils.CreateTemporaryFolder(nil, nil);
 	if err != nil {
 		fmt.Printf("An error occurred while trying to create a temporary folder for the archive %v\n", err)
 		return domain.GenezioCloudInput{}, err
@@ -157,7 +158,7 @@ func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendP
 
 	archivePath := filepath.Join(tmpFolderArchivePath, "genezioDeploy.zip")
 
-	err = CopyFileOrFolder(filepath.Join(backendPath, functionElement.Path), tmpFolderPath)
+	err = utils.CopyFileOrFolder(filepath.Join(backendPath, functionElement.Path), tmpFolderPath)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to copy the function folder %v\n", err)
 		return domain.GenezioCloudInput{}, err
@@ -192,7 +193,7 @@ func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendP
 	}
 
 	exclussionList := []string{".git",".github"}
-	err = ZipDirectory(tmpFolderPath, archivePath,exclussionList)
+	err = utils.ZipDirectory(tmpFolderPath, archivePath,exclussionList)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to zip the directory %v\n", err)
 		return domain.GenezioCloudInput{}, err

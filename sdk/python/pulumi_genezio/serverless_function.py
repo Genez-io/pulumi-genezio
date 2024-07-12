@@ -16,6 +16,7 @@ class ServerlessFunctionArgs:
     def __init__(__self__, *,
                  auth_token: pulumi.Input[str],
                  entry: pulumi.Input[str],
+                 folder_hash: pulumi.Input[str],
                  handler: pulumi.Input[str],
                  name: pulumi.Input[str],
                  path: pulumi.Input[str],
@@ -26,6 +27,7 @@ class ServerlessFunctionArgs:
         """
         pulumi.set(__self__, "auth_token", auth_token)
         pulumi.set(__self__, "entry", entry)
+        pulumi.set(__self__, "folder_hash", folder_hash)
         pulumi.set(__self__, "handler", handler)
         pulumi.set(__self__, "name", name)
         pulumi.set(__self__, "path", path)
@@ -49,6 +51,15 @@ class ServerlessFunctionArgs:
     @entry.setter
     def entry(self, value: pulumi.Input[str]):
         pulumi.set(self, "entry", value)
+
+    @property
+    @pulumi.getter(name="folderHash")
+    def folder_hash(self) -> pulumi.Input[str]:
+        return pulumi.get(self, "folder_hash")
+
+    @folder_hash.setter
+    def folder_hash(self, value: pulumi.Input[str]):
+        pulumi.set(self, "folder_hash", value)
 
     @property
     @pulumi.getter
@@ -103,6 +114,7 @@ class ServerlessFunction(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  auth_token: Optional[pulumi.Input[str]] = None,
                  entry: Optional[pulumi.Input[str]] = None,
+                 folder_hash: Optional[pulumi.Input[str]] = None,
                  handler: Optional[pulumi.Input[str]] = None,
                  name: Optional[pulumi.Input[str]] = None,
                  path: Optional[pulumi.Input[str]] = None,
@@ -139,6 +151,7 @@ class ServerlessFunction(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  auth_token: Optional[pulumi.Input[str]] = None,
                  entry: Optional[pulumi.Input[str]] = None,
+                 folder_hash: Optional[pulumi.Input[str]] = None,
                  handler: Optional[pulumi.Input[str]] = None,
                  name: Optional[pulumi.Input[str]] = None,
                  path: Optional[pulumi.Input[str]] = None,
@@ -159,6 +172,9 @@ class ServerlessFunction(pulumi.CustomResource):
             if entry is None and not opts.urn:
                 raise TypeError("Missing required property 'entry'")
             __props__.__dict__["entry"] = entry
+            if folder_hash is None and not opts.urn:
+                raise TypeError("Missing required property 'folder_hash'")
+            __props__.__dict__["folder_hash"] = folder_hash
             if handler is None and not opts.urn:
                 raise TypeError("Missing required property 'handler'")
             __props__.__dict__["handler"] = handler
@@ -200,6 +216,7 @@ class ServerlessFunction(pulumi.CustomResource):
 
         __props__.__dict__["auth_token"] = None
         __props__.__dict__["entry"] = None
+        __props__.__dict__["folder_hash"] = None
         __props__.__dict__["function_id"] = None
         __props__.__dict__["handler"] = None
         __props__.__dict__["name"] = None
@@ -218,6 +235,11 @@ class ServerlessFunction(pulumi.CustomResource):
     @pulumi.getter
     def entry(self) -> pulumi.Output[str]:
         return pulumi.get(self, "entry")
+
+    @property
+    @pulumi.getter(name="folderHash")
+    def folder_hash(self) -> pulumi.Output[str]:
+        return pulumi.get(self, "folder_hash")
 
     @property
     @pulumi.getter(name="functionId")
