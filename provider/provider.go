@@ -19,12 +19,14 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/Genez-io/pulumi-genezio/provider/requests"
+	"github.com/pulumi/pulumi-go-provider/infer"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
+
 	ca "github.com/Genez-io/pulumi-genezio/provider/cloud_adapters"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
 	p "github.com/pulumi/pulumi-go-provider"
-	"github.com/pulumi/pulumi-go-provider/infer"
-	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
 )
 
 // Version is initialized by the Go linker to contain the semver of this build.
@@ -38,7 +40,8 @@ func Provider() p.Provider {
 	return infer.Provider(infer.Options{
 		Resources: []infer.InferredResource{
 			infer.Resource[Random, RandomArgs, RandomState](),
-			infer.Resource[ServerlessFunction, ServerlessFunctionArgs, ServerlessFunctionState](),
+			infer.Resource[ServerlessFunction,ServerlessFunctionArgs, ServerlessFunctionState](),
+			infer.Resource[Database,DatabaseArgs,DatabaseState](),
 		},
 		ModuleMap: map[tokens.ModuleName]tokens.ModuleName{
 			"provider": "index",
@@ -95,6 +98,55 @@ func makeRandom(length int) string {
 	return "1234"
 }
 
+
+type Database struct{}
+
+type DatabaseArgs struct {
+	Name    string `pulumi:"name"`
+	Type string `pulumi:"type"`
+	Region string `pulumi:"region"`
+	AuthToken string `pulumi:"authToken"`
+}
+
+type DatabaseState struct {
+
+	DatabaseArgs
+
+	
+	DatabaseId string `pulumi:"databaseId"`
+	URL string `pulumi:"url"`
+}
+
+func (Database) Create(ctx p.Context, name string, input DatabaseArgs, preview bool) (string, DatabaseState, error) {
+	state := DatabaseState{DatabaseArgs: input}
+	if preview {
+		return name, state, nil
+	}
+
+	fmt.Println("Creating database")
+	createDatabaseResponse,err := requests.CreateDatabase(input.Type, input.Region, input.AuthToken, input.Name)
+	if err != nil {
+		return name, state, err
+	}
+
+
+
+	state.DatabaseId = createDatabaseResponse.DatabaseId
+	getDatabaseConnectionUrl, err := requests.GetDatabaseConnectionUrl(state.DatabaseId, input.AuthToken)
+	if err != nil {
+		return name, state, err
+	}
+	fmt.Printf("Database URL: %s\n", getDatabaseConnectionUrl)
+
+	state.URL = getDatabaseConnectionUrl
+
+	return name, state, nil
+}
+
+
+
+
+
 type ServerlessFunction struct{}
 
 type ServerlessFunctionArgs struct {
@@ -106,6 +158,7 @@ type ServerlessFunctionArgs struct {
 	Handler string `pulumi:"handler"`
 	AuthToken string `pulumi:"authToken"`
 	FolderHash *string `pulumi:"folderHash"`
+	EnvironmentVariables []domain.EnvironmentVariable `pulumi:"environmentVariables"`
 }
 
 type ServerlessFunctionState struct {
@@ -113,6 +166,8 @@ type ServerlessFunctionState struct {
 
 	ID string `pulumi:"functionId"`
 	URL string `pulumi:"url"`
+	ProjectId string `pulumi:"projectId"`
+	ProjectEnvId string `pulumi:"projectEnvId"`
 }
 
 func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
@@ -167,16 +222,20 @@ func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFun
 		return "", ServerlessFunctionState{}, err
 	}
 
+	responseEnv := requests.SetEnvironmentVariables(response.ProjectID, response.ProjectEnvID, input.EnvironmentVariables, input.AuthToken)
+	if responseEnv != nil {
+		fmt.Printf("An error occurred while trying to set environment variables %v", responseEnv)
+		return "", ServerlessFunctionState{}, responseEnv
+	}
+
+
 
 	state.ID = response.Functions[0].ID	
 	state.URL = response.Functions[0].CloudUrl
+	state.ProjectId = response.ProjectID
+	state.ProjectEnvId = response.ProjectEnvID
 
 	return name, state, nil
 }
-
-
-
-
-
 
 

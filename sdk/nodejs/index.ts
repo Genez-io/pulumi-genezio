@@ -5,6 +5,11 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 // Export members:
+export { DatabaseArgs } from "./database";
+export type Database = import("./database").Database;
+export const Database: typeof import("./database").Database = null as any;
+utilities.lazyLoad(exports, ["Database"], () => require("./database"));
+
 export { ProviderArgs } from "./provider";
 export type Provider = import("./provider").Provider;
 export const Provider: typeof import("./provider").Provider = null as any;
@@ -21,10 +26,19 @@ export const ServerlessFunction: typeof import("./serverlessFunction").Serverles
 utilities.lazyLoad(exports, ["ServerlessFunction"], () => require("./serverlessFunction"));
 
 
+// Export sub-modules:
+import * as types from "./types";
+
+export {
+    types,
+};
+
 const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
+            case "genezio:index:Database":
+                return new Database(name, <any>undefined, { urn })
             case "genezio:index:Random":
                 return new Random(name, <any>undefined, { urn })
             case "genezio:index:ServerlessFunction":

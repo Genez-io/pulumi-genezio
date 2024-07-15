@@ -7,6 +7,7 @@ import (
 	"context"
 	"reflect"
 
+	"domain"
 	"errors"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"internal"
@@ -15,16 +16,19 @@ import (
 type ServerlessFunction struct {
 	pulumi.CustomResourceState
 
-	AuthToken   pulumi.StringOutput `pulumi:"authToken"`
-	Entry       pulumi.StringOutput `pulumi:"entry"`
-	FolderHash  pulumi.StringOutput `pulumi:"folderHash"`
-	FunctionId  pulumi.StringOutput `pulumi:"functionId"`
-	Handler     pulumi.StringOutput `pulumi:"handler"`
-	Name        pulumi.StringOutput `pulumi:"name"`
-	Path        pulumi.StringOutput `pulumi:"path"`
-	ProjectName pulumi.StringOutput `pulumi:"projectName"`
-	Region      pulumi.StringOutput `pulumi:"region"`
-	Url         pulumi.StringOutput `pulumi:"url"`
+	AuthToken            pulumi.StringOutput                   `pulumi:"authToken"`
+	Entry                pulumi.StringOutput                   `pulumi:"entry"`
+	EnvironmentVariables domain.EnvironmentVariableArrayOutput `pulumi:"environmentVariables"`
+	FolderHash           pulumi.StringOutput                   `pulumi:"folderHash"`
+	FunctionId           pulumi.StringOutput                   `pulumi:"functionId"`
+	Handler              pulumi.StringOutput                   `pulumi:"handler"`
+	Name                 pulumi.StringOutput                   `pulumi:"name"`
+	Path                 pulumi.StringOutput                   `pulumi:"path"`
+	ProjectEnvId         pulumi.StringOutput                   `pulumi:"projectEnvId"`
+	ProjectId            pulumi.StringOutput                   `pulumi:"projectId"`
+	ProjectName          pulumi.StringOutput                   `pulumi:"projectName"`
+	Region               pulumi.StringOutput                   `pulumi:"region"`
+	Url                  pulumi.StringOutput                   `pulumi:"url"`
 }
 
 // NewServerlessFunction registers a new resource with the given unique name, arguments, and options.
@@ -39,6 +43,9 @@ func NewServerlessFunction(ctx *pulumi.Context,
 	}
 	if args.Entry == nil {
 		return nil, errors.New("invalid value for required argument 'Entry'")
+	}
+	if args.EnvironmentVariables == nil {
+		return nil, errors.New("invalid value for required argument 'EnvironmentVariables'")
 	}
 	if args.FolderHash == nil {
 		return nil, errors.New("invalid value for required argument 'FolderHash'")
@@ -91,26 +98,28 @@ func (ServerlessFunctionState) ElementType() reflect.Type {
 }
 
 type serverlessFunctionArgs struct {
-	AuthToken   string `pulumi:"authToken"`
-	Entry       string `pulumi:"entry"`
-	FolderHash  string `pulumi:"folderHash"`
-	Handler     string `pulumi:"handler"`
-	Name        string `pulumi:"name"`
-	Path        string `pulumi:"path"`
-	ProjectName string `pulumi:"projectName"`
-	Region      string `pulumi:"region"`
+	AuthToken            string                       `pulumi:"authToken"`
+	Entry                string                       `pulumi:"entry"`
+	EnvironmentVariables []domain.EnvironmentVariable `pulumi:"environmentVariables"`
+	FolderHash           string                       `pulumi:"folderHash"`
+	Handler              string                       `pulumi:"handler"`
+	Name                 string                       `pulumi:"name"`
+	Path                 string                       `pulumi:"path"`
+	ProjectName          string                       `pulumi:"projectName"`
+	Region               string                       `pulumi:"region"`
 }
 
 // The set of arguments for constructing a ServerlessFunction resource.
 type ServerlessFunctionArgs struct {
-	AuthToken   pulumi.StringInput
-	Entry       pulumi.StringInput
-	FolderHash  pulumi.StringInput
-	Handler     pulumi.StringInput
-	Name        pulumi.StringInput
-	Path        pulumi.StringInput
-	ProjectName pulumi.StringInput
-	Region      pulumi.StringInput
+	AuthToken            pulumi.StringInput
+	Entry                pulumi.StringInput
+	EnvironmentVariables domain.EnvironmentVariableArrayInput
+	FolderHash           pulumi.StringInput
+	Handler              pulumi.StringInput
+	Name                 pulumi.StringInput
+	Path                 pulumi.StringInput
+	ProjectName          pulumi.StringInput
+	Region               pulumi.StringInput
 }
 
 func (ServerlessFunctionArgs) ElementType() reflect.Type {
@@ -158,6 +167,10 @@ func (o ServerlessFunctionOutput) Entry() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Entry }).(pulumi.StringOutput)
 }
 
+func (o ServerlessFunctionOutput) EnvironmentVariables() domain.EnvironmentVariableArrayOutput {
+	return o.ApplyT(func(v *ServerlessFunction) domain.EnvironmentVariableArrayOutput { return v.EnvironmentVariables }).(domain.EnvironmentVariableArrayOutput)
+}
+
 func (o ServerlessFunctionOutput) FolderHash() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.FolderHash }).(pulumi.StringOutput)
 }
@@ -176,6 +189,14 @@ func (o ServerlessFunctionOutput) Name() pulumi.StringOutput {
 
 func (o ServerlessFunctionOutput) Path() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Path }).(pulumi.StringOutput)
+}
+
+func (o ServerlessFunctionOutput) ProjectEnvId() pulumi.StringOutput {
+	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.ProjectEnvId }).(pulumi.StringOutput)
+}
+
+func (o ServerlessFunctionOutput) ProjectId() pulumi.StringOutput {
+	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.ProjectId }).(pulumi.StringOutput)
 }
 
 func (o ServerlessFunctionOutput) ProjectName() pulumi.StringOutput {

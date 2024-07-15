@@ -2,6 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 export class ServerlessFunction extends pulumi.CustomResource {
@@ -33,11 +35,14 @@ export class ServerlessFunction extends pulumi.CustomResource {
 
     public readonly authToken!: pulumi.Output<string>;
     public readonly entry!: pulumi.Output<string>;
+    public readonly environmentVariables!: pulumi.Output<outputs.domain.EnvironmentVariable[]>;
     public readonly folderHash!: pulumi.Output<string>;
     public /*out*/ readonly functionId!: pulumi.Output<string>;
     public readonly handler!: pulumi.Output<string>;
     public readonly name!: pulumi.Output<string>;
     public readonly path!: pulumi.Output<string>;
+    public /*out*/ readonly projectEnvId!: pulumi.Output<string>;
+    public /*out*/ readonly projectId!: pulumi.Output<string>;
     public readonly projectName!: pulumi.Output<string>;
     public readonly region!: pulumi.Output<string>;
     public /*out*/ readonly url!: pulumi.Output<string>;
@@ -59,6 +64,9 @@ export class ServerlessFunction extends pulumi.CustomResource {
             if ((!args || args.entry === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'entry'");
             }
+            if ((!args || args.environmentVariables === undefined) && !opts.urn) {
+                throw new Error("Missing required property 'environmentVariables'");
+            }
             if ((!args || args.folderHash === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'folderHash'");
             }
@@ -79,6 +87,7 @@ export class ServerlessFunction extends pulumi.CustomResource {
             }
             resourceInputs["authToken"] = args ? args.authToken : undefined;
             resourceInputs["entry"] = args ? args.entry : undefined;
+            resourceInputs["environmentVariables"] = args ? args.environmentVariables : undefined;
             resourceInputs["folderHash"] = args ? args.folderHash : undefined;
             resourceInputs["handler"] = args ? args.handler : undefined;
             resourceInputs["name"] = args ? args.name : undefined;
@@ -86,15 +95,20 @@ export class ServerlessFunction extends pulumi.CustomResource {
             resourceInputs["projectName"] = args ? args.projectName : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
             resourceInputs["functionId"] = undefined /*out*/;
+            resourceInputs["projectEnvId"] = undefined /*out*/;
+            resourceInputs["projectId"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         } else {
             resourceInputs["authToken"] = undefined /*out*/;
             resourceInputs["entry"] = undefined /*out*/;
+            resourceInputs["environmentVariables"] = undefined /*out*/;
             resourceInputs["folderHash"] = undefined /*out*/;
             resourceInputs["functionId"] = undefined /*out*/;
             resourceInputs["handler"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["path"] = undefined /*out*/;
+            resourceInputs["projectEnvId"] = undefined /*out*/;
+            resourceInputs["projectId"] = undefined /*out*/;
             resourceInputs["projectName"] = undefined /*out*/;
             resourceInputs["region"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
@@ -110,6 +124,7 @@ export class ServerlessFunction extends pulumi.CustomResource {
 export interface ServerlessFunctionArgs {
     authToken: pulumi.Input<string>;
     entry: pulumi.Input<string>;
+    environmentVariables: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
     folderHash: pulumi.Input<string>;
     handler: pulumi.Input<string>;
     name: pulumi.Input<string>;

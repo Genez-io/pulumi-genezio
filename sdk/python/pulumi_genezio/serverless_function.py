@@ -8,6 +8,7 @@ import pulumi
 import pulumi.runtime
 from typing import Any, Mapping, Optional, Sequence, Union, overload
 from . import _utilities
+from . import domain as _domain
 
 __all__ = ['ServerlessFunctionArgs', 'ServerlessFunction']
 
@@ -16,6 +17,7 @@ class ServerlessFunctionArgs:
     def __init__(__self__, *,
                  auth_token: pulumi.Input[str],
                  entry: pulumi.Input[str],
+                 environment_variables: pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]],
                  folder_hash: pulumi.Input[str],
                  handler: pulumi.Input[str],
                  name: pulumi.Input[str],
@@ -27,6 +29,7 @@ class ServerlessFunctionArgs:
         """
         pulumi.set(__self__, "auth_token", auth_token)
         pulumi.set(__self__, "entry", entry)
+        pulumi.set(__self__, "environment_variables", environment_variables)
         pulumi.set(__self__, "folder_hash", folder_hash)
         pulumi.set(__self__, "handler", handler)
         pulumi.set(__self__, "name", name)
@@ -51,6 +54,15 @@ class ServerlessFunctionArgs:
     @entry.setter
     def entry(self, value: pulumi.Input[str]):
         pulumi.set(self, "entry", value)
+
+    @property
+    @pulumi.getter(name="environmentVariables")
+    def environment_variables(self) -> pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]:
+        return pulumi.get(self, "environment_variables")
+
+    @environment_variables.setter
+    def environment_variables(self, value: pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]):
+        pulumi.set(self, "environment_variables", value)
 
     @property
     @pulumi.getter(name="folderHash")
@@ -114,6 +126,7 @@ class ServerlessFunction(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  auth_token: Optional[pulumi.Input[str]] = None,
                  entry: Optional[pulumi.Input[str]] = None,
+                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
                  folder_hash: Optional[pulumi.Input[str]] = None,
                  handler: Optional[pulumi.Input[str]] = None,
                  name: Optional[pulumi.Input[str]] = None,
@@ -151,6 +164,7 @@ class ServerlessFunction(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  auth_token: Optional[pulumi.Input[str]] = None,
                  entry: Optional[pulumi.Input[str]] = None,
+                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
                  folder_hash: Optional[pulumi.Input[str]] = None,
                  handler: Optional[pulumi.Input[str]] = None,
                  name: Optional[pulumi.Input[str]] = None,
@@ -172,6 +186,9 @@ class ServerlessFunction(pulumi.CustomResource):
             if entry is None and not opts.urn:
                 raise TypeError("Missing required property 'entry'")
             __props__.__dict__["entry"] = entry
+            if environment_variables is None and not opts.urn:
+                raise TypeError("Missing required property 'environment_variables'")
+            __props__.__dict__["environment_variables"] = environment_variables
             if folder_hash is None and not opts.urn:
                 raise TypeError("Missing required property 'folder_hash'")
             __props__.__dict__["folder_hash"] = folder_hash
@@ -191,6 +208,8 @@ class ServerlessFunction(pulumi.CustomResource):
                 raise TypeError("Missing required property 'region'")
             __props__.__dict__["region"] = region
             __props__.__dict__["function_id"] = None
+            __props__.__dict__["project_env_id"] = None
+            __props__.__dict__["project_id"] = None
             __props__.__dict__["url"] = None
         super(ServerlessFunction, __self__).__init__(
             'genezio:index:ServerlessFunction',
@@ -216,11 +235,14 @@ class ServerlessFunction(pulumi.CustomResource):
 
         __props__.__dict__["auth_token"] = None
         __props__.__dict__["entry"] = None
+        __props__.__dict__["environment_variables"] = None
         __props__.__dict__["folder_hash"] = None
         __props__.__dict__["function_id"] = None
         __props__.__dict__["handler"] = None
         __props__.__dict__["name"] = None
         __props__.__dict__["path"] = None
+        __props__.__dict__["project_env_id"] = None
+        __props__.__dict__["project_id"] = None
         __props__.__dict__["project_name"] = None
         __props__.__dict__["region"] = None
         __props__.__dict__["url"] = None
@@ -235,6 +257,11 @@ class ServerlessFunction(pulumi.CustomResource):
     @pulumi.getter
     def entry(self) -> pulumi.Output[str]:
         return pulumi.get(self, "entry")
+
+    @property
+    @pulumi.getter(name="environmentVariables")
+    def environment_variables(self) -> pulumi.Output[Sequence['_domain.outputs.EnvironmentVariable']]:
+        return pulumi.get(self, "environment_variables")
 
     @property
     @pulumi.getter(name="folderHash")
@@ -260,6 +287,16 @@ class ServerlessFunction(pulumi.CustomResource):
     @pulumi.getter
     def path(self) -> pulumi.Output[str]:
         return pulumi.get(self, "path")
+
+    @property
+    @pulumi.getter(name="projectEnvId")
+    def project_env_id(self) -> pulumi.Output[str]:
+        return pulumi.get(self, "project_env_id")
+
+    @property
+    @pulumi.getter(name="projectId")
+    def project_id(self) -> pulumi.Output[str]:
+        return pulumi.get(self, "project_id")
 
     @property
     @pulumi.getter(name="projectName")
