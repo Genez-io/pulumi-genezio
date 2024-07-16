@@ -3,6 +3,9 @@ import * as pulumi from "@pulumi/pulumi";
 import * as crypto from "crypto";
 import * as fs from "fs";
 import * as path from "path";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 function sha256FromFolder(folderPath: string): string {
   const hash = crypto.createHash("sha256");
@@ -32,6 +35,8 @@ const myDatabase = new genezio.Database("MyDatabase", {
 export const databaseOutput = {
   id: myDatabase.databaseId,
 };
+
+console.log("the auth token is", process.env.AUTH_TOKEN);
 
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
   folderHash: sha256FromFolder("./function"),
