@@ -7,7 +7,6 @@ import typing
 # Export this package's modules as members:
 from .database import *
 from .provider import *
-from .random import *
 from .serverless_function import *
 
 # Make subpackages available:
@@ -26,7 +25,6 @@ _utilities.register(
   "fqn": "pulumi_genezio",
   "classes": {
    "genezio:index:Database": "Database",
-   "genezio:index:Random": "Random",
    "genezio:index:ServerlessFunction": "ServerlessFunction"
   }
  }

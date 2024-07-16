@@ -25,18 +25,18 @@ function sha256FromFolder(folderPath: string): string {
   return hash.digest("hex");
 }
 
-const myDatabase = new genezio.Database("MyDatabase", {
-  name: "my-database-4",
-  type: "postgres-neon",
-  region: "aws-us-east-1",
-  authToken: process.env.AUTH_TOKEN ?? "",
-});
+// const myDatabase = new genezio.Database("MyDatabase", {
+//   name: "my-database-4",
+//   type: "postgres-neon",
+//   region: "aws-us-east-1",
+//   authToken: process.env.AUTH_TOKEN ?? "",
+// });
 
-export const databaseOutput = {
-  id: myDatabase.databaseId,
-};
+// export const databaseOutput = {
+//   id: myDatabase.databaseId,
+// };
 
-console.log("the auth token is", process.env.AUTH_TOKEN);
+// console.log("the auth token is", process.env.AUTH_TOKEN);
 
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
   folderHash: sha256FromFolder("./function"),
@@ -50,7 +50,7 @@ const myFunction = new genezio.ServerlessFunction("MyFunction", {
   environmentVariables: [
     {
       name: "POSTGRES_URL",
-      value: myDatabase.url,
+      value: "sadas",
     },
   ],
 });

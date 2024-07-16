@@ -16,7 +16,6 @@
         "database.ts",
         "index.ts",
         "provider.ts",
-        "random.ts",
         "serverlessFunction.ts",
         "types/index.ts",
         "types/input.ts",

@@ -35,8 +35,8 @@ export class ServerlessFunction extends pulumi.CustomResource {
 
     public readonly authToken!: pulumi.Output<string>;
     public readonly entry!: pulumi.Output<string>;
-    public readonly environmentVariables!: pulumi.Output<outputs.domain.EnvironmentVariable[]>;
-    public readonly folderHash!: pulumi.Output<string>;
+    public readonly environmentVariables!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
+    public readonly folderHash!: pulumi.Output<string | undefined>;
     public /*out*/ readonly functionId!: pulumi.Output<string>;
     public readonly handler!: pulumi.Output<string>;
     public readonly name!: pulumi.Output<string>;
@@ -63,12 +63,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
             }
             if ((!args || args.entry === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'entry'");
-            }
-            if ((!args || args.environmentVariables === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'environmentVariables'");
-            }
-            if ((!args || args.folderHash === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'folderHash'");
             }
             if ((!args || args.handler === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'handler'");
@@ -124,8 +118,8 @@ export class ServerlessFunction extends pulumi.CustomResource {
 export interface ServerlessFunctionArgs {
     authToken: pulumi.Input<string>;
     entry: pulumi.Input<string>;
-    environmentVariables: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
-    folderHash: pulumi.Input<string>;
+    environmentVariables?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
+    folderHash?: pulumi.Input<string>;
     handler: pulumi.Input<string>;
     name: pulumi.Input<string>;
     path: pulumi.Input<string>;

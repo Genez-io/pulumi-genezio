@@ -19,7 +19,7 @@ type ServerlessFunction struct {
 	AuthToken            pulumi.StringOutput                   `pulumi:"authToken"`
 	Entry                pulumi.StringOutput                   `pulumi:"entry"`
 	EnvironmentVariables domain.EnvironmentVariableArrayOutput `pulumi:"environmentVariables"`
-	FolderHash           pulumi.StringOutput                   `pulumi:"folderHash"`
+	FolderHash           pulumi.StringPtrOutput                `pulumi:"folderHash"`
 	FunctionId           pulumi.StringOutput                   `pulumi:"functionId"`
 	Handler              pulumi.StringOutput                   `pulumi:"handler"`
 	Name                 pulumi.StringOutput                   `pulumi:"name"`
@@ -43,12 +43,6 @@ func NewServerlessFunction(ctx *pulumi.Context,
 	}
 	if args.Entry == nil {
 		return nil, errors.New("invalid value for required argument 'Entry'")
-	}
-	if args.EnvironmentVariables == nil {
-		return nil, errors.New("invalid value for required argument 'EnvironmentVariables'")
-	}
-	if args.FolderHash == nil {
-		return nil, errors.New("invalid value for required argument 'FolderHash'")
 	}
 	if args.Handler == nil {
 		return nil, errors.New("invalid value for required argument 'Handler'")
@@ -101,7 +95,7 @@ type serverlessFunctionArgs struct {
 	AuthToken            string                       `pulumi:"authToken"`
 	Entry                string                       `pulumi:"entry"`
 	EnvironmentVariables []domain.EnvironmentVariable `pulumi:"environmentVariables"`
-	FolderHash           string                       `pulumi:"folderHash"`
+	FolderHash           *string                      `pulumi:"folderHash"`
 	Handler              string                       `pulumi:"handler"`
 	Name                 string                       `pulumi:"name"`
 	Path                 string                       `pulumi:"path"`
@@ -114,7 +108,7 @@ type ServerlessFunctionArgs struct {
 	AuthToken            pulumi.StringInput
 	Entry                pulumi.StringInput
 	EnvironmentVariables domain.EnvironmentVariableArrayInput
-	FolderHash           pulumi.StringInput
+	FolderHash           pulumi.StringPtrInput
 	Handler              pulumi.StringInput
 	Name                 pulumi.StringInput
 	Path                 pulumi.StringInput
@@ -171,8 +165,8 @@ func (o ServerlessFunctionOutput) EnvironmentVariables() domain.EnvironmentVaria
 	return o.ApplyT(func(v *ServerlessFunction) domain.EnvironmentVariableArrayOutput { return v.EnvironmentVariables }).(domain.EnvironmentVariableArrayOutput)
 }
 
-func (o ServerlessFunctionOutput) FolderHash() pulumi.StringOutput {
-	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.FolderHash }).(pulumi.StringOutput)
+func (o ServerlessFunctionOutput) FolderHash() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringPtrOutput { return v.FolderHash }).(pulumi.StringPtrOutput)
 }
 
 func (o ServerlessFunctionOutput) FunctionId() pulumi.StringOutput {
