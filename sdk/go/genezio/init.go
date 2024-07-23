@@ -23,8 +23,6 @@ func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi
 	switch typ {
 	case "genezio:index:Database":
 		r = &Database{}
-	case "genezio:index:Random":
-		r = &Random{}
 	case "genezio:index:ServerlessFunction":
 		r = &ServerlessFunction{}
 	default:

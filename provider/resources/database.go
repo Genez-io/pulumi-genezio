@@ -1,4 +1,4 @@
-package pulumi_resources
+package resources
 
 import (
 	"fmt"
@@ -25,16 +25,25 @@ type DatabaseState struct {
 	URL string `pulumi:"url"`
 }
 
-func (Database) Create(ctx p.Context, name string, input DatabaseArgs, preview bool) (string, DatabaseState, error) {
+// func (*Database) Read(ctx p.Context, name string, input DatabaseArgs) (DatabaseState, error) {
+// state := DatabaseState{DatabaseArgs: input}
+
+// 	return state, nil
+// }
+
+func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview bool) (string, DatabaseState, error) {
 	state := DatabaseState{DatabaseArgs: input}
 	if preview {
 		return name, state, nil
 	}
 
+	fmt.Println("Creating database")
 	createDatabaseResponse,err := requests.CreateDatabase(input.Type, input.Region, input.AuthToken, input.Name)
 	if err != nil {
 		return name, state, err
 	}
+
+
 
 	state.DatabaseId = createDatabaseResponse.DatabaseId
 	getDatabaseConnectionUrl, err := requests.GetDatabaseConnectionUrl(state.DatabaseId, input.AuthToken)
@@ -43,7 +52,7 @@ func (Database) Create(ctx p.Context, name string, input DatabaseArgs, preview b
 	}
 	fmt.Printf("Database URL: %s\n", getDatabaseConnectionUrl)
 
-	// state.URL = getDatabaseConnectionUrl
+	state.URL = getDatabaseConnectionUrl
 
 	return name, state, nil
 }

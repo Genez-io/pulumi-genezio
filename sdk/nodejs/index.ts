@@ -15,23 +15,11 @@ export type Provider = import("./provider").Provider;
 export const Provider: typeof import("./provider").Provider = null as any;
 utilities.lazyLoad(exports, ["Provider"], () => require("./provider"));
 
-export { RandomArgs } from "./random";
-export type Random = import("./random").Random;
-export const Random: typeof import("./random").Random = null as any;
-utilities.lazyLoad(exports, ["Random"], () => require("./random"));
-
 export { ServerlessFunctionArgs } from "./serverlessFunction";
 export type ServerlessFunction = import("./serverlessFunction").ServerlessFunction;
 export const ServerlessFunction: typeof import("./serverlessFunction").ServerlessFunction = null as any;
 utilities.lazyLoad(exports, ["ServerlessFunction"], () => require("./serverlessFunction"));
 
-
-// Export sub-modules:
-import * as types from "./types";
-
-export {
-    types,
-};
 
 const _module = {
     version: utilities.getVersion(),
@@ -39,8 +27,6 @@ const _module = {
         switch (type) {
             case "genezio:index:Database":
                 return new Database(name, <any>undefined, { urn })
-            case "genezio:index:Random":
-                return new Random(name, <any>undefined, { urn })
             case "genezio:index:ServerlessFunction":
                 return new ServerlessFunction(name, <any>undefined, { urn })
             default:

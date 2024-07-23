@@ -15,17 +15,10 @@
 package provider
 
 import (
-	"fmt"
-	"math/rand"
-	"time"
-
-	"github.com/Genez-io/pulumi-genezio/provider/requests"
+	r "github.com/Genez-io/pulumi-genezio/provider/resources"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
 
-	ca "github.com/Genez-io/pulumi-genezio/provider/cloud_adapters"
-	"github.com/Genez-io/pulumi-genezio/provider/domain"
-	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
@@ -39,12 +32,11 @@ func Provider() p.Provider {
 	// In this case, a single custom resource.
 	return infer.Provider(infer.Options{
 		Resources: []infer.InferredResource{
-			infer.Resource[Random, RandomArgs, RandomState](),
-			infer.Resource[ServerlessFunction,ServerlessFunctionArgs, ServerlessFunctionState](),
-			infer.Resource[Database,DatabaseArgs,DatabaseState](),
+			infer.Resource[*r.ServerlessFunction,r.ServerlessFunctionArgs, r.ServerlessFunctionState](),
+			infer.Resource[*r.Database,r.DatabaseArgs,r.DatabaseState](),
 		},
 		ModuleMap: map[tokens.ModuleName]tokens.ModuleName{
-			"provider": "index",
+			"resources": "index",
 		},
 	})
 }
@@ -59,183 +51,13 @@ func Provider() p.Provider {
 // - Delete: Custom logic when the resource is deleted.
 // - Annotate: Describe fields and set defaults for a resource.
 // - WireDependencies: Control how outputs and secrets flows through values.
-type Random struct{}
-
-// Each resource has an input struct, defining what arguments it accepts.
-type RandomArgs struct {
-	// Fields projected into Pulumi must be public and hava a `pulumi:"..."` tag.
-	// The pulumi tag doesn't need to match the field name, but it's generally a
-	// good idea.
-	Length int `pulumi:"length"`
-}
-
-// Each resource has a state, describing the fields that exist on the created resource.
-type RandomState struct {
-	// It is generally a good idea to embed args in outputs, but it isn't strictly necessary.
-	RandomArgs
-	// Here we define a required output called result.
-	Result string `pulumi:"result"`
-}
-
-// All resources must implement Create at a minimum.
-func (Random) Create(ctx p.Context, name string, input RandomArgs, preview bool) (string, RandomState, error) {
-	state := RandomState{RandomArgs: input}
-	if preview {
-		return name, state, nil
-	}
-	state.Result = makeRandom(input.Length)
-	return name, state, nil
-}
-
-func makeRandom(length int) string {
-	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
-	charset := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") // SED_SKIP
-
-	result := make([]rune, length)
-	for i := range result {
-		result[i] = charset[seededRand.Intn(len(charset))]
-	}
-	return "1234"
-}
-
-
-type Database struct{}
-
-type DatabaseArgs struct {
-	Name    string `pulumi:"name"`
-	Type string `pulumi:"type"`
-	Region string `pulumi:"region"`
-	AuthToken string `pulumi:"authToken"`
-}
-
-type DatabaseState struct {
-
-	DatabaseArgs
-
-	
-	DatabaseId string `pulumi:"databaseId"`
-	URL string `pulumi:"url"`
-}
-
-func (Database) Create(ctx p.Context, name string, input DatabaseArgs, preview bool) (string, DatabaseState, error) {
-	state := DatabaseState{DatabaseArgs: input}
-	if preview {
-		return name, state, nil
-	}
-
-	fmt.Println("Creating database")
-	createDatabaseResponse,err := requests.CreateDatabase(input.Type, input.Region, input.AuthToken, input.Name)
-	if err != nil {
-		return name, state, err
-	}
-
-
-
-	state.DatabaseId = createDatabaseResponse.DatabaseId
-	getDatabaseConnectionUrl, err := requests.GetDatabaseConnectionUrl(state.DatabaseId, input.AuthToken)
-	if err != nil {
-		return name, state, err
-	}
-	fmt.Printf("Database URL: %s\n", getDatabaseConnectionUrl)
-
-	state.URL = getDatabaseConnectionUrl
-
-	return name, state, nil
-}
 
 
 
 
 
-type ServerlessFunction struct{}
-
-type ServerlessFunctionArgs struct {
-	Path string `pulumi:"path"` 
-	ProjectName  string `pulumi:"projectName"`
-	Name string `pulumi:"name"`
-	Region	   string `pulumi:"region"`
-	Entry string `pulumi:"entry"`
-	Handler string `pulumi:"handler"`
-	AuthToken string `pulumi:"authToken"`
-	FolderHash *string `pulumi:"folderHash"`
-	EnvironmentVariables []domain.EnvironmentVariable `pulumi:"environmentVariables"`
-}
-
-type ServerlessFunctionState struct {
-	ServerlessFunctionArgs
-
-	ID string `pulumi:"functionId"`
-	URL string `pulumi:"url"`
-	ProjectId string `pulumi:"projectId"`
-	ProjectEnvId string `pulumi:"projectEnvId"`
-}
-
-func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
-	state := ServerlessFunctionState{ServerlessFunctionArgs: input}
-	if preview {
-		return name, state, nil
-	}
-
-
-	backendPath := "."
-
-	projectConfiguration := domain.ProjectConfiguration{
-		Name: input.ProjectName,
-		Region: input.Region,
-		Options: domain.Options{
-			NodeRuntime: "nodejs20.x",
-			Architecture: "arm64",
-		},
-		CloudProvider: "genezio-cloud",
-		Workspace: domain.Workspace{
-			Backend: backendPath,
-		},
-		AstSummary: domain.AstSummary{
-			Version: "2",
-			Classes: []string{},
-		},
-		Classes: []string{},
-		Functions: []domain.FunctionConfiguration{
-			{
-				Name: input.Name,
-				Path: input.Path,
-				Language: "ts",
-				Handler: input.Handler,
-				Entry: input.Entry,
-				Type: "aws",
-			},
-		},
-	}
-
-	cloudInput, err := fhp.FunctionToCloudInput(projectConfiguration.Functions[0], backendPath)
-	if err != nil {
-		fmt.Printf("An error occurred while trying to convert the function to cloud input %v", err)
-		return "", ServerlessFunctionState{}, err
-	}
-	cloudInputs := []domain.GenezioCloudInput{cloudInput}
-
-	cloudAdapter := ca.NewGenezioCloudAdapter()
-
-	response, err := cloudAdapter.Deploy(cloudInputs, projectConfiguration, ca.CloudAdapterOptions{Stage: nil}, nil, input.AuthToken)
-	if err != nil {
-		fmt.Printf("An error occurred while trying to deploy the function %v", err)
-		return "", ServerlessFunctionState{}, err
-	}
-
-	responseEnv := requests.SetEnvironmentVariables(response.ProjectID, response.ProjectEnvID, input.EnvironmentVariables, input.AuthToken)
-	if responseEnv != nil {
-		fmt.Printf("An error occurred while trying to set environment variables %v", responseEnv)
-		return "", ServerlessFunctionState{}, responseEnv
-	}
 
 
 
-	state.ID = response.Functions[0].ID	
-	state.URL = response.Functions[0].CloudUrl
-	state.ProjectId = response.ProjectID
-	state.ProjectEnvId = response.ProjectEnvID
-
-	return name, state, nil
-}
 
 
