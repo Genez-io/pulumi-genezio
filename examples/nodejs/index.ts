@@ -25,15 +25,19 @@ function sha256FromFolder(folderPath: string): string {
   return hash.digest("hex");
 }
 
-// const myDatabase = new genezio.Database("MyDatabase", {
-//   name: "my-database-4",
-//   type: "postgres-neon",
-//   region: "aws-us-east-1",
-//   authToken: process.env.AUTH_TOKEN ?? "",
-// });
+const myDatabase = new genezio.Database("MyDatabase", {
+  name: "my-database-5",
+  type: "postgres-neon",
+  region: "aws-us-east-1",
+  authToken: process.env.AUTH_TOKEN ?? "",
+});
 
 // export const databaseOutput = {
 //   id: myDatabase.databaseId,
+//   name: myDatabase.name,
+//   region: myDatabase.region,
+//   type: myDatabase.type,
+//   endpoint: myDatabase.url,
 // };
 
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
@@ -46,11 +50,7 @@ const myFunction = new genezio.ServerlessFunction("MyFunction", {
   name: "my-function",
   authToken: process.env.AUTH_TOKEN ?? "",
   environmentVariables: {
-    NAME: "Hello",
-    MYENVVAR: "World",
+    NAME: "Hellos",
+    MYENVVAR: "Worlds",
   },
 });
-
-export const functionOutput = {
-  projectId: myFunction.projectId,
-};
