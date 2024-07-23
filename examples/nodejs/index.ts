@@ -36,8 +36,6 @@ function sha256FromFolder(folderPath: string): string {
 //   id: myDatabase.databaseId,
 // };
 
-// console.log("the auth token is", process.env.AUTH_TOKEN);
-
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
   folderHash: sha256FromFolder("./function"),
   path: "./function",
@@ -47,17 +45,12 @@ const myFunction = new genezio.ServerlessFunction("MyFunction", {
   handler: "handler",
   name: "my-function",
   authToken: process.env.AUTH_TOKEN ?? "",
-  environmentVariables: [
-    {
-      name: "POSTGRES_URL",
-      value: "sadas",
-    },
-  ],
+  environmentVariables: {
+    NAME: "Hello",
+    MYENVVAR: "World",
+  },
 });
 
 export const functionOutput = {
-  url: myFunction.url,
-  id: myFunction.functionId,
-  envId: myFunction.projectEnvId,
   projectId: myFunction.projectId,
 };

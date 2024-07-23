@@ -8,14 +8,6 @@ import typing
 from .database import *
 from .provider import *
 from .serverless_function import *
-
-# Make subpackages available:
-if typing.TYPE_CHECKING:
-    import pulumi_genezio.domain as __domain
-    domain = __domain
-else:
-    domain = _utilities.lazy_import('pulumi_genezio.domain')
-
 _utilities.register(
     resource_modules="""
 [

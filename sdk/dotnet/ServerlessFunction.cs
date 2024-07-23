@@ -19,7 +19,7 @@ namespace Pulumi.Genezio
         public Output<string> Entry { get; private set; } = null!;
 
         [Output("environmentVariables")]
-        public Output<ImmutableArray<Pulumi.Genezio.Domain.Outputs.EnvironmentVariable>> EnvironmentVariables { get; private set; } = null!;
+        public Output<ImmutableDictionary<string, string>?> EnvironmentVariables { get; private set; } = null!;
 
         [Output("folderHash")]
         public Output<string?> FolderHash { get; private set; } = null!;
@@ -103,10 +103,10 @@ namespace Pulumi.Genezio
         public Input<string> Entry { get; set; } = null!;
 
         [Input("environmentVariables")]
-        private InputList<Pulumi.Genezio.Domain.Inputs.EnvironmentVariableArgs>? _environmentVariables;
-        public InputList<Pulumi.Genezio.Domain.Inputs.EnvironmentVariableArgs> EnvironmentVariables
+        private InputMap<string>? _environmentVariables;
+        public InputMap<string> EnvironmentVariables
         {
-            get => _environmentVariables ?? (_environmentVariables = new InputList<Pulumi.Genezio.Domain.Inputs.EnvironmentVariableArgs>());
+            get => _environmentVariables ?? (_environmentVariables = new InputMap<string>());
             set => _environmentVariables = value;
         }
 

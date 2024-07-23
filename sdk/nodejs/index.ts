@@ -21,13 +21,6 @@ export const ServerlessFunction: typeof import("./serverlessFunction").Serverles
 utilities.lazyLoad(exports, ["ServerlessFunction"], () => require("./serverlessFunction"));
 
 
-// Export sub-modules:
-import * as types from "./types";
-
-export {
-    types,
-};
-
 const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {

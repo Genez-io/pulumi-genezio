@@ -8,8 +8,9 @@ import (
 	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	p "github.com/pulumi/pulumi-go-provider"
-	"github.com/pulumi/pulumi-go-provider/infer"
 )
+
+
 
 type ServerlessFunction struct{}
 
@@ -22,7 +23,7 @@ type ServerlessFunctionArgs struct {
 	Handler string `pulumi:"handler"`
 	AuthToken string `pulumi:"authToken"`
 	FolderHash *string `pulumi:"folderHash,optional"`
-	EnvironmentVariables []domain.EnvironmentVariable `pulumi:"environmentVariables,optional"`
+	EnvironmentVariables map[string]string `pulumi:"environmentVariables,optional"`
 }
 
 type ServerlessFunctionState struct {
@@ -33,9 +34,6 @@ type ServerlessFunctionState struct {
 	ProjectId string `pulumi:"projectId"`
 	ProjectEnvId string `pulumi:"projectEnvId"`
 }
-
-
-var _ = (infer.CustomResource[ServerlessFunctionArgs, ServerlessFunctionState])((*ServerlessFunction)(nil))
 
 
 func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
@@ -95,10 +93,20 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		return "", ServerlessFunctionState{}, err
 	}
 
-	responseEnv := requests.SetEnvironmentVariables(response.ProjectID, response.ProjectEnvID, input.EnvironmentVariables, input.AuthToken)
-	if responseEnv != nil {
-		fmt.Printf("An error occurred while trying to set environment variables %v", responseEnv)
-		return "", ServerlessFunctionState{}, responseEnv
+	var environmentVariablesData []domain.EnvironmentVariable
+	for key, value := range input.EnvironmentVariables {
+		environmentVariablesData = append(environmentVariablesData, domain.EnvironmentVariable{
+			Name: key,
+			Value: value,
+		})
+	}
+
+	if len(environmentVariablesData) > 0{
+	responseEnv := requests.SetEnvironmentVariables(response.ProjectID, response.ProjectEnvID, environmentVariablesData, input.AuthToken)
+		if responseEnv != nil {
+			fmt.Printf("An error occurred while trying to set environment variables %v", responseEnv)
+			return "", ServerlessFunctionState{}, responseEnv
+		}
 	}
 
 
@@ -107,6 +115,8 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 	state.URL = response.Functions[0].CloudUrl
 	state.ProjectId = response.ProjectID
 	state.ProjectEnvId = response.ProjectEnvID
+
+	fmt.Printf("Function URL: %v\n", state)
 
 	return name, state, nil
 }

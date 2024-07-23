@@ -2,8 +2,6 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
-import * as inputs from "./types/input";
-import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 export class ServerlessFunction extends pulumi.CustomResource {
@@ -35,7 +33,7 @@ export class ServerlessFunction extends pulumi.CustomResource {
 
     public readonly authToken!: pulumi.Output<string>;
     public readonly entry!: pulumi.Output<string>;
-    public readonly environmentVariables!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
+    public readonly environmentVariables!: pulumi.Output<{[key: string]: string} | undefined>;
     public readonly folderHash!: pulumi.Output<string | undefined>;
     public /*out*/ readonly functionId!: pulumi.Output<string>;
     public readonly handler!: pulumi.Output<string>;
@@ -118,7 +116,7 @@ export class ServerlessFunction extends pulumi.CustomResource {
 export interface ServerlessFunctionArgs {
     authToken: pulumi.Input<string>;
     entry: pulumi.Input<string>;
-    environmentVariables?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
+    environmentVariables?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     folderHash?: pulumi.Input<string>;
     handler: pulumi.Input<string>;
     name: pulumi.Input<string>;
