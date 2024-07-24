@@ -25,6 +25,7 @@ func SetEnvironmentVariables(
 		return fmt.Errorf("authToken is required")
 	}
 
+
 	type request struct {
 		EnvironmentVariables []domain.EnvironmentVariable `json:"environmentVariables"`
 	}

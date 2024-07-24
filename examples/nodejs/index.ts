@@ -26,17 +26,19 @@ function sha256FromFolder(folderPath: string): string {
 }
 
 const myDatabase = new genezio.Database("MyDatabase", {
-  name: "my-database-4",
+  name: "my-database-5",
   type: "postgres-neon",
   region: "aws-us-east-1",
   authToken: process.env.AUTH_TOKEN ?? "",
 });
 
-export const databaseOutput = {
-  id: myDatabase.databaseId,
-};
-
-console.log("the auth token is", process.env.AUTH_TOKEN);
+// export const databaseOutput = {
+//   id: myDatabase.databaseId,
+//   name: myDatabase.name,
+//   region: myDatabase.region,
+//   type: myDatabase.type,
+//   endpoint: myDatabase.url,
+// };
 
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
   folderHash: sha256FromFolder("./function"),
@@ -47,17 +49,8 @@ const myFunction = new genezio.ServerlessFunction("MyFunction", {
   handler: "handler",
   name: "my-function",
   authToken: process.env.AUTH_TOKEN ?? "",
-  environmentVariables: [
-    {
-      name: "POSTGRES_URL",
-      value: myDatabase.url,
-    },
-  ],
+  environmentVariables: {
+    NAME: "Hellos",
+    MYENVVAR: "Worlds",
+  },
 });
-
-export const functionOutput = {
-  url: myFunction.url,
-  id: myFunction.functionId,
-  envId: myFunction.projectEnvId,
-  projectId: myFunction.projectId,
-};

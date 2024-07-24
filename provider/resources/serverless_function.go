@@ -1,4 +1,4 @@
-package pulumi_resources
+package resources
 
 import (
 	"fmt"
@@ -6,8 +6,11 @@ import (
 	ca "github.com/Genez-io/pulumi-genezio/provider/cloud_adapters"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
+	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	p "github.com/pulumi/pulumi-go-provider"
 )
+
+
 
 type ServerlessFunction struct{}
 
@@ -19,7 +22,8 @@ type ServerlessFunctionArgs struct {
 	Entry string `pulumi:"entry"`
 	Handler string `pulumi:"handler"`
 	AuthToken string `pulumi:"authToken"`
-	FolderHash *string `pulumi:"folderHash"`
+	FolderHash *string `pulumi:"folderHash,optional"`
+	EnvironmentVariables map[string]string `pulumi:"environmentVariables,optional"`
 }
 
 type ServerlessFunctionState struct {
@@ -31,11 +35,16 @@ type ServerlessFunctionState struct {
 	ProjectEnvId string `pulumi:"projectEnvId"`
 }
 
-func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
+
+func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
+	fmt.Println("Creating serverless function")
 	state := ServerlessFunctionState{ServerlessFunctionArgs: input}
 	if preview {
 		return name, state, nil
 	}
+
+	fmt.Println("Creating serverless function 2")
+
 
 
 	backendPath := "."
@@ -67,6 +76,7 @@ func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFun
 			},
 		},
 	}
+	fmt.Println("Creating serverless function 3")
 
 	cloudInput, err := fhp.FunctionToCloudInput(projectConfiguration.Functions[0], backendPath)
 	if err != nil {
@@ -83,11 +93,30 @@ func (ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFun
 		return "", ServerlessFunctionState{}, err
 	}
 
+	var environmentVariablesData []domain.EnvironmentVariable
+	for key, value := range input.EnvironmentVariables {
+		environmentVariablesData = append(environmentVariablesData, domain.EnvironmentVariable{
+			Name: key,
+			Value: value,
+		})
+	}
+
+	if len(environmentVariablesData) > 0{
+	responseEnv := requests.SetEnvironmentVariables(response.ProjectID, response.ProjectEnvID, environmentVariablesData, input.AuthToken)
+		if responseEnv != nil {
+			fmt.Printf("An error occurred while trying to set environment variables %v", responseEnv)
+			return "", ServerlessFunctionState{}, responseEnv
+		}
+	}
+
+
 
 	state.ID = response.Functions[0].ID	
 	state.URL = response.Functions[0].CloudUrl
 	state.ProjectId = response.ProjectID
 	state.ProjectEnvId = response.ProjectEnvID
+
+	fmt.Printf("Function URL: %v\n", state)
 
 	return name, state, nil
 }

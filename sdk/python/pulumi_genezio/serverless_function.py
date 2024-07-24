@@ -8,7 +8,6 @@ import pulumi
 import pulumi.runtime
 from typing import Any, Mapping, Optional, Sequence, Union, overload
 from . import _utilities
-from . import domain as _domain
 
 __all__ = ['ServerlessFunctionArgs', 'ServerlessFunction']
 
@@ -17,25 +16,27 @@ class ServerlessFunctionArgs:
     def __init__(__self__, *,
                  auth_token: pulumi.Input[str],
                  entry: pulumi.Input[str],
-                 environment_variables: pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]],
-                 folder_hash: pulumi.Input[str],
                  handler: pulumi.Input[str],
                  name: pulumi.Input[str],
                  path: pulumi.Input[str],
                  project_name: pulumi.Input[str],
-                 region: pulumi.Input[str]):
+                 region: pulumi.Input[str],
+                 environment_variables: Optional[pulumi.Input[Mapping[str, pulumi.Input[str]]]] = None,
+                 folder_hash: Optional[pulumi.Input[str]] = None):
         """
         The set of arguments for constructing a ServerlessFunction resource.
         """
         pulumi.set(__self__, "auth_token", auth_token)
         pulumi.set(__self__, "entry", entry)
-        pulumi.set(__self__, "environment_variables", environment_variables)
-        pulumi.set(__self__, "folder_hash", folder_hash)
         pulumi.set(__self__, "handler", handler)
         pulumi.set(__self__, "name", name)
         pulumi.set(__self__, "path", path)
         pulumi.set(__self__, "project_name", project_name)
         pulumi.set(__self__, "region", region)
+        if environment_variables is not None:
+            pulumi.set(__self__, "environment_variables", environment_variables)
+        if folder_hash is not None:
+            pulumi.set(__self__, "folder_hash", folder_hash)
 
     @property
     @pulumi.getter(name="authToken")
@@ -54,24 +55,6 @@ class ServerlessFunctionArgs:
     @entry.setter
     def entry(self, value: pulumi.Input[str]):
         pulumi.set(self, "entry", value)
-
-    @property
-    @pulumi.getter(name="environmentVariables")
-    def environment_variables(self) -> pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]:
-        return pulumi.get(self, "environment_variables")
-
-    @environment_variables.setter
-    def environment_variables(self, value: pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]):
-        pulumi.set(self, "environment_variables", value)
-
-    @property
-    @pulumi.getter(name="folderHash")
-    def folder_hash(self) -> pulumi.Input[str]:
-        return pulumi.get(self, "folder_hash")
-
-    @folder_hash.setter
-    def folder_hash(self, value: pulumi.Input[str]):
-        pulumi.set(self, "folder_hash", value)
 
     @property
     @pulumi.getter
@@ -118,6 +101,24 @@ class ServerlessFunctionArgs:
     def region(self, value: pulumi.Input[str]):
         pulumi.set(self, "region", value)
 
+    @property
+    @pulumi.getter(name="environmentVariables")
+    def environment_variables(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[str]]]]:
+        return pulumi.get(self, "environment_variables")
+
+    @environment_variables.setter
+    def environment_variables(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[str]]]]):
+        pulumi.set(self, "environment_variables", value)
+
+    @property
+    @pulumi.getter(name="folderHash")
+    def folder_hash(self) -> Optional[pulumi.Input[str]]:
+        return pulumi.get(self, "folder_hash")
+
+    @folder_hash.setter
+    def folder_hash(self, value: Optional[pulumi.Input[str]]):
+        pulumi.set(self, "folder_hash", value)
+
 
 class ServerlessFunction(pulumi.CustomResource):
     @overload
@@ -126,7 +127,7 @@ class ServerlessFunction(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  auth_token: Optional[pulumi.Input[str]] = None,
                  entry: Optional[pulumi.Input[str]] = None,
-                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
+                 environment_variables: Optional[pulumi.Input[Mapping[str, pulumi.Input[str]]]] = None,
                  folder_hash: Optional[pulumi.Input[str]] = None,
                  handler: Optional[pulumi.Input[str]] = None,
                  name: Optional[pulumi.Input[str]] = None,
@@ -164,7 +165,7 @@ class ServerlessFunction(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  auth_token: Optional[pulumi.Input[str]] = None,
                  entry: Optional[pulumi.Input[str]] = None,
-                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
+                 environment_variables: Optional[pulumi.Input[Mapping[str, pulumi.Input[str]]]] = None,
                  folder_hash: Optional[pulumi.Input[str]] = None,
                  handler: Optional[pulumi.Input[str]] = None,
                  name: Optional[pulumi.Input[str]] = None,
@@ -186,11 +187,7 @@ class ServerlessFunction(pulumi.CustomResource):
             if entry is None and not opts.urn:
                 raise TypeError("Missing required property 'entry'")
             __props__.__dict__["entry"] = entry
-            if environment_variables is None and not opts.urn:
-                raise TypeError("Missing required property 'environment_variables'")
             __props__.__dict__["environment_variables"] = environment_variables
-            if folder_hash is None and not opts.urn:
-                raise TypeError("Missing required property 'folder_hash'")
             __props__.__dict__["folder_hash"] = folder_hash
             if handler is None and not opts.urn:
                 raise TypeError("Missing required property 'handler'")
@@ -260,12 +257,12 @@ class ServerlessFunction(pulumi.CustomResource):
 
     @property
     @pulumi.getter(name="environmentVariables")
-    def environment_variables(self) -> pulumi.Output[Sequence['_domain.outputs.EnvironmentVariable']]:
+    def environment_variables(self) -> pulumi.Output[Optional[Mapping[str, str]]]:
         return pulumi.get(self, "environment_variables")
 
     @property
     @pulumi.getter(name="folderHash")
-    def folder_hash(self) -> pulumi.Output[str]:
+    def folder_hash(self) -> pulumi.Output[Optional[str]]:
         return pulumi.get(self, "folder_hash")
 
     @property
