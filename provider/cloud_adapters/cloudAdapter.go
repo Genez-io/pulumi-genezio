@@ -2,13 +2,16 @@ package cloud_adapters
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
 )
 
 type CloudAdapter interface{
 	Deploy(input []domain.GenezioCloudInput, projectConfiguration domain.ProjectConfiguration, cloudAdapterOptions CloudAdapterOptions, stack *string, authToken string) (domain.GenezioCloudOutput, error)
+	DeployFrontend(projectName string, projectRegion string, frontend domain.FrontendConfiguration,stage string) (string, error)
 }
 
 type genezioCloudAdapter struct {
@@ -57,6 +60,30 @@ func (g *genezioCloudAdapter) Deploy(input []domain.GenezioCloudInput, projectCo
 		Functions: response.Functions,
 	}, nil
 }
+
+func (g *genezioCloudAdapter) DeployFrontend(projectName string, projectRegion string, frontend domain.FrontendConfiguration, stage string) (string, error) {
+
+	var finalStageName string
+	if stage != "" && stage != "prod" {
+		finalStageName = fmt.Sprintf("-%s", stage)
+	} else {
+		finalStageName = ""
+	} 
+
+	finalSubdomain := fmt.Sprintf("%s%s", frontend.Subdomain, finalStageName)
+
+	temporaryFolder,err := utils.CreateTemporaryFolder(nil,nil)
+	if err != nil {
+		fmt.Printf("An error occurred while trying to create a temporary folder %v\n", err)
+		return "", err
+	}
+
+	archivePath := filepath.Join(temporaryFolder, fmt.Sprintf("%s.zip", finalSubdomain))
+
+	
+	return requests.DeployFrontend(projectName, projectRegion, frontend, stage)
+}
+
 
 type CloudAdapterOptions struct {
 	Stage *string `pulumi:"stage"`
