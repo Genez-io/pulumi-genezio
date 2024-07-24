@@ -37,13 +37,11 @@ type ServerlessFunctionState struct {
 
 
 func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
-	fmt.Println("Creating serverless function")
 	state := ServerlessFunctionState{ServerlessFunctionArgs: input}
 	if preview {
 		return name, state, nil
 	}
 
-	fmt.Println("Creating serverless function 2")
 
 
 
@@ -76,7 +74,6 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 			},
 		},
 	}
-	fmt.Println("Creating serverless function 3")
 
 	cloudInput, err := fhp.FunctionToCloudInput(projectConfiguration.Functions[0], backendPath)
 	if err != nil {

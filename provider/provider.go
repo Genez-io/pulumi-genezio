@@ -34,6 +34,7 @@ func Provider() p.Provider {
 		Resources: []infer.InferredResource{
 			infer.Resource[*r.ServerlessFunction,r.ServerlessFunctionArgs, r.ServerlessFunctionState](),
 			infer.Resource[*r.Database,r.DatabaseArgs,r.DatabaseState](),
+			infer.Resource[*r.Project,r.ProjectArgs,r.ProjectState](),
 		},
 		ModuleMap: map[tokens.ModuleName]tokens.ModuleName{
 			"resources": "index",

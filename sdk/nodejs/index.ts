@@ -10,6 +10,11 @@ export type Database = import("./database").Database;
 export const Database: typeof import("./database").Database = null as any;
 utilities.lazyLoad(exports, ["Database"], () => require("./database"));
 
+export { ProjectArgs } from "./project";
+export type Project = import("./project").Project;
+export const Project: typeof import("./project").Project = null as any;
+utilities.lazyLoad(exports, ["Project"], () => require("./project"));
+
 export { ProviderArgs } from "./provider";
 export type Provider = import("./provider").Provider;
 export const Provider: typeof import("./provider").Provider = null as any;
@@ -27,6 +32,8 @@ const _module = {
         switch (type) {
             case "genezio:index:Database":
                 return new Database(name, <any>undefined, { urn })
+            case "genezio:index:Project":
+                return new Project(name, <any>undefined, { urn })
             case "genezio:index:ServerlessFunction":
                 return new ServerlessFunction(name, <any>undefined, { urn })
             default:

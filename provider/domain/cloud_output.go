@@ -20,3 +20,8 @@ type DeployCodeResponse struct {
 	Classes []string `pulumi:"classes"`
 	Functions []DeployCodeFunctionResponse `pulumi:"functions"`
 }
+
+type CreateProjectResponse struct {
+	ProjectID string `pulumi:"projectID"`
+	ProjectEnvID string `pulumi:"projectEnvID"`
+}

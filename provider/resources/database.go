@@ -25,11 +25,32 @@ type DatabaseState struct {
 	URL string `pulumi:"url"`
 }
 
-// func (*Database) Read(ctx p.Context, name string, input DatabaseArgs) (DatabaseState, error) {
-// state := DatabaseState{DatabaseArgs: input}
+func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState , error) {
 
-// 	return state, nil
-// }
+	finalState := DatabaseState{
+		DatabaseArgs: inputs,
+		DatabaseId: state.DatabaseId,
+		URL: state.URL,
+	}
+
+	databases, err := requests.ListDatabases(inputs.AuthToken)
+	if err != nil {
+		return id, inputs, state, err
+	}
+
+	for _, database := range databases {
+		if database.Id == state.DatabaseId {
+			finalState.Name = database.Name
+			finalState.Type = database.Type
+			finalState.Region = database.Region
+			return id, inputs, finalState, nil
+		}
+	}
+
+	finalState = DatabaseState{}
+
+	return id, inputs, finalState, nil
+}
 
 func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview bool) (string, DatabaseState, error) {
 	state := DatabaseState{DatabaseArgs: input}
@@ -42,15 +63,13 @@ func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview 
 	if err != nil {
 		return name, state, err
 	}
-
-
-
 	state.DatabaseId = createDatabaseResponse.DatabaseId
+	
+	fmt.Println("Getting database connection url")
 	getDatabaseConnectionUrl, err := requests.GetDatabaseConnectionUrl(state.DatabaseId, input.AuthToken)
 	if err != nil {
 		return name, state, err
 	}
-	fmt.Printf("Database URL: %s\n", getDatabaseConnectionUrl)
 
 	state.URL = getDatabaseConnectionUrl
 

@@ -6,6 +6,7 @@ from . import _utilities
 import typing
 # Export this package's modules as members:
 from .database import *
+from .project import *
 from .provider import *
 from .serverless_function import *
 _utilities.register(
@@ -17,6 +18,7 @@ _utilities.register(
   "fqn": "pulumi_genezio",
   "classes": {
    "genezio:index:Database": "Database",
+   "genezio:index:Project": "Project",
    "genezio:index:ServerlessFunction": "ServerlessFunction"
   }
  }

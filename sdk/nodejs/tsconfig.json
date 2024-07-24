@@ -15,6 +15,7 @@
     "files": [
         "database.ts",
         "index.ts",
+        "project.ts",
         "provider.ts",
         "serverlessFunction.ts",
         "utilities.ts"

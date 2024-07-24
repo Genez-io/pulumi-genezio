@@ -25,6 +25,14 @@ function sha256FromFolder(folderPath: string): string {
   return hash.digest("hex");
 }
 
+// const MyProject = new genezio.Project("MyProject", {
+//   name: "my-pulumi-project",
+//   region: "eu-central-1",
+//   authToken: process.env.AUTH_TOKEN ?? "",
+//   cloudProvider: "genezio-cloud",
+//   stage: "prod",
+// });
+
 const myDatabase = new genezio.Database("MyDatabase", {
   name: "my-database-5",
   type: "postgres-neon",
@@ -40,17 +48,17 @@ const myDatabase = new genezio.Database("MyDatabase", {
 //   endpoint: myDatabase.url,
 // };
 
-const myFunction = new genezio.ServerlessFunction("MyFunction", {
-  folderHash: sha256FromFolder("./function"),
-  path: "./function",
-  projectName: "project-function-pulumi-2",
-  region: "us-east-1",
-  entry: "app.mjs",
-  handler: "handler",
-  name: "my-function",
-  authToken: process.env.AUTH_TOKEN ?? "",
-  environmentVariables: {
-    NAME: "Hellos",
-    MYENVVAR: "Worlds",
-  },
-});
+// const myFunction = new genezio.ServerlessFunction("MyFunction", {
+//   folderHash: sha256FromFolder("./function"),
+//   path: "./function",
+//   projectName: "project-function-pulumi-2",
+//   region: "us-east-1",
+//   entry: "app.mjs",
+//   handler: "handler",
+//   name: "my-function",
+//   authToken: process.env.AUTH_TOKEN ?? "",
+//   environmentVariables: {
+//     NAME: "Hellos",
+//     MYENVVAR: "Worlds",
+//   },
+// });
