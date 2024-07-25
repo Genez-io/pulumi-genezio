@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type ContentType interface{}
@@ -151,10 +152,10 @@ func CopyFileOrFolder(source string, dest string) error {
 	return CopyFile(source, dest)
 }
 
-func ZipDirectory(source string, destination string, exclussion []string) error {
+func ZipDirectory(source string, outPath string, exclussion []string) error {
 
-	fmt.Printf("Zipping %s to %s\n", source, destination)
-	zipFile, err := os.Create(destination)
+	fmt.Printf("Zipping %s to %s\n", source, outPath)
+	zipFile, err := os.Create(outPath)
 	if err != nil {
 		return err
 	}
@@ -206,6 +207,68 @@ func ZipDirectory(source string, destination string, exclussion []string) error 
 
 	return  zipWriter.Close()
 
+}
+
+func ZipDirectoryToDestinationPath(source string, destinationPath string, outPath string, exclussion []string ) error{
+    // Create the zip file
+    zipFile, err := os.Create(outPath)
+    if err != nil {
+        return err
+    }
+    defer zipFile.Close()
+
+    // Create a new zip writer
+    zipWriter := zip.NewWriter(zipFile)
+    defer zipWriter.Close()
+
+    // Walk through the frontend directory
+    err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+        if err != nil {
+            return err
+        }
+
+        // Create the zip file entry name
+        entryName := filepath.Join(destinationPath, strings.TrimPrefix(path, source))
+
+		relPath, err := filepath.Rel(source,path)
+		if err != nil {
+			return err
+		}
+
+		for _, exclussionPath := range exclussion {
+			if  relPath == exclussionPath {
+				return nil
+			}
+		}
+
+		if info.IsDir() {
+			entryName += "/"
+		}
+
+		// Create the file in the zip
+		w1, err := zipWriter.Create(entryName)
+		if err != nil {
+			return err
+		}
+
+        
+		if !info.IsDir() {
+			f1, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+	
+			defer f1.Close()
+			_, err = io.Copy(w1, f1)
+		}
+	
+        return err
+    })
+
+    if err != nil {
+        return err
+    }
+	return nil
 }
 
 func HashFile(filePath string) (string, error) {

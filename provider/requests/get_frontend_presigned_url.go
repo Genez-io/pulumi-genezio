@@ -71,10 +71,11 @@ func GetFrontendPresignedUrl(subdomain string, projectName string, stage string,
 	}
 
 	var dataResponse domain.FrontendPresignedUrlResponse
-	err = json.Unmarshal(body, &data)
+	err = json.Unmarshal(body, &dataResponse)
 	if err != nil {
 		return domain.FrontendPresignedUrlResponse{}, err
 	}
+
 
 	return dataResponse, nil
 

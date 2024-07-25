@@ -50,6 +50,10 @@ func UploadContentToS3(
 	req.Header.Set("Content-Type", "application/octet-stream")
 	req.Header.Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
 
+	if userId != nil {
+		req.Header.Set("x-amz-meta-userid", *userId)
+	}
+
 	client := &http.Client{
 	}
 	resp, err := client.Do(req)

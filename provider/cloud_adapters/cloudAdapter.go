@@ -11,7 +11,7 @@ import (
 
 type CloudAdapter interface{
 	Deploy(input []domain.GenezioCloudInput, projectConfiguration domain.ProjectConfiguration, cloudAdapterOptions CloudAdapterOptions, stack *string, authToken string) (domain.GenezioCloudOutput, error)
-	DeployFrontend(projectName string, projectRegion string, frontend domain.FrontendConfiguration,stage string) (string, error)
+	DeployFrontend(projectName string, projectRegion string, frontend domain.FrontendConfiguration,stage string,authToken string) (string, error)
 }
 
 type genezioCloudAdapter struct {
@@ -61,7 +61,7 @@ func (g *genezioCloudAdapter) Deploy(input []domain.GenezioCloudInput, projectCo
 	}, nil
 }
 
-func (g *genezioCloudAdapter) DeployFrontend(projectName string, projectRegion string, frontend domain.FrontendConfiguration, stage string) (string, error) {
+func (g *genezioCloudAdapter) DeployFrontend(projectName string, projectRegion string, frontend domain.FrontendConfiguration, stage string, authToken string) (string, error) {
 
 	var finalStageName string
 	if stage != "" && stage != "prod" {
@@ -79,9 +79,38 @@ func (g *genezioCloudAdapter) DeployFrontend(projectName string, projectRegion s
 	}
 
 	archivePath := filepath.Join(temporaryFolder, fmt.Sprintf("%s.zip", finalSubdomain))
+	if frontend.Publish == "" {
+		frontend.Publish = "."
+	}
+	frontendPath := filepath.Join(frontend.Path,frontend.Publish)
 
+	exclussionList := []string{".git",".github"}
+	err = utils.ZipDirectoryToDestinationPath(frontendPath,finalSubdomain ,archivePath,exclussionList)
+	if err != nil {
+		fmt.Printf("An error occurred while trying to zip the directory %v\n", err)
+		return "", err
+	}
+
+	presignedUrl, err := requests.GetFrontendPresignedUrl(finalSubdomain,projectName,stage,authToken)
+	if err != nil {
+		fmt.Printf("An error occurred while trying to get the presigned url %v\n", err)
+		return "", err
+	}
+
+	err = requests.UploadContentToS3(&presignedUrl.PresignedURL,archivePath,&presignedUrl.UserID)
+	if err != nil {
+		fmt.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
+		return "", err
+	}
+
+	finalDomain, err := requests.CreateFrontendProject(finalSubdomain,projectName,projectRegion,stage,authToken)
+	if err != nil {
+		fmt.Printf("An error occurred while trying to create the frontend project %v\n", err)
+		return "", err
+	}
 	
-	return requests.DeployFrontend(projectName, projectRegion, frontend, stage)
+	fmt.Printf("Frontend deployed successfully at %s\n", finalDomain)
+	return finalDomain, nil
 }
 
 

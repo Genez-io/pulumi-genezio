@@ -225,7 +225,6 @@ func GetBundleFolderSizeLimit(directoryPath string) (int64, error) {
 		return 0, fmt.Errorf("error walking through directory: %v", err)
 	}
 
-	fmt.Printf("Total size of the bundle: %d bytes\n", totalSize)
 	return totalSize, nil
 }
 

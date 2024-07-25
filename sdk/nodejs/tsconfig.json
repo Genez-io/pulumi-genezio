@@ -14,6 +14,7 @@
     },
     "files": [
         "database.ts",
+        "frontend.ts",
         "index.ts",
         "project.ts",
         "provider.ts",

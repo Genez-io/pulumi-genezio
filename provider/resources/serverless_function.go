@@ -113,7 +113,5 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 	state.ProjectId = response.ProjectID
 	state.ProjectEnvId = response.ProjectEnvID
 
-	fmt.Printf("Function URL: %v\n", state)
-
 	return name, state, nil
 }
