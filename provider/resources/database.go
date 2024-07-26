@@ -3,6 +3,7 @@ package resources
 import (
 	"fmt"
 
+	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	p "github.com/pulumi/pulumi-go-provider"
 )
@@ -10,27 +11,25 @@ import (
 type Database struct{}
 
 type DatabaseArgs struct {
-	Name    string `pulumi:"name"`
-	Type string `pulumi:"type"`
-	Region string `pulumi:"region"`
+	Name      string `pulumi:"name"`
+	Type      string `pulumi:"type"`
+	Region    string `pulumi:"region"`
 	AuthToken string `pulumi:"authToken"`
 }
 
 type DatabaseState struct {
-
 	DatabaseArgs
 
-	
 	DatabaseId string `pulumi:"databaseId"`
-	URL string `pulumi:"url"`
+	URL        string `pulumi:"url"`
 }
 
-func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState , error) {
+func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState, error) {
 
 	finalState := DatabaseState{
 		DatabaseArgs: inputs,
-		DatabaseId: state.DatabaseId,
-		URL: state.URL,
+		DatabaseId:   state.DatabaseId,
+		URL:          state.URL,
 	}
 
 	databases, err := requests.ListDatabases(inputs.AuthToken)
@@ -59,12 +58,17 @@ func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview 
 	}
 
 	fmt.Println("Creating database")
-	createDatabaseResponse,err := requests.CreateDatabase(input.Type, input.Region, input.AuthToken, input.Name)
+	createDatabaseResponse, err := requests.CreateDatabase(domain.CreateDatabaseRequest{
+		Name:   input.Name,
+		Type:   input.Type,
+		Region: input.Region,
+	}, input.AuthToken)
+
 	if err != nil {
 		return name, state, err
 	}
-	state.DatabaseId = createDatabaseResponse.DatabaseId
-	
+	state.DatabaseId = createDatabaseResponse.Id
+
 	fmt.Println("Getting database connection url")
 	getDatabaseConnectionUrl, err := requests.GetDatabaseConnectionUrl(state.DatabaseId, input.AuthToken)
 	if err != nil {

@@ -10,18 +10,10 @@ import (
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 )
 
-func GetDatabaseConnectionUrl(
-	databaseId string,
-	authToken string,
-) (string, error) {
-
-	if databaseId == "" {
-		return "", fmt.Errorf("databaseId is required")
-	}
-
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/databases/%s", constants.API_URL, databaseId), nil)
+func GetDatabase(id string, authToken string) (domain.GetDatabaseResponse, error) {
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/databases/%s", constants.API_URL, id), nil)
 	if err != nil {
-		return "", err
+		return domain.GetDatabaseResponse{}, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -32,26 +24,28 @@ func GetDatabaseConnectionUrl(
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return domain.GetDatabaseResponse{}, err
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("error: %s", resp.Status)
+		return domain.GetDatabaseResponse{}, fmt.Errorf("error: %s", resp.Status)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return domain.GetDatabaseResponse{}, err
 	}
 
-	var data domain.GetDatabaseConnectionUrlResponse
+	var data domain.GetDatabaseResponse = domain.GetDatabaseResponse{}
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		return "", err
+		return domain.GetDatabaseResponse{}, err
 	}
 
-	return data.ConnectionUrl,nil
+	defer resp.Body.Close()
+
+	return data, nil
 
 }
