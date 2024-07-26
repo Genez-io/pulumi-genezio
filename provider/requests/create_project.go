@@ -9,9 +9,10 @@ import (
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
+	p "github.com/pulumi/pulumi-go-provider"
 )
 
-func CreateProject(cloudProvider string, region string, authToken string, name string, stage string) (domain.CreateProjectResponse, error) {
+func CreateProject(ctx p.Context, cloudProvider string, region string, name string, stage string) (domain.CreateProjectResponse, error) {
 
 	if cloudProvider == "" {
 		cloudProvider = "genezio-cloud"
@@ -53,7 +54,7 @@ func CreateProject(cloudProvider string, region string, authToken string, name s
 		return domain.CreateProjectResponse{}, err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+authToken)
+	req.Header.Set("Authorization", "Bearer "+ctx.Value("authToken").(string))
 	req.Header.Set("Accept-Version", "genezio-webapp/0.3.0")
 	req.Header.Set("Content-Type", "application/json")
 

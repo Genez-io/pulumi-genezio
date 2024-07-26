@@ -17,7 +17,6 @@ type Frontend struct{}
 type FrontendArgs struct {
 	ProjectName string `pulumi:"projectName"`
 	Region 	string `pulumi:"region"`
-	AuthToken string `pulumi:"authToken"`
 	Path string `pulumi:"path"`
 	Subdomain *string `pulumi:"subdomain,optional"`
 	Publish string `pulumi:"publish"`
@@ -32,6 +31,11 @@ type FrontendState struct {
 
 
 func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview bool) (string, FrontendState, error) {
+	authToken, err := utils.IsLoggedIn(ctx)
+	if err != nil {
+		return name, FrontendState{}, err
+	}
+	ctx = p.CtxWithValue(ctx, "authToken", authToken)
 
 	state := FrontendState{FrontendArgs: input}
 	if preview {
@@ -79,7 +83,7 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 		Publish: input.Publish,
 	}
 
-	response, err := cloudAdapter.DeployFrontend(input.ProjectName,input.Region, frontendConfiguration, stage, input.AuthToken)
+	response, err := cloudAdapter.DeployFrontend(ctx, input.ProjectName,input.Region, frontendConfiguration, stage,)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to deploy the frontend %v\n", err)
 		return "", FrontendState{}, err

@@ -9,15 +9,17 @@ import (
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
+
+	p "github.com/pulumi/pulumi-go-provider"
 )
 
 
 func DeployRequest(
+	ctx p.Context,
 	projectConfiguration domain.ProjectConfiguration,
 	genezioDeployInput []domain.GenezioCloudInput,
 	stage string,
 	stack []string,
-	authToken string,
 ) (domain.DeployCodeResponse, error) {
 	
 
@@ -77,7 +79,7 @@ func DeployRequest(
 		return domain.DeployCodeResponse{}, err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+authToken)
+	req.Header.Set("Authorization", "Bearer "+ctx.Value("authToken").(string))
 	req.Header.Set("Accept-Version", "genezio-cli/2.2.0")
 
 	client := &http.Client{

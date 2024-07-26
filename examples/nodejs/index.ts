@@ -28,7 +28,6 @@ function sha256FromFolder(folderPath: string): string {
 const MyProject = new genezio.Project("MyProject", {
   name: "my-fullstack-pulumi",
   region: "us-east-1",
-  authToken: process.env.AUTH_TOKEN ?? "",
   cloudProvider: "genezio-cloud",
   stage: "prod",
 });
@@ -36,10 +35,9 @@ const MyProject = new genezio.Project("MyProject", {
 const myFrontend = new genezio.Frontend("MyFrontend", {
   projectName: "my-fullstack-pulumi",
   region: "us-east-1",
-  authToken: process.env.AUTH_TOKEN ?? "",
   path: "./client",
   publish: "./dist",
-  subdomain: "my-frontend-pulumi-4",
+  subdomain: "my-frontend-pulumi-10",
 });
 
 const myDatabase = new genezio.Database("MyDatabase", {
@@ -69,7 +67,6 @@ const myFunction = new genezio.ServerlessFunction("MyFunction", {
   entry: "app.mjs",
   handler: "handler",
   name: "my-function",
-  authToken: process.env.AUTH_TOKEN ?? "",
   environmentVariables: {
     POSTGRES_URL: myDatabase.url,
   },

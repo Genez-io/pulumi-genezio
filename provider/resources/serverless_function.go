@@ -7,6 +7,7 @@ import (
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
@@ -21,7 +22,6 @@ type ServerlessFunctionArgs struct {
 	Region	   string `pulumi:"region"`
 	Entry string `pulumi:"entry"`
 	Handler string `pulumi:"handler"`
-	AuthToken string `pulumi:"authToken"`
 	FolderHash *string `pulumi:"folderHash,optional"`
 	EnvironmentVariables map[string]string `pulumi:"environmentVariables,optional"`
 }
@@ -37,12 +37,17 @@ type ServerlessFunctionState struct {
 
 
 func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
+	authToken, err := utils.IsLoggedIn(ctx)
+	if err != nil {
+		return name, ServerlessFunctionState{}, err
+	}
+	ctx = p.CtxWithValue(ctx, "authToken", authToken)
+
+	
 	state := ServerlessFunctionState{ServerlessFunctionArgs: input}
 	if preview {
 		return name, state, nil
 	}
-
-
 
 
 	backendPath := "."
@@ -84,7 +89,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 
 	cloudAdapter := ca.NewGenezioCloudAdapter()
 
-	response, err := cloudAdapter.Deploy(cloudInputs, projectConfiguration, ca.CloudAdapterOptions{Stage: nil}, nil, input.AuthToken)
+	response, err := cloudAdapter.Deploy(ctx, cloudInputs, projectConfiguration, ca.CloudAdapterOptions{Stage: nil}, nil)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to deploy the function %v", err)
 		return "", ServerlessFunctionState{}, err
@@ -99,7 +104,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 	}
 
 	if len(environmentVariablesData) > 0{
-	responseEnv := requests.SetEnvironmentVariables(response.ProjectID, response.ProjectEnvID, environmentVariablesData, input.AuthToken)
+	responseEnv := requests.SetEnvironmentVariables(ctx, response.ProjectID, response.ProjectEnvID, environmentVariablesData)
 		if responseEnv != nil {
 			fmt.Printf("An error occurred while trying to set environment variables %v", responseEnv)
 			return "", ServerlessFunctionState{}, responseEnv

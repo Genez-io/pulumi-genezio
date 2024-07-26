@@ -15,3 +15,11 @@ Object.defineProperty(exports, "authToken", {
     enumerable: true,
 });
 
+export declare const version: string | undefined;
+Object.defineProperty(exports, "version", {
+    get() {
+        return __config.get("version");
+    },
+    enumerable: true,
+});
+

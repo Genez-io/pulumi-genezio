@@ -9,9 +9,11 @@ import (
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
+
+	p "github.com/pulumi/pulumi-go-provider"
 )
 
-func GetFrontendPresignedUrl(subdomain string, projectName string, stage string, authToken string) (domain.FrontendPresignedUrlResponse, error) {
+func GetFrontendPresignedUrl(ctx p.Context, subdomain string, projectName string, stage string) (domain.FrontendPresignedUrlResponse, error) {
 
 	region := "us-east-1"
 
@@ -44,7 +46,7 @@ func GetFrontendPresignedUrl(subdomain string, projectName string, stage string,
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+authToken)
+	req.Header.Set("Authorization", "Bearer "+ctx.Value("authToken").(string))
 	req.Header.Set("Accept-Version", "genezio-cli/2.2.0")
 
 	client := &http.Client{

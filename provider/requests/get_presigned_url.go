@@ -8,14 +8,15 @@ import (
 	"net/http"
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
+	p "github.com/pulumi/pulumi-go-provider"
 )
 
 func GetPresignedUrl(
+	ctx p.Context,
 	region string,
 	archiveName string,
 	projectName string,
 	deployUnitName string,
-	authToken string,
 ) (string, error) {
 
 	if region == "" || archiveName=="" || projectName=="" || deployUnitName=="" {
@@ -51,7 +52,7 @@ func GetPresignedUrl(
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+authToken)
+	req.Header.Set("Authorization", "Bearer "+ctx.Value("authToken").(string))
 	req.Header.Set("Accept-Version", "genezio-cli/2.2.0")
 
 	client := &http.Client{
