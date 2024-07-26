@@ -15,6 +15,7 @@
 package provider
 
 import (
+	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	r "github.com/Genez-io/pulumi-genezio/provider/resources"
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/tokens"
@@ -40,6 +41,7 @@ func Provider() p.Provider {
 		ModuleMap: map[tokens.ModuleName]tokens.ModuleName{
 			"resources": "index",
 		},
+		Config: infer.Config[*domain.Config](),
 	})
 }
 

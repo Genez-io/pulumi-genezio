@@ -8,9 +8,10 @@ import (
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
+	p "github.com/pulumi/pulumi-go-provider"
 )
 
-func ListDatabases(authToken string) ([]domain.DatabaseDetails, error) {
+func ListDatabases(ctx p.Context) ([]domain.DatabaseDetails, error) {
 
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/databases", constants.API_URL), nil)
 	if err != nil {
@@ -18,7 +19,7 @@ func ListDatabases(authToken string) ([]domain.DatabaseDetails, error) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+authToken)
+	req.Header.Set("Authorization", "Bearer "+ctx.Value("authToken").(string))
 	req.Header.Set("Accept-Version", "genezio-webapp/0.3.0")
 
 	client := &http.Client{}

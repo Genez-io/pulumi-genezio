@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
@@ -13,7 +14,6 @@ type DatabaseArgs struct {
 	Name    string `pulumi:"name"`
 	Type string `pulumi:"type"`
 	Region string `pulumi:"region"`
-	AuthToken string `pulumi:"authToken"`
 }
 
 type DatabaseState struct {
@@ -26,6 +26,11 @@ type DatabaseState struct {
 }
 
 func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState , error) {
+	authToken, err := utils.IsLoggedIn(ctx)
+	if err != nil {
+		return id, inputs, state, err
+	}
+	ctx = p.CtxWithValue(ctx, "authToken", authToken)
 
 	finalState := DatabaseState{
 		DatabaseArgs: inputs,
@@ -33,7 +38,7 @@ func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state Datab
 		URL: state.URL,
 	}
 
-	databases, err := requests.ListDatabases(inputs.AuthToken)
+	databases, err := requests.ListDatabases(ctx)
 	if err != nil {
 		return id, inputs, state, err
 	}
@@ -53,20 +58,28 @@ func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state Datab
 }
 
 func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview bool) (string, DatabaseState, error) {
+	authToken, err := utils.IsLoggedIn(ctx)
+	if err != nil {
+		return name, DatabaseState{}, err
+	}
+	ctx = p.CtxWithValue(ctx, "authToken", authToken)
+
 	state := DatabaseState{DatabaseArgs: input}
 	if preview {
 		return name, state, nil
 	}
 
+	
+
 	fmt.Println("Creating database")
-	createDatabaseResponse,err := requests.CreateDatabase(input.Type, input.Region, input.AuthToken, input.Name)
+	createDatabaseResponse,err := requests.CreateDatabase(ctx, input.Type, input.Region, input.Name)
 	if err != nil {
 		return name, state, err
 	}
 	state.DatabaseId = createDatabaseResponse.DatabaseId
 	
 	fmt.Println("Getting database connection url")
-	getDatabaseConnectionUrl, err := requests.GetDatabaseConnectionUrl(state.DatabaseId, input.AuthToken)
+	getDatabaseConnectionUrl, err := requests.GetDatabaseConnectionUrl(ctx, state.DatabaseId)
 	if err != nil {
 		return name, state, err
 	}

@@ -46,7 +46,6 @@ const myDatabase = new genezio.Database("MyDatabase", {
   name: "my-database-fullstack-pulumi",
   type: "postgres-neon",
   region: "aws-us-east-1",
-  authToken: process.env.AUTH_TOKEN ?? "",
 });
 
 // export const databaseOutput = {
@@ -56,6 +55,11 @@ const myDatabase = new genezio.Database("MyDatabase", {
 //   type: myDatabase.type,
 //   endpoint: myDatabase.url,
 // };
+
+// export enum DatabaseType {
+//   POSTGRES = "postgres-neon",
+//   MYSQL = "mysql-neon",
+// }
 
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
   folderHash: sha256FromFolder("./function"),
