@@ -33,8 +33,8 @@ export class Database extends pulumi.CustomResource {
 
     public /*out*/ readonly databaseId!: pulumi.Output<string>;
     public readonly name!: pulumi.Output<string>;
-    public readonly region!: pulumi.Output<string>;
-    public readonly type!: pulumi.Output<string>;
+    public readonly region!: pulumi.Output<string | undefined>;
+    public readonly type!: pulumi.Output<string | undefined>;
     public /*out*/ readonly url!: pulumi.Output<string>;
 
     /**
@@ -50,12 +50,6 @@ export class Database extends pulumi.CustomResource {
         if (!opts.id) {
             if ((!args || args.name === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'name'");
-            }
-            if ((!args || args.region === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'region'");
-            }
-            if ((!args || args.type === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'type'");
             }
             resourceInputs["name"] = args ? args.name : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
@@ -79,6 +73,6 @@ export class Database extends pulumi.CustomResource {
  */
 export interface DatabaseArgs {
     name: pulumi.Input<string>;
-    region: pulumi.Input<string>;
-    type: pulumi.Input<string>;
+    region?: pulumi.Input<string>;
+    type?: pulumi.Input<string>;
 }

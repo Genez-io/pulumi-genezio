@@ -41,7 +41,7 @@ const myFrontend = new genezio.Frontend("MyFrontend", {
 });
 
 const myDatabase = new genezio.Database("MyDatabase", {
-  name: "my-database-fullstack-pulumi",
+  name: "my-database-fullstack-pulumi-4",
   type: "postgres-neon",
   region: "aws-us-east-1",
 });
