@@ -9,15 +9,18 @@ import (
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
+
+	p "github.com/pulumi/pulumi-go-provider"
 )
 
 
 func DeployRequest(
+	ctx p.Context,
 	projectConfiguration domain.ProjectConfiguration,
 	genezioDeployInput []domain.GenezioCloudInput,
 	stage string,
 	stack []string,
-	authToken string,
 ) (domain.DeployCodeResponse, error) {
 	
 
@@ -73,6 +76,11 @@ func DeployRequest(
 	}
 
 	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/core/deployment",constants.API_URL), bytes.NewBuffer(jsonMarshal))
+	if err != nil {
+		return domain.DeployCodeResponse{}, err
+	}
+
+	authToken, err := utils.GetAuthToken(ctx)
 	if err != nil {
 		return domain.DeployCodeResponse{}, err
 	}

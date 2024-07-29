@@ -31,7 +31,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
         return obj['__pulumiType'] === ServerlessFunction.__pulumiType;
     }
 
-    public readonly authToken!: pulumi.Output<string>;
     public readonly entry!: pulumi.Output<string>;
     public readonly environmentVariables!: pulumi.Output<{[key: string]: string} | undefined>;
     public readonly folderHash!: pulumi.Output<string | undefined>;
@@ -56,9 +55,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if ((!args || args.authToken === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'authToken'");
-            }
             if ((!args || args.entry === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'entry'");
             }
@@ -77,7 +73,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
             if ((!args || args.region === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'region'");
             }
-            resourceInputs["authToken"] = args ? args.authToken : undefined;
             resourceInputs["entry"] = args ? args.entry : undefined;
             resourceInputs["environmentVariables"] = args ? args.environmentVariables : undefined;
             resourceInputs["folderHash"] = args ? args.folderHash : undefined;
@@ -91,7 +86,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
             resourceInputs["projectId"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         } else {
-            resourceInputs["authToken"] = undefined /*out*/;
             resourceInputs["entry"] = undefined /*out*/;
             resourceInputs["environmentVariables"] = undefined /*out*/;
             resourceInputs["folderHash"] = undefined /*out*/;
@@ -114,7 +108,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
  * The set of arguments for constructing a ServerlessFunction resource.
  */
 export interface ServerlessFunctionArgs {
-    authToken: pulumi.Input<string>;
     entry: pulumi.Input<string>;
     environmentVariables?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     folderHash?: pulumi.Input<string>;

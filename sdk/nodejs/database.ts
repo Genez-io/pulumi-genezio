@@ -31,11 +31,10 @@ export class Database extends pulumi.CustomResource {
         return obj['__pulumiType'] === Database.__pulumiType;
     }
 
-    public readonly authToken!: pulumi.Output<string>;
     public /*out*/ readonly databaseId!: pulumi.Output<string>;
     public readonly name!: pulumi.Output<string>;
-    public readonly region!: pulumi.Output<string>;
-    public readonly type!: pulumi.Output<string>;
+    public readonly region!: pulumi.Output<string | undefined>;
+    public readonly type!: pulumi.Output<string | undefined>;
     public /*out*/ readonly url!: pulumi.Output<string>;
 
     /**
@@ -49,26 +48,15 @@ export class Database extends pulumi.CustomResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if ((!args || args.authToken === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'authToken'");
-            }
             if ((!args || args.name === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'name'");
             }
-            if ((!args || args.region === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'region'");
-            }
-            if ((!args || args.type === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'type'");
-            }
-            resourceInputs["authToken"] = args ? args.authToken : undefined;
             resourceInputs["name"] = args ? args.name : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
             resourceInputs["type"] = args ? args.type : undefined;
             resourceInputs["databaseId"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         } else {
-            resourceInputs["authToken"] = undefined /*out*/;
             resourceInputs["databaseId"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["region"] = undefined /*out*/;
@@ -84,8 +72,7 @@ export class Database extends pulumi.CustomResource {
  * The set of arguments for constructing a Database resource.
  */
 export interface DatabaseArgs {
-    authToken: pulumi.Input<string>;
     name: pulumi.Input<string>;
-    region: pulumi.Input<string>;
-    type: pulumi.Input<string>;
+    region?: pulumi.Input<string>;
+    type?: pulumi.Input<string>;
 }

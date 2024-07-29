@@ -260,6 +260,9 @@ func ZipDirectoryToDestinationPath(source string, destinationPath string, outPat
 	
 			defer f1.Close()
 			_, err = io.Copy(w1, f1)
+			if err != nil {
+				return err
+			}
 		}
 	
         return err

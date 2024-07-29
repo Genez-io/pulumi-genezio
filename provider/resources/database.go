@@ -1,6 +1,8 @@
 package resources
 
 import (
+	"fmt"
+
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	p "github.com/pulumi/pulumi-go-provider"
@@ -12,12 +14,12 @@ type DatabaseArgs struct {
 	Name      string  `pulumi:"name"`
 	Type      *string `pulumi:"type,optional"`
 	Region    *string `pulumi:"region,optional"`
-	AuthToken string  `pulumi:"authToken"`
 }
 
 type DatabaseState struct {
 	DatabaseArgs
 
+	URL 	 string `pulumi:"url"`
 	DatabaseId string `pulumi:"databaseId"`
 }
 
@@ -38,7 +40,7 @@ type DatabaseState struct {
 // }
 
 func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState, error) {
-	databases, err := requests.ListDatabases(inputs.AuthToken)
+	databases, err := requests.ListDatabases(ctx)
 	if err != nil {
 		return id, inputs, state, err
 	}
@@ -59,25 +61,34 @@ func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview 
 		return name, state, nil
 	}
 
+	
 	databaseType := "postgres-neon"
 	if input.Type != nil {
 		databaseType = *input.Type
 	}
-	region := "us-east-1"
+	region := "aws-us-east-1"
 	if input.Region != nil {
 		region = *input.Region
 	}
 
-	createDatabaseResponse, err := requests.CreateDatabase(domain.CreateDatabaseRequest{
-		Name:   input.Name,
-		Type:   databaseType,
-		Region: "aws-" + region,
-	}, input.AuthToken)
-
+	fmt.Println("Creating database")
+	createDatabaseResponse,err := requests.CreateDatabase(ctx, domain.CreateDatabaseRequest{
+		Name: input.Name,
+		Type: databaseType,
+		Region: region,
+	})
 	if err != nil {
 		return name, state, err
 	}
-	state.DatabaseId = createDatabaseResponse.Id
+	state.DatabaseId = createDatabaseResponse.DatabaseId
+	
+	fmt.Println("Getting database connection url")
+	getDatabaseConnectionUrl, err := requests.GetDatabaseConnectionUrl(ctx, state.DatabaseId)
+	if err != nil {
+		return name, state, err
+	}
+
+	state.URL = getDatabaseConnectionUrl
 
 	// TODO - Already link the database to the project
 

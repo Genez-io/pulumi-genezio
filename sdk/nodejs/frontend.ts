@@ -31,7 +31,6 @@ export class Frontend extends pulumi.CustomResource {
         return obj['__pulumiType'] === Frontend.__pulumiType;
     }
 
-    public readonly authToken!: pulumi.Output<string>;
     public readonly path!: pulumi.Output<string>;
     public readonly projectName!: pulumi.Output<string>;
     public readonly publish!: pulumi.Output<string>;
@@ -50,9 +49,6 @@ export class Frontend extends pulumi.CustomResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if ((!args || args.authToken === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'authToken'");
-            }
             if ((!args || args.path === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'path'");
             }
@@ -65,7 +61,6 @@ export class Frontend extends pulumi.CustomResource {
             if ((!args || args.region === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'region'");
             }
-            resourceInputs["authToken"] = args ? args.authToken : undefined;
             resourceInputs["path"] = args ? args.path : undefined;
             resourceInputs["projectName"] = args ? args.projectName : undefined;
             resourceInputs["publish"] = args ? args.publish : undefined;
@@ -73,7 +68,6 @@ export class Frontend extends pulumi.CustomResource {
             resourceInputs["subdomain"] = args ? args.subdomain : undefined;
             resourceInputs["url"] = undefined /*out*/;
         } else {
-            resourceInputs["authToken"] = undefined /*out*/;
             resourceInputs["path"] = undefined /*out*/;
             resourceInputs["projectName"] = undefined /*out*/;
             resourceInputs["publish"] = undefined /*out*/;
@@ -90,7 +84,6 @@ export class Frontend extends pulumi.CustomResource {
  * The set of arguments for constructing a Frontend resource.
  */
 export interface FrontendArgs {
-    authToken: pulumi.Input<string>;
     path: pulumi.Input<string>;
     projectName: pulumi.Input<string>;
     publish: pulumi.Input<string>;

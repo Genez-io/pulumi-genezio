@@ -14,7 +14,6 @@ type ProjectArgs struct {
 	Region string `pulumi:"region"`
 	Stage string `pulumi:"stage"`
 	CloudProvider string `pulumi:"cloudProvider"`
-	AuthToken string `pulumi:"authToken"`
 }
 
 type ProjectState struct {
@@ -29,9 +28,10 @@ func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bo
 	if preview {
 		return name, state, nil
 	}
+	
 
 	fmt.Println("Creating project")
-	createProjectResponse,err := requests.CreateProject(input.CloudProvider, input.Region, input.AuthToken, input.Name, input.Stage)
+	createProjectResponse,err := requests.CreateProject(ctx, input.CloudProvider, input.Region, input.Name, input.Stage)
 	if err != nil {
 		return name, state, fmt.Errorf("error creating project: %v", err)
 	}

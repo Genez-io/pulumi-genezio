@@ -135,6 +135,20 @@ devcontainer::
 
 build:: provider nodejs_sdk
 
+show::
+	@echo "PROVIDER: ${PROVIDER}"
+	@echo "VERSION: ${VERSION}"
+	@echo "VERSION_PATH: ${VERSION_PATH}"
+	@echo "GOPATH: ${GOPATH}"
+	@echo "WORKING_DIR: ${WORKING_DIR}"
+	@echo "EXAMPLES_DIR: ${EXAMPLES_DIR}"
+	@echo "TESTPARALLELISM: ${TESTPARALLELISM}"
+	@echo "OS: ${OS}"
+	@echo "DOTNET_VERSION: ${DOTNET_VERSION}"
+	@echo "PYPI_VERSION: ${PYPI_VERSION}"
+	@echo "NODE_MODULE_NAME: ${NODE_MODULE_NAME}"
+	@echo "NUGET_PKG_NAME: ${NUGET_PKG_NAME}"
+
 # Required for the codegen action that runs in pulumi/pulumi
 only_build:: build
 

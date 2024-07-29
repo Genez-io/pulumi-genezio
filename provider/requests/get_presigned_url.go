@@ -8,14 +8,16 @@ import (
 	"net/http"
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
+	p "github.com/pulumi/pulumi-go-provider"
 )
 
 func GetPresignedUrl(
+	ctx p.Context,
 	region string,
 	archiveName string,
 	projectName string,
 	deployUnitName string,
-	authToken string,
 ) (string, error) {
 
 	if region == "" || archiveName=="" || projectName=="" || deployUnitName=="" {
@@ -46,6 +48,11 @@ func GetPresignedUrl(
 	}
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/core/deployment-url",constants.API_URL), bytes.NewBuffer(jsonMarshal))
+	if err != nil {
+		return "", err
+	}
+
+	authToken, err := utils.GetAuthToken(ctx)
 	if err != nil {
 		return "", err
 	}

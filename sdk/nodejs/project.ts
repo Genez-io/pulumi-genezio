@@ -31,7 +31,6 @@ export class Project extends pulumi.CustomResource {
         return obj['__pulumiType'] === Project.__pulumiType;
     }
 
-    public readonly authToken!: pulumi.Output<string>;
     public readonly cloudProvider!: pulumi.Output<string>;
     public readonly name!: pulumi.Output<string>;
     public /*out*/ readonly projectEnvId!: pulumi.Output<string>;
@@ -50,9 +49,6 @@ export class Project extends pulumi.CustomResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if ((!args || args.authToken === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'authToken'");
-            }
             if ((!args || args.cloudProvider === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'cloudProvider'");
             }
@@ -65,7 +61,6 @@ export class Project extends pulumi.CustomResource {
             if ((!args || args.stage === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'stage'");
             }
-            resourceInputs["authToken"] = args ? args.authToken : undefined;
             resourceInputs["cloudProvider"] = args ? args.cloudProvider : undefined;
             resourceInputs["name"] = args ? args.name : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
@@ -73,7 +68,6 @@ export class Project extends pulumi.CustomResource {
             resourceInputs["projectEnvId"] = undefined /*out*/;
             resourceInputs["projectId"] = undefined /*out*/;
         } else {
-            resourceInputs["authToken"] = undefined /*out*/;
             resourceInputs["cloudProvider"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["projectEnvId"] = undefined /*out*/;
@@ -90,7 +84,6 @@ export class Project extends pulumi.CustomResource {
  * The set of arguments for constructing a Project resource.
  */
 export interface ProjectArgs {
-    authToken: pulumi.Input<string>;
     cloudProvider: pulumi.Input<string>;
     name: pulumi.Input<string>;
     region: pulumi.Input<string>;

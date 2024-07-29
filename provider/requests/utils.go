@@ -8,15 +8,23 @@ import (
 	"net/http"
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
+
+	p "github.com/pulumi/pulumi-go-provider"
 )
 
-func MakeRequest(method string, endpoint string, body interface{}, response interface{}, authToken string) error {
+func MakeRequest(ctx p.Context, method string, endpoint string, body interface{}, response interface{}) error {
 	data, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
 
 	req, err := http.NewRequest(method, fmt.Sprintf("%s/%s", constants.API_URL, endpoint), bytes.NewBuffer(data))
+	if err != nil {
+		return err
+	}
+
+	authToken, err := utils.GetAuthToken(ctx)
 	if err != nil {
 		return err
 	}

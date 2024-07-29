@@ -9,22 +9,20 @@ import (
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
+
+	p "github.com/pulumi/pulumi-go-provider"
 )
 
 func SetEnvironmentVariables(
+	ctx p.Context,
 	projectId string,
 	projectEnvId string,
-	environmentVariablesData []domain.EnvironmentVariable, 
-	authToken string,
+	environmentVariablesData []domain.EnvironmentVariable,
 ) error {
 	if projectId == "" || projectEnvId == "" {
 		return fmt.Errorf("projectId and ProjectEnvId is required")
 	}
-
-	if authToken == "" {
-		return fmt.Errorf("authToken is required")
-	}
-
 
 	type request struct {
 		EnvironmentVariables []domain.EnvironmentVariable `json:"environmentVariables"`
@@ -40,6 +38,11 @@ func SetEnvironmentVariables(
 	}
 
 	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/projects/%s/%s/environment-variables", constants.API_URL, projectId, projectEnvId), bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+
+	authToken, err := utils.GetAuthToken(ctx)
 	if err != nil {
 		return err
 	}

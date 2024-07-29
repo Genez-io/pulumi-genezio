@@ -7,10 +7,8 @@ type CreateDatabaseRequest struct {
 }
 
 type CreateDatabaseResponse struct {
-	Id     string `json:"id"`
-	Name   string `json:"name"`
-	Region string `json:"region"`
-	Type   string `json:"type,omitempty"`
+	DatabaseId string `json:"databaseId"`
+	Status     string `json:"status"`
 }
 
 type GetDatabaseConnectionUrlResponse struct {
