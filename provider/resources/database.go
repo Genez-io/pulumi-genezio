@@ -76,7 +76,7 @@ func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview 
 	if input.Type != nil {
 		databaseType = *input.Type
 	}
-	region := "aws-us-east-1"
+	region := "us-east-1"
 	if input.Region != nil {
 		region = *input.Region
 	}
