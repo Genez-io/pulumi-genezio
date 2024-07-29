@@ -33,7 +33,12 @@ func MakeRequest(ctx p.Context, method string, endpoint string, body interface{}
 	req.Header.Set("Authorization", "Bearer "+authToken)
 	req.Header.Set("Accept-Version", "genezio-webapp/0.3.0")
 
-	client := &http.Client{}
+	client := &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConns: 100,
+			MaxIdleConnsPerHost: 100,
+		},
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -49,10 +54,14 @@ func MakeRequest(ctx p.Context, method string, endpoint string, body interface{}
 		return fmt.Errorf("error: %s and response %v", string(bodyBytes), resp)
 	}
 
-	err = json.Unmarshal(bodyBytes, &response)
-	if err != nil {
-		return err
+
+	if response != nil {
+		err = json.Unmarshal(bodyBytes, &response)
+		if err != nil {
+			return err
+		}
 	}
+	
 
 	return nil
 }
