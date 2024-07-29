@@ -10,7 +10,6 @@ import (
 func DeleteProject(ctx p.Context, id string) (domain.DeleteProjectResponse, error) {
 	var response domain.DeleteProjectResponse
 	err := MakeRequest(ctx, http.MethodGet, "projects/"+id, nil, &response)
-
 	return response, err
 }
 
