@@ -31,11 +31,6 @@ type FrontendState struct {
 
 
 func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview bool) (string, FrontendState, error) {
-	authToken, err := utils.IsLoggedIn(ctx)
-	if err != nil {
-		return name, FrontendState{}, err
-	}
-	ctx = p.CtxWithValue(ctx, "authToken", authToken)
 
 	state := FrontendState{FrontendArgs: input}
 	if preview {

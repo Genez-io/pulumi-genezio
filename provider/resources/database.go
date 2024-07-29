@@ -26,11 +26,6 @@ type DatabaseState struct {
 }
 
 func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState , error) {
-	authToken, err := utils.IsLoggedIn(ctx)
-	if err != nil {
-		return id, inputs, state, err
-	}
-	ctx = p.CtxWithValue(ctx, "authToken", authToken)
 
 	finalState := DatabaseState{
 		DatabaseArgs: inputs,

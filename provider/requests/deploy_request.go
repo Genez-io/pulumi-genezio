@@ -9,6 +9,7 @@ import (
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
 
 	p "github.com/pulumi/pulumi-go-provider"
 )
@@ -79,7 +80,12 @@ func DeployRequest(
 		return domain.DeployCodeResponse{}, err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+ctx.Value("authToken").(string))
+	authToken, err := utils.GetAuthToken(ctx)
+	if err != nil {
+		return domain.DeployCodeResponse{}, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+authToken)
 	req.Header.Set("Accept-Version", "genezio-cli/2.2.0")
 
 	client := &http.Client{

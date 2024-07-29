@@ -31,16 +31,16 @@ func IsLoggedIn(ctx p.Context) (string, error) {
 	
 } 
 
-func GetUser(ctx p.Context) (domain.UserPayload, string, error) {
+func GetUser(ctx p.Context) (string, string, error) {
 
 	authToken, err := GetAuthToken(ctx)
 	if err != nil {
-		return domain.UserPayload{}, "", err
+		return "", "", err
 	}
 
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/users/user", constants.API_URL),nil)
 	if err != nil {
-		return domain.UserPayload{}, "", err
+		return "", "", err
 	}
 
 	req.Header.Set("Accept-Version", "genezio-cli/2.2.0")
@@ -50,25 +50,25 @@ func GetUser(ctx p.Context) (domain.UserPayload, string, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return domain.UserPayload{}, "" , err
+		return "", "" , err
 	}
 
 	defer resp.Body.Close()
 
 	body,err := io.ReadAll(resp.Body)
 	if err != nil {
-		return domain.UserPayload{}, "", err
+		return "", "", err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return domain.UserPayload{}, "", fmt.Errorf("error: %s", body)
+		return "", "", fmt.Errorf("error: %s", body)
 	}
 
 	var user domain.UserPayload
 	err = json.Unmarshal(body, &user)
 	if err != nil {
-		return domain.UserPayload{}, "", err
+		return "", "", err
 	}
 
-	return user, authToken, nil
+	return user.ID, authToken, nil
 }

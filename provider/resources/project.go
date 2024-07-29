@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
-	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
@@ -25,12 +24,6 @@ type ProjectState struct {
 }
 
 func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bool) (string, ProjectState, error) {
-	authToken, err := utils.IsLoggedIn(ctx)
-	if err != nil {
-		return name, ProjectState{}, err
-	}
-	ctx = p.CtxWithValue(ctx, "authToken", authToken)
-
 	state := ProjectState{ProjectArgs: input}
 	if preview {
 		return name, state, nil

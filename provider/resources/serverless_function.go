@@ -7,7 +7,6 @@ import (
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
-	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
@@ -37,12 +36,6 @@ type ServerlessFunctionState struct {
 
 
 func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
-	authToken, err := utils.IsLoggedIn(ctx)
-	if err != nil {
-		return name, ServerlessFunctionState{}, err
-	}
-	ctx = p.CtxWithValue(ctx, "authToken", authToken)
-
 	
 	state := ServerlessFunctionState{ServerlessFunctionArgs: input}
 	if preview {

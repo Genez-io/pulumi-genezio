@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
@@ -37,9 +38,15 @@ func CreateFrontendProject(ctx p.Context, genezioDomain string, projectName stri
 		return "", err
 	}
 
+	authToken, err := utils.GetAuthToken(ctx)
+	if err != nil {
+		return "", err
+	}
+
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept-Version", "genezio-cli/2.2.0")
-	req.Header.Set("Authorization", "Bearer "+ctx.Value("authToken").(string))
+	req.Header.Set("Authorization", "Bearer "+authToken)
 
 	client := &http.Client{
 		Transport: &http.Transport{

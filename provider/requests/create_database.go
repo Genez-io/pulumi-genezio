@@ -9,6 +9,7 @@ import (
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
@@ -41,9 +42,14 @@ func CreateDatabase(
 		return domain.CreateDatabaseResponse{}, err
 	}
 
+	authToken, err := utils.GetAuthToken(ctx)
+	if err != nil {
+		return domain.CreateDatabaseResponse{}, err
+	}
+
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+ctx.Value("authToken").(string))
+	req.Header.Set("Authorization", "Bearer "+authToken)
 	req.Header.Set("Accept-Version", "genezio-webapp/0.3.0")
 
 	client := &http.Client{
