@@ -11,8 +11,8 @@ import (
 type Database struct{}
 
 type DatabaseArgs struct {
-	ProjectName string  `pulumi:"projectName"`
 	Name        string  `pulumi:"name"`
+	ProjectName *string `pulumi:"projectName,optional"`
 	Type        *string `pulumi:"type,optional"`
 	Region      *string `pulumi:"region,optional"`
 }
@@ -101,20 +101,23 @@ func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview 
 
 	state.DatabaseId = createDatabaseResponse.DatabaseId
 
-	projectDetails, err := requests.GetProjectDetails(ctx, input.ProjectName)
-	if err != nil {
-		log.Println("Error getting project details", err)
-		return name, state, err
-	}
+	// If a project name is provided, link the database to the project
+	if input.ProjectName != nil {
+		projectDetails, err := requests.GetProjectDetails(ctx, *input.ProjectName)
+		if err != nil {
+			log.Println("Error getting project details", err)
+			return name, state, err
+		}
 
-	_, err = requests.LinkDatabaseToProject(ctx, domain.LinkDatabaseToProjectRequest{
-		ProjectId:  projectDetails.Project.Id,
-		StageId:    projectDetails.Project.ProjectEnvs[0].Id,
-		DatabaseId: createDatabaseResponse.DatabaseId,
-	})
-	if err != nil {
-		log.Println("Error linking database to project", err)
-		return name, state, err
+		_, err = requests.LinkDatabaseToProject(ctx, domain.LinkDatabaseToProjectRequest{
+			ProjectId:  projectDetails.Project.Id,
+			StageId:    projectDetails.Project.ProjectEnvs[0].Id,
+			DatabaseId: createDatabaseResponse.DatabaseId,
+		})
+		if err != nil {
+			log.Println("Error linking database to project", err)
+			return name, state, err
+		}
 	}
 
 	return name, state, nil
