@@ -1,7 +1,7 @@
 package resources
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
@@ -11,15 +11,16 @@ import (
 type Database struct{}
 
 type DatabaseArgs struct {
-	Name      string  `pulumi:"name"`
-	Type      *string `pulumi:"type,optional"`
-	Region    *string `pulumi:"region,optional"`
+	Name        string  `pulumi:"name"`
+	ProjectName *string `pulumi:"projectName,optional"`
+	Type        *string `pulumi:"type,optional"`
+	Region      *string `pulumi:"region,optional"`
 }
 
 type DatabaseState struct {
 	DatabaseArgs
 
-	URL 	 string `pulumi:"url"`
+	URL        string `pulumi:"url"`
 	DatabaseId string `pulumi:"databaseId"`
 }
 
@@ -38,6 +39,16 @@ type DatabaseState struct {
 // 	}, nil
 
 // }
+
+func (*Database) Delete(ctx p.Context, id string, state DatabaseState) error {
+	err := requests.DeleteDatabase(ctx, state.DatabaseId)
+	if err != nil {
+		log.Println("Error deleting database", err)
+		return err
+	}
+
+	return nil
+}
 
 func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState, error) {
 	databases, err := requests.ListDatabases(ctx)
@@ -61,28 +72,26 @@ func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview 
 		return name, state, nil
 	}
 
-	
 	databaseType := "postgres-neon"
 	if input.Type != nil {
 		databaseType = *input.Type
 	}
-	region := "aws-us-east-1"
+	region := "us-east-1"
 	if input.Region != nil {
 		region = *input.Region
 	}
 
-	fmt.Println("Creating database")
-	createDatabaseResponse,err := requests.CreateDatabase(ctx, domain.CreateDatabaseRequest{
-		Name: input.Name,
-		Type: databaseType,
-		Region: region,
+	createDatabaseResponse, err := requests.CreateDatabase(ctx, domain.CreateDatabaseRequest{
+		Name:   input.Name,
+		Type:   databaseType,
+		Region: "aws-" + region,
 	})
 	if err != nil {
+		log.Println("Error creating database", err)
 		return name, state, err
 	}
 	state.DatabaseId = createDatabaseResponse.DatabaseId
-	
-	fmt.Println("Getting database connection url")
+
 	getDatabaseConnectionUrl, err := requests.GetDatabaseConnectionUrl(ctx, state.DatabaseId)
 	if err != nil {
 		return name, state, err
@@ -90,7 +99,26 @@ func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview 
 
 	state.URL = getDatabaseConnectionUrl
 
-	// TODO - Already link the database to the project
+	state.DatabaseId = createDatabaseResponse.DatabaseId
+
+	// If a project name is provided, link the database to the project
+	if input.ProjectName != nil {
+		projectDetails, err := requests.GetProjectDetails(ctx, *input.ProjectName)
+		if err != nil {
+			log.Println("Error getting project details", err)
+			return name, state, err
+		}
+
+		_, err = requests.LinkDatabaseToProject(ctx, domain.LinkDatabaseToProjectRequest{
+			ProjectId:  projectDetails.Project.Id,
+			StageId:    projectDetails.Project.ProjectEnvs[0].Id,
+			DatabaseId: createDatabaseResponse.DatabaseId,
+		})
+		if err != nil {
+			log.Println("Error linking database to project", err)
+			return name, state, err
+		}
+	}
 
 	return name, state, nil
 }

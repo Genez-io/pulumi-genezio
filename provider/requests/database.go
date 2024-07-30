@@ -10,9 +10,13 @@ import (
 
 func CreateDatabase(ctx p.Context, request domain.CreateDatabaseRequest) (domain.CreateDatabaseResponse, error) {
 	var response domain.CreateDatabaseResponse
-	err := MakeRequest(ctx,http.MethodPost, "databases", request, &response)
+	err := MakeRequest(ctx, http.MethodPost, "databases", request, &response)
 
 	return response, err
+}
+
+func DeleteDatabase(ctx p.Context, databaseId string) error {
+	return MakeRequest(ctx, http.MethodDelete, "databases/"+databaseId, nil, nil)
 }
 
 func ListDatabases(ctx p.Context) ([]domain.DatabaseDetails, error) {
@@ -27,4 +31,11 @@ func GetDatabaseConnectionUrl(ctx p.Context, databaseId string) (string, error) 
 	err := MakeRequest(ctx, http.MethodGet, "databases/"+databaseId, nil, &response)
 
 	return response.ConnectionUrl, err
+}
+
+func LinkDatabaseToProject(ctx p.Context, request domain.LinkDatabaseToProjectRequest) (domain.LinkDatabaseToProjectResponse, error) {
+	var response domain.LinkDatabaseToProjectResponse
+	err := MakeRequest(ctx, http.MethodPost, "projects/"+request.ProjectId+"/"+request.StageId+"/databases/"+request.DatabaseId, nil, &response)
+
+	return response, err
 }

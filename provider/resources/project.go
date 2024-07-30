@@ -2,6 +2,7 @@ package resources
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
@@ -11,16 +12,16 @@ import (
 type Project struct{}
 
 type ProjectArgs struct {
-	Name    string `pulumi:"name"`
-	Region string `pulumi:"region"`
-	Stage string `pulumi:"stage"`
+	Name          string `pulumi:"name"`
+	Region        string `pulumi:"region"`
+	Stage         string `pulumi:"stage"`
 	CloudProvider string `pulumi:"cloudProvider"`
 }
 
 type ProjectState struct {
 	ProjectArgs
 
-	ProjectId string `pulumi:"projectId"`
+	ProjectId    string `pulumi:"projectId"`
 	ProjectEnvId string `pulumi:"projectEnvId"`
 }
 
@@ -29,9 +30,7 @@ func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bo
 	if preview {
 		return name, state, nil
 	}
-	
 
-	fmt.Println("Creating project")
 
 	
 	createProjectResponse,err := requests.CreateProject(ctx, domain.CreateProjectRequest{
@@ -48,4 +47,14 @@ func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bo
 	state.ProjectEnvId = createProjectResponse.ProjectEnvID
 
 	return name, state, nil
+}
+
+func (*Project) Delete(ctx p.Context, id string, state ProjectState) error {
+	_, err := requests.DeleteProject(ctx, state.ProjectId)
+	if err != nil {
+		log.Println("Error deleting project", err)
+		return err
+	}
+
+	return nil
 }

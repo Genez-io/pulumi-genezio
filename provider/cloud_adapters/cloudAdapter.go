@@ -11,25 +11,25 @@ import (
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
-type CloudAdapter interface{
+type CloudAdapter interface {
 	Deploy(ctx p.Context, input []domain.GenezioCloudInput, projectConfiguration domain.ProjectConfiguration, cloudAdapterOptions CloudAdapterOptions, stack *string) (domain.GenezioCloudOutput, error)
-	DeployFrontend(ctx p.Context,projectName string, projectRegion string, frontend domain.FrontendConfiguration,stage string) (string, error)
+	DeployFrontend(ctx p.Context, projectName string, projectRegion string, frontend domain.FrontendConfiguration, stage string) (string, error)
 }
 
 type genezioCloudAdapter struct {
-
 }
 
 func NewGenezioCloudAdapter() CloudAdapter {
 	return &genezioCloudAdapter{}
 }
 
-func (g *genezioCloudAdapter) Deploy(ctx p.Context, input []domain.GenezioCloudInput, projectConfiguration domain.ProjectConfiguration, cloudAdapterOptions CloudAdapterOptions, stack *string) (domain. GenezioCloudOutput, error) {
+func (g *genezioCloudAdapter) Deploy(ctx p.Context, input []domain.GenezioCloudInput, projectConfiguration domain.ProjectConfiguration, cloudAdapterOptions CloudAdapterOptions, stack *string) (domain.GenezioCloudOutput, error) {
 
 	stage := ""
 	if cloudAdapterOptions.Stage != nil {
 		stage = *cloudAdapterOptions.Stage
 	}
+
 	
 		for _, element := range input {
 			presignedUrlResponse,err := requests.GetPresignedUrl(ctx, domain.GetPresignedUrlRequest{
@@ -83,15 +83,23 @@ func (g *genezioCloudAdapter) Deploy(ctx p.Context, input []domain.GenezioCloudI
 			Stack: nil,
 		}) 
 		if err != nil {
-			fmt.Printf("An error occurred while trying to deploy the request %v\n", err)
+			fmt.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
 			return domain.GenezioCloudOutput{}, err
 		}
 
+	}
+
+	response, err := requests.DeployRequest(ctx, projectConfiguration, input, stage, nil)
+	if err != nil {
+		fmt.Printf("An error occurred while trying to deploy the request %v\n", err)
+		return domain.GenezioCloudOutput{}, err
+	}
+
 	return domain.GenezioCloudOutput{
-		ProjectID: response.ProjectID,
+		ProjectID:    response.ProjectID,
 		ProjectEnvID: response.ProjectEnvID,
-		Classes: response.Classes,
-		Functions: response.Functions,
+		Classes:      response.Classes,
+		Functions:    response.Functions,
 	}, nil
 }
 
@@ -102,11 +110,11 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 		finalStageName = fmt.Sprintf("-%s", stage)
 	} else {
 		finalStageName = ""
-	} 
+	}
 
 	finalSubdomain := fmt.Sprintf("%s%s", frontend.Subdomain, finalStageName)
 
-	temporaryFolder,err := utils.CreateTemporaryFolder(nil,nil)
+	temporaryFolder, err := utils.CreateTemporaryFolder(nil, nil)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to create a temporary folder %v\n", err)
 		return "", err
@@ -116,10 +124,10 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 	if frontend.Publish == "" {
 		frontend.Publish = "."
 	}
-	frontendPath := filepath.Join(frontend.Path,frontend.Publish)
+	frontendPath := filepath.Join(frontend.Path, frontend.Publish)
 
-	exclussionList := []string{".git",".github"}
-	err = utils.ZipDirectoryToDestinationPath(frontendPath,finalSubdomain ,archivePath,exclussionList)
+	exclussionList := []string{".git", ".github"}
+	err = utils.ZipDirectoryToDestinationPath(frontendPath, finalSubdomain, archivePath, exclussionList)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to zip the directory %v\n", err)
 		return "", err
@@ -136,11 +144,12 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 		return "", err
 	}
 
-	err = requests.UploadContentToS3(&presignedUrl.PresignedURL,archivePath,&presignedUrl.UserID)
+	err = requests.UploadContentToS3(&presignedUrl.PresignedURL, archivePath, &presignedUrl.UserID)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
 		return "", err
 	}
+
 
 	createFrontendResponse, err := requests.CreateFrontendProject(ctx, domain.CreateFrontendProjectRequest{
 		ProjectName: projectName,
@@ -157,8 +166,6 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 	return createFrontendResponse.Domain, nil
 }
 
-
 type CloudAdapterOptions struct {
 	Stage *string `pulumi:"stage"`
 }
-

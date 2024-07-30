@@ -26,12 +26,12 @@ func WriteToFile(
 		dirPath := filepath.Dir(fullPath)
 		if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 			err := os.MkdirAll(dirPath, 0755)
-			
+
 			if err != nil {
 				return err
 			}
 		}
-	} 
+	}
 
 	var data []byte
 	switch v := content.(type) {
@@ -48,14 +48,14 @@ func WriteToFile(
 
 func CreateTemporaryFolder(name *string, shouldDeleteContents *bool) (string, error) {
 	tmpDir := os.TempDir()
-	// create a folder name variable with the pid at the end 
+	// create a folder name variable with the pid at the end
 	// to avoid conflicts with other temporary folders
 	folderName := fmt.Sprintf("genezio-%d", os.Getpid())
 	tmpParentFolder := filepath.Join(tmpDir, folderName)
 	// if the folder doesn't exist, create it
 	if _, err := os.Stat(tmpParentFolder); os.IsNotExist(err) {
 		err := os.MkdirAll(tmpParentFolder, 0755)
-		
+
 		if err != nil {
 			return "", err
 		}
@@ -65,7 +65,7 @@ func CreateTemporaryFolder(name *string, shouldDeleteContents *bool) (string, er
 	if name == nil {
 		randomName := make([]byte, 6)
 		_, err := rand.Read(randomName)
-		
+
 		if err != nil {
 			return "", err
 		}
@@ -75,7 +75,7 @@ func CreateTemporaryFolder(name *string, shouldDeleteContents *bool) (string, er
 	tmpFolder := filepath.Join(tmpParentFolder, *name)
 
 	if _, err := os.Stat(tmpFolder); os.IsNotExist(err) {
-		if shouldDeleteContents != nil && *shouldDeleteContents{
+		if shouldDeleteContents != nil && *shouldDeleteContents {
 			err := os.RemoveAll(tmpFolder)
 			if err != nil {
 				return "", err
@@ -89,13 +89,12 @@ func CreateTemporaryFolder(name *string, shouldDeleteContents *bool) (string, er
 		}
 	}
 
-
 	return tmpFolder, nil
-} 
+}
 
 func CopyFile(source string, dest string) error {
 	sourceFile, err := os.Open(source)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	defer sourceFile.Close()
@@ -108,7 +107,8 @@ func CopyFile(source string, dest string) error {
 	if err != nil {
 		return err
 	}
-	return destFile.Sync()}
+	return destFile.Sync()
+}
 
 func CopyFolder(source string, dest string) error {
 	srcInfo, err := os.Stat(source)
@@ -153,8 +153,6 @@ func CopyFileOrFolder(source string, dest string) error {
 }
 
 func ZipDirectory(source string, outPath string, exclussion []string) error {
-
-	fmt.Printf("Zipping %s to %s\n", source, outPath)
 	zipFile, err := os.Create(outPath)
 	if err != nil {
 		return err
@@ -171,7 +169,6 @@ func ZipDirectory(source string, outPath string, exclussion []string) error {
 		if err != nil {
 			return err
 		}
-		
 
 		for _, exclussionPath := range exclussion {
 			if relPath == exclussionPath {
@@ -195,7 +192,7 @@ func ZipDirectory(source string, outPath string, exclussion []string) error {
 			return err
 		}
 
-		if _,err := io.Copy(w1, f1); err != nil {
+		if _, err := io.Copy(w1, f1); err != nil {
 			return err
 		}
 
@@ -205,38 +202,38 @@ func ZipDirectory(source string, outPath string, exclussion []string) error {
 		return err
 	}
 
-	return  zipWriter.Close()
+	return zipWriter.Close()
 
 }
 
-func ZipDirectoryToDestinationPath(source string, destinationPath string, outPath string, exclussion []string ) error{
-    // Create the zip file
-    zipFile, err := os.Create(outPath)
-    if err != nil {
-        return err
-    }
-    defer zipFile.Close()
+func ZipDirectoryToDestinationPath(source string, destinationPath string, outPath string, exclussion []string) error {
+	// Create the zip file
+	zipFile, err := os.Create(outPath)
+	if err != nil {
+		return err
+	}
+	defer zipFile.Close()
 
-    // Create a new zip writer
-    zipWriter := zip.NewWriter(zipFile)
-    defer zipWriter.Close()
+	// Create a new zip writer
+	zipWriter := zip.NewWriter(zipFile)
+	defer zipWriter.Close()
 
-    // Walk through the frontend directory
-    err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
-        if err != nil {
-            return err
-        }
+	// Walk through the frontend directory
+	err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 
-        // Create the zip file entry name
-        entryName := filepath.Join(destinationPath, strings.TrimPrefix(path, source))
+		// Create the zip file entry name
+		entryName := filepath.Join(destinationPath, strings.TrimPrefix(path, source))
 
-		relPath, err := filepath.Rel(source,path)
+		relPath, err := filepath.Rel(source, path)
 		if err != nil {
 			return err
 		}
 
 		for _, exclussionPath := range exclussion {
-			if  relPath == exclussionPath {
+			if relPath == exclussionPath {
 				return nil
 			}
 		}
@@ -251,26 +248,25 @@ func ZipDirectoryToDestinationPath(source string, destinationPath string, outPat
 			return err
 		}
 
-        
 		if !info.IsDir() {
 			f1, err := os.Open(path)
 			if err != nil {
 				return err
 			}
-	
+
 			defer f1.Close()
 			_, err = io.Copy(w1, f1)
 			if err != nil {
 				return err
 			}
 		}
-	
-        return err
-    })
 
-    if err != nil {
-        return err
-    }
+		return err
+	})
+
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
