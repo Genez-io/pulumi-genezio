@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
@@ -25,20 +26,60 @@ type DatabaseState struct {
 }
 
 // TODO - Improve this to handle changes for region and type - now they are ignored
-// func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news DatabaseArgs) (p.DiffResponse, error) {
-// 	diff := map[string]p.PropertyDiff{}
+func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news DatabaseArgs) (p.DiffResponse, error) {
+	diff := map[string]p.PropertyDiff{}
 
-// 	if olds.Name != news.Name {
-// 		diff["name"] = p.PropertyDiff{Kind: p.Update}
-// 	}
+	if olds.Name != news.Name {
+		diff["name"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
 
-// 	return p.DiffResponse{
-// 		DeleteBeforeReplace: false,
-// 		HasChanges:          len(diff) > 0,
-// 		DetailedDiff:        diff,
-// 	}, nil
+	if olds.ProjectName != news.ProjectName {
+		diff["projectName"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
 
-// }
+	if olds.Type == nil {
+		if news.Type != nil && *news.Type != "postgres-neon" {
+			diff["type"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.Type != nil {
+			if *olds.Type != *news.Type {
+				diff["type"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		} else {
+			if *olds.Type != "postgres-neon" {
+				diff["type"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		}
+	}
+
+	if olds.Region == nil {
+		if news.Region != nil && *news.Region != "us-east-1" {
+			diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.Region != nil {
+			if *olds.Region != *news.Region {
+				diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		} else {
+			if *olds.Region != "us-east-1" {
+				diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		}
+	}
+
+	if len(diff) > 0 {
+		log.Println("Diff", diff)
+	}
+
+	return p.DiffResponse{
+		DeleteBeforeReplace: true,
+		HasChanges:          len(diff) > 0,
+		DetailedDiff:        diff,
+	}, nil
+
+}
 
 func (*Database) Delete(ctx p.Context, id string, state DatabaseState) error {
 	err := requests.DeleteDatabase(ctx, state.DatabaseId)
@@ -51,6 +92,7 @@ func (*Database) Delete(ctx p.Context, id string, state DatabaseState) error {
 }
 
 func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState, error) {
+	fmt.Println("Read", id, inputs, state)
 	databases, err := requests.ListDatabases(ctx)
 	if err != nil {
 		return id, inputs, state, err
