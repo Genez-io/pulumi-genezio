@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	p "github.com/pulumi/pulumi-go-provider"
 )
@@ -30,7 +31,14 @@ func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bo
 		return name, state, nil
 	}
 
-	createProjectResponse, err := requests.CreateProject(ctx, input.CloudProvider, input.Region, input.Name, input.Stage)
+
+	
+	createProjectResponse,err := requests.CreateProject(ctx, domain.CreateProjectRequest{
+		ProjectName: input.Name,
+		Region: input.Region,
+		Stage: input.Stage,
+		CloudProvider: input.CloudProvider,
+	})
 	if err != nil {
 		return name, state, fmt.Errorf("error creating project: %v", err)
 	}

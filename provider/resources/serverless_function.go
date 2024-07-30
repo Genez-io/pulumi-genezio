@@ -97,7 +97,9 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 	}
 
 	if len(environmentVariablesData) > 0{
-	responseEnv := requests.SetEnvironmentVariables(ctx, response.ProjectID, response.ProjectEnvID, environmentVariablesData)
+	responseEnv := requests.SetEnvironmentVariables(ctx, response.ProjectID, response.ProjectEnvID, domain.SetEnvironmentVariablesRequest{
+		EnvironmentVariables: environmentVariablesData,
+	})
 		if responseEnv != nil {
 			fmt.Printf("An error occurred while trying to set environment variables %v", responseEnv)
 			return "", ServerlessFunctionState{}, responseEnv
