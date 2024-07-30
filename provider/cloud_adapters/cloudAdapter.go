@@ -87,14 +87,6 @@ func (g *genezioCloudAdapter) Deploy(ctx p.Context, input []domain.GenezioCloudI
 			return domain.GenezioCloudOutput{}, err
 		}
 
-	}
-
-	response, err := requests.DeployRequest(ctx, projectConfiguration, input, stage, nil)
-	if err != nil {
-		fmt.Printf("An error occurred while trying to deploy the request %v\n", err)
-		return domain.GenezioCloudOutput{}, err
-	}
-
 	return domain.GenezioCloudOutput{
 		ProjectID:    response.ProjectID,
 		ProjectEnvID: response.ProjectEnvID,

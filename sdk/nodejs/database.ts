@@ -33,6 +33,7 @@ export class Database extends pulumi.CustomResource {
 
     public /*out*/ readonly databaseId!: pulumi.Output<string>;
     public readonly name!: pulumi.Output<string>;
+    public readonly projectName!: pulumi.Output<string | undefined>;
     public readonly region!: pulumi.Output<string | undefined>;
     public readonly type!: pulumi.Output<string | undefined>;
     public /*out*/ readonly url!: pulumi.Output<string>;
@@ -52,6 +53,7 @@ export class Database extends pulumi.CustomResource {
                 throw new Error("Missing required property 'name'");
             }
             resourceInputs["name"] = args ? args.name : undefined;
+            resourceInputs["projectName"] = args ? args.projectName : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
             resourceInputs["type"] = args ? args.type : undefined;
             resourceInputs["databaseId"] = undefined /*out*/;
@@ -59,6 +61,7 @@ export class Database extends pulumi.CustomResource {
         } else {
             resourceInputs["databaseId"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
+            resourceInputs["projectName"] = undefined /*out*/;
             resourceInputs["region"] = undefined /*out*/;
             resourceInputs["type"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
@@ -73,6 +76,7 @@ export class Database extends pulumi.CustomResource {
  */
 export interface DatabaseArgs {
     name: pulumi.Input<string>;
+    projectName?: pulumi.Input<string>;
     region?: pulumi.Input<string>;
     type?: pulumi.Input<string>;
 }
