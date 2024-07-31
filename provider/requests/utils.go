@@ -13,6 +13,13 @@ import (
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
+type ResponseStatus string
+
+const (
+	Success ResponseStatus = "ok"
+	Failure ResponseStatus = "error"
+)
+
 func MakeRequest(ctx p.Context, method string, endpoint string, body interface{}, response interface{}) error {
 	data, err := json.Marshal(body)
 	if err != nil {

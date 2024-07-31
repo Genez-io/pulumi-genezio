@@ -1,7 +1,6 @@
 package resources
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
@@ -69,10 +68,6 @@ func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news Databas
 		}
 	}
 
-	if len(diff) > 0 {
-		log.Println("Diff", diff)
-	}
-
 	return p.DiffResponse{
 		DeleteBeforeReplace: true,
 		HasChanges:          len(diff) > 0,
@@ -82,17 +77,26 @@ func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news Databas
 }
 
 func (*Database) Delete(ctx p.Context, id string, state DatabaseState) error {
-	err := requests.DeleteDatabase(ctx, state.DatabaseId)
+
+	databases, err := requests.ListDatabases(ctx)
 	if err != nil {
-		log.Println("Error deleting database", err)
 		return err
 	}
 
+	for _, database := range databases {
+		if database.Id == state.DatabaseId {
+			err := requests.DeleteDatabase(ctx, state.DatabaseId)
+			if err != nil {
+				log.Println("Error deleting database", err)
+				return err
+			}
+			break			
+		}
+	}
 	return nil
 }
 
 func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState, error) {
-	fmt.Println("Read", id, inputs, state)
 	databases, err := requests.ListDatabases(ctx)
 	if err != nil {
 		return id, inputs, state, err
