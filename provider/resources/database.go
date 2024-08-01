@@ -2,6 +2,7 @@ package resources
 
 import (
 	"log"
+	"strings"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
@@ -25,28 +26,68 @@ type DatabaseState struct {
 }
 
 // TODO - Improve this to handle changes for region and type - now they are ignored
-// func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news DatabaseArgs) (p.DiffResponse, error) {
-// 	diff := map[string]p.PropertyDiff{}
+func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news DatabaseArgs) (p.DiffResponse, error) {
+	diff := map[string]p.PropertyDiff{}
 
-// 	if olds.Name != news.Name {
-// 		diff["name"] = p.PropertyDiff{Kind: p.Update}
-// 	}
-
-// 	return p.DiffResponse{
-// 		DeleteBeforeReplace: false,
-// 		HasChanges:          len(diff) > 0,
-// 		DetailedDiff:        diff,
-// 	}, nil
-
-// }
-
-func (*Database) Delete(ctx p.Context, id string, state DatabaseState) error {
-	err := requests.DeleteDatabase(ctx, state.DatabaseId)
-	if err != nil {
-		log.Println("Error deleting database", err)
-		return err
+	if olds.Name != news.Name {
+		diff["name"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
+	if olds.ProjectName != news.ProjectName {
+		diff["projectName"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
+
+	if olds.Type == nil {
+		if news.Type != nil && *news.Type != "postgres-neon" {
+			diff["type"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.Type != nil {
+			if *olds.Type != *news.Type {
+				diff["type"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		} else {
+			if *olds.Type != "postgres-neon" {
+				diff["type"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		}
+	}
+
+	if olds.Region == nil {
+		if news.Region != nil && *news.Region != "us-east-1" {
+			diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.Region != nil {
+			if *olds.Region != *news.Region {
+				diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		} else {
+			if *olds.Region != "us-east-1" {
+				diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		}
+	}
+
+	return p.DiffResponse{
+		DeleteBeforeReplace: true,
+		HasChanges:          len(diff) > 0,
+		DetailedDiff:        diff,
+	}, nil
+
+}
+
+func (*Database) Delete(ctx p.Context, id string, state DatabaseState) error {
+
+	err := requests.DeleteDatabase(ctx, state.DatabaseId)
+	if err != nil {
+		if strings.Contains(err.Error(), "405 Method Not Allowed") {
+			log.Println("Database is already deleted")
+			return nil
+		}
+		log.Println("Error deleting database", err.Error())
+		return err
+	}
 	return nil
 }
 

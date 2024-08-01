@@ -2,6 +2,7 @@ package resources
 
 import (
 	"fmt"
+	"os"
 
 	ca "github.com/Genez-io/pulumi-genezio/provider/cloud_adapters"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
@@ -15,10 +16,14 @@ import (
 type ServerlessFunction struct{}
 
 type ServerlessFunctionArgs struct {
-	Path string `pulumi:"path"` 
 	ProjectName  string `pulumi:"projectName"`
-	Name string `pulumi:"name"`
 	Region	   string `pulumi:"region"`
+	Stage *string `pulumi:"stage,optional"`
+	CloudProvider *string `pulumi:"cloudProvider,optional"`
+	BackendPath *string `pulumi:"backendPath,optional"`
+	Language *string `pulumi:"language,optional"`
+	Path string `pulumi:"path"` 
+	Name string `pulumi:"name"`
 	Entry string `pulumi:"entry"`
 	Handler string `pulumi:"handler"`
 	FolderHash *string `pulumi:"folderHash,optional"`
@@ -42,8 +47,27 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		return name, state, nil
 	}
 
+	cloudProvider := "genezio-cloud"
+	if input.CloudProvider != nil {
+		cloudProvider = *input.CloudProvider
+	}
 
-	backendPath := "."
+	backendPath,err := os.Getwd()
+	if err != nil {
+		fmt.Printf("An error occurred while trying to get the current working directory %v", err)
+		return "", ServerlessFunctionState{}, err
+	}
+
+	if input.BackendPath != nil {
+		backendPath = *input.BackendPath
+	}
+
+	language := "js"
+	if input.Language != nil {
+		language = *input.Language
+	}
+
+
 
 	projectConfiguration := domain.ProjectConfiguration{
 		Name: input.ProjectName,
@@ -52,7 +76,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 			NodeRuntime: "nodejs20.x",
 			Architecture: "arm64",
 		},
-		CloudProvider: "genezio-cloud",
+		CloudProvider: cloudProvider,
 		Workspace: domain.Workspace{
 			Backend: backendPath,
 		},
@@ -65,7 +89,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 			{
 				Name: input.Name,
 				Path: input.Path,
-				Language: "ts",
+				Language: language,
 				Handler: input.Handler,
 				Entry: input.Entry,
 				Type: "aws",
@@ -82,7 +106,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 
 	cloudAdapter := ca.NewGenezioCloudAdapter()
 
-	response, err := cloudAdapter.Deploy(ctx, cloudInputs, projectConfiguration, ca.CloudAdapterOptions{Stage: nil}, nil)
+	response, err := cloudAdapter.Deploy(ctx, cloudInputs, projectConfiguration, ca.CloudAdapterOptions{Stage: input.Stage}, nil)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to deploy the function %v", err)
 		return "", ServerlessFunctionState{}, err

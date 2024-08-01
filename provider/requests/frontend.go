@@ -23,3 +23,14 @@ func GetFrontendPresignedUrl(ctx p.Context, request domain.GetFrontendPresignedU
 
 	return response, err
 }
+
+func GetFrontendsByEnvId(ctx p.Context, envId string) (domain.GetFrontendByEnvIdResponse, error) {
+	var response domain.GetFrontendByEnvIdResponse
+	err := MakeRequest(ctx, http.MethodGet, "frontend/"+envId, nil, &response)
+
+	return response, err
+}
+
+func DeleteFrontend(ctx p.Context, subdomain string) error {
+	return MakeRequest(ctx, http.MethodDelete, "frontend/"+subdomain, nil, nil)
+}
