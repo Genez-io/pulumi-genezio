@@ -62,7 +62,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		backendPath = *input.BackendPath
 	}
 
-	language := "ts"
+	language := "js"
 	if input.Language != nil {
 		language = *input.Language
 	}
