@@ -37,6 +37,120 @@ type ServerlessFunctionState struct {
 	ProjectEnvId string `pulumi:"projectEnvId"`
 }
 
+func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctionState, news ServerlessFunctionArgs) (p.DiffResponse, error){
+	diff := map[string]p.PropertyDiff{}
+
+	if olds.ProjectName != news.ProjectName {
+		diff["projectName"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
+
+	if olds.Region != news.Region {
+		diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
+
+	if olds.Stage == nil {
+		if news.Stage != nil && *news.Stage != "prod" {
+			diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.Stage != nil {
+			if *olds.Stage != *news.Stage {
+				diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		} else {
+			if *olds.Stage != "prod" {
+				diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		}
+	}
+
+	if olds.CloudProvider == nil {
+		if news.CloudProvider != nil && *news.CloudProvider != "genezio-cloud" {
+			diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.CloudProvider != nil {
+			if *olds.CloudProvider != *news.CloudProvider {
+				diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		} else {
+			if *olds.CloudProvider != "genezio-cloud" {
+				diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		}
+	}
+
+
+	if olds.BackendPath == nil {
+		if news.BackendPath != nil {
+			diff["backendPath"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.BackendPath == nil {
+			diff["backendPath"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		} else {
+			if *olds.BackendPath != *news.BackendPath {
+				diff["backendPath"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		}
+	}
+
+	if olds.Language == nil {
+		if news.Language != nil && *news.Language != "js" {
+			diff["language"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.Language != nil {
+			if *olds.Language != *news.Language {
+				diff["language"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		} else {
+			if *olds.Language != "js" {
+				diff["language"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		}
+	}
+
+	if olds.Path != news.Path {
+		diff["path"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
+
+	if olds.Name != news.Name {
+		diff["name"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
+
+	if olds.Entry != news.Entry {
+		diff["entry"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
+
+	if olds.Handler != news.Handler {
+		diff["handler"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
+
+	if olds.FolderHash == nil {
+		if news.FolderHash != nil {
+			diff["folderHash"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.FolderHash == nil {
+			diff["folderHash"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		} else {
+			if *olds.FolderHash != *news.FolderHash {
+				diff["folderHash"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		}
+	}
+
+	return p.DiffResponse{
+		DeleteBeforeReplace: true,
+		HasChanges: len(diff) > 0,
+		DetailedDiff: diff,
+	}, nil
+
+
+	
+}
+
 
 func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
 	
