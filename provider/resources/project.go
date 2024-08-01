@@ -17,6 +17,7 @@ type ProjectArgs struct {
 	Region        string `pulumi:"region"`
 	Stage         *string `pulumi:"stage,optional"`
 	CloudProvider string `pulumi:"cloudProvider"`
+	EnvironmentVariables map[string]string `pulumi:"environmentVariables,optional"`
 }
 
 type ProjectState struct {
@@ -57,12 +58,25 @@ func (*Project) Diff(ctx p.Context, id string, olds ProjectState, news ProjectAr
 		}
 	}
 
+	if len(olds.EnvironmentVariables) != len(news.EnvironmentVariables) {
+		diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+	} else {
+		for key, value := range news.EnvironmentVariables {
+			if oldValue, ok := olds.EnvironmentVariables[key]; !ok || oldValue != value {
+				diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+				break
+			}
+		}
+	}
+
 	return p.DiffResponse{
 		DeleteBeforeReplace: true,
 		HasChanges:          len(diff) > 0,
 		DetailedDiff:        diff,
 	}, nil
 }
+
+
 
 func (*Project) Read(ctx p.Context, id string, inputs ProjectArgs, state ProjectState) (string, ProjectArgs, ProjectState, error) {
 	
@@ -123,10 +137,61 @@ func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bo
 		return name, state, fmt.Errorf("error creating project: %v", err)
 	}
 
+	// Set environment variables
+	var environmentVariablesData []domain.EnvironmentVariable
+	for key, value := range input.EnvironmentVariables {
+		environmentVariablesData = append(environmentVariablesData, domain.EnvironmentVariable{
+			Name: key,
+			Value: value,
+		})
+	}
+	if len(environmentVariablesData) > 0{
+		err := requests.SetEnvironmentVariables(ctx, createProjectResponse.ProjectID, createProjectResponse.ProjectEnvID, domain.SetEnvironmentVariablesRequest{
+			EnvironmentVariables: environmentVariablesData,
+		})
+			if err != nil {
+				log.Println("Error setting environment variables", err)
+				return "", ProjectState{}, err
+			}
+		}
+
 	state.ProjectId = createProjectResponse.ProjectID
 	state.ProjectEnvId = createProjectResponse.ProjectEnvID
 
 	return name, state, nil
+}
+
+func (*Project) Update(ctx p.Context, id string, olds ProjectState, news ProjectArgs, preview bool) (ProjectState, error) {
+	
+	state := ProjectState{ProjectArgs: news}
+	if preview {
+		return state, nil
+	}
+	
+	state.ProjectId = olds.ProjectId
+	state.ProjectEnvId = olds.ProjectEnvId
+	
+	// Set environment variables
+	var environmentVariablesData []domain.EnvironmentVariable
+	for key, value := range news.EnvironmentVariables {
+		environmentVariablesData = append(environmentVariablesData, domain.EnvironmentVariable{
+			Name: key,
+			Value: value,
+		})
+	}
+
+
+	if len(environmentVariablesData) > 0{
+		err := requests.SetEnvironmentVariables(ctx, state.ProjectId, state.ProjectEnvId, domain.SetEnvironmentVariablesRequest{
+			EnvironmentVariables: environmentVariablesData,
+		})
+			if err != nil {
+				log.Println("Error setting environment variables", err)
+				return ProjectState{}, err
+			}
+		}
+
+	return state, nil
 }
 
 func (*Project) Delete(ctx p.Context, id string, state ProjectState) error {

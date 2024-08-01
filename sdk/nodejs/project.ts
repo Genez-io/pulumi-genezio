@@ -32,6 +32,7 @@ export class Project extends pulumi.CustomResource {
     }
 
     public readonly cloudProvider!: pulumi.Output<string>;
+    public readonly environmentVariables!: pulumi.Output<{[key: string]: string} | undefined>;
     public readonly name!: pulumi.Output<string>;
     public /*out*/ readonly projectEnvId!: pulumi.Output<string>;
     public /*out*/ readonly projectId!: pulumi.Output<string>;
@@ -59,6 +60,7 @@ export class Project extends pulumi.CustomResource {
                 throw new Error("Missing required property 'region'");
             }
             resourceInputs["cloudProvider"] = args ? args.cloudProvider : undefined;
+            resourceInputs["environmentVariables"] = args ? args.environmentVariables : undefined;
             resourceInputs["name"] = args ? args.name : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
             resourceInputs["stage"] = args ? args.stage : undefined;
@@ -66,6 +68,7 @@ export class Project extends pulumi.CustomResource {
             resourceInputs["projectId"] = undefined /*out*/;
         } else {
             resourceInputs["cloudProvider"] = undefined /*out*/;
+            resourceInputs["environmentVariables"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["projectEnvId"] = undefined /*out*/;
             resourceInputs["projectId"] = undefined /*out*/;
@@ -82,6 +85,7 @@ export class Project extends pulumi.CustomResource {
  */
 export interface ProjectArgs {
     cloudProvider: pulumi.Input<string>;
+    environmentVariables?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     name: pulumi.Input<string>;
     region: pulumi.Input<string>;
     stage?: pulumi.Input<string>;

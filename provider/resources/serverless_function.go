@@ -7,7 +7,6 @@ import (
 	ca "github.com/Genez-io/pulumi-genezio/provider/cloud_adapters"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
-	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
@@ -27,7 +26,6 @@ type ServerlessFunctionArgs struct {
 	Entry string `pulumi:"entry"`
 	Handler string `pulumi:"handler"`
 	FolderHash *string `pulumi:"folderHash,optional"`
-	EnvironmentVariables map[string]string `pulumi:"environmentVariables,optional"`
 }
 
 type ServerlessFunctionState struct {
@@ -111,25 +109,6 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		fmt.Printf("An error occurred while trying to deploy the function %v", err)
 		return "", ServerlessFunctionState{}, err
 	}
-
-	var environmentVariablesData []domain.EnvironmentVariable
-	for key, value := range input.EnvironmentVariables {
-		environmentVariablesData = append(environmentVariablesData, domain.EnvironmentVariable{
-			Name: key,
-			Value: value,
-		})
-	}
-
-	if len(environmentVariablesData) > 0{
-	responseEnv := requests.SetEnvironmentVariables(ctx, response.ProjectID, response.ProjectEnvID, domain.SetEnvironmentVariablesRequest{
-		EnvironmentVariables: environmentVariablesData,
-	})
-		if responseEnv != nil {
-			fmt.Printf("An error occurred while trying to set environment variables %v", responseEnv)
-			return "", ServerlessFunctionState{}, responseEnv
-		}
-	}
-
 
 
 	state.ID = response.Functions[0].ID	

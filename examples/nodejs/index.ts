@@ -25,10 +25,18 @@ function sha256FromFolder(folderPath: string): string {
   return hash.digest("hex");
 }
 
+const myDatabase = new genezio.Database("MyDatabase", {
+  name: "my-database-fullstack-pulumi-6",
+  type: "postgres-neon",
+});
+
 const MyProject = new genezio.Project("MyProject", {
   name: "my-fullstack-pulumi",
   region: "us-east-1",
   cloudProvider: "genezio-cloud",
+  environmentVariables: {
+    POSTGRES_URL2: myDatabase.url,
+  },
 });
 
 // console.log(typeof MyProject.stage);
@@ -40,11 +48,6 @@ const myFrontend = new genezio.Frontend("MyFrontend", {
   path: "./client",
   publish: "./dist",
   subdomain: "my-frontend-pulumi-10",
-});
-
-const myDatabase = new genezio.Database("MyDatabase", {
-  name: "my-database-fullstack-pulumi-4",
-  type: "postgres-neon",
 });
 
 // export const databaseOutput = {
@@ -63,7 +66,4 @@ const myFunction = new genezio.ServerlessFunction("MyFunction", {
   entry: "app.mjs",
   handler: "handler",
   name: "my-function",
-  environmentVariables: {
-    POSTGRES_URL: myDatabase.url,
-  },
 });

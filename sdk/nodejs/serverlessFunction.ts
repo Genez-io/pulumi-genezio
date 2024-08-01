@@ -34,7 +34,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
     public readonly backendPath!: pulumi.Output<string | undefined>;
     public readonly cloudProvider!: pulumi.Output<string | undefined>;
     public readonly entry!: pulumi.Output<string>;
-    public readonly environmentVariables!: pulumi.Output<{[key: string]: string} | undefined>;
     public readonly folderHash!: pulumi.Output<string | undefined>;
     public /*out*/ readonly functionId!: pulumi.Output<string>;
     public readonly handler!: pulumi.Output<string>;
@@ -80,7 +79,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
             resourceInputs["backendPath"] = args ? args.backendPath : undefined;
             resourceInputs["cloudProvider"] = args ? args.cloudProvider : undefined;
             resourceInputs["entry"] = args ? args.entry : undefined;
-            resourceInputs["environmentVariables"] = args ? args.environmentVariables : undefined;
             resourceInputs["folderHash"] = args ? args.folderHash : undefined;
             resourceInputs["handler"] = args ? args.handler : undefined;
             resourceInputs["language"] = args ? args.language : undefined;
@@ -97,7 +95,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
             resourceInputs["backendPath"] = undefined /*out*/;
             resourceInputs["cloudProvider"] = undefined /*out*/;
             resourceInputs["entry"] = undefined /*out*/;
-            resourceInputs["environmentVariables"] = undefined /*out*/;
             resourceInputs["folderHash"] = undefined /*out*/;
             resourceInputs["functionId"] = undefined /*out*/;
             resourceInputs["handler"] = undefined /*out*/;
@@ -123,7 +120,6 @@ export interface ServerlessFunctionArgs {
     backendPath?: pulumi.Input<string>;
     cloudProvider?: pulumi.Input<string>;
     entry: pulumi.Input<string>;
-    environmentVariables?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
     folderHash?: pulumi.Input<string>;
     handler: pulumi.Input<string>;
     language?: pulumi.Input<string>;
