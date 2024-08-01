@@ -29,12 +29,14 @@ const MyProject = new genezio.Project("MyProject", {
   name: "my-fullstack-pulumi",
   region: "us-east-1",
   cloudProvider: "genezio-cloud",
-  stage: "prod",
 });
 
+// console.log(typeof MyProject.stage);
+// export const MyProjectOutput = MyProject.projectEnvId;
+
 const myFrontend = new genezio.Frontend("MyFrontend", {
-  projectName: "my-fullstack-pulumi",
-  region: "us-east-1",
+  projectName: MyProject.name,
+  region: MyProject.region,
   path: "./client",
   publish: "./dist",
   subdomain: "my-frontend-pulumi-10",
@@ -43,7 +45,6 @@ const myFrontend = new genezio.Frontend("MyFrontend", {
 const myDatabase = new genezio.Database("MyDatabase", {
   name: "my-database-fullstack-pulumi-4",
   type: "postgres-neon",
-  region: "aws-us-east-1",
 });
 
 // export const databaseOutput = {
@@ -54,16 +55,11 @@ const myDatabase = new genezio.Database("MyDatabase", {
 //   endpoint: myDatabase.url,
 // };
 
-// export enum DatabaseType {
-//   POSTGRES = "postgres-neon",
-//   MYSQL = "mysql-neon",
-// }
-
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
   folderHash: sha256FromFolder("./function"),
   path: "./function",
-  projectName: "my-fullstack-pulumi",
-  region: "us-east-1",
+  projectName: MyProject.name,
+  region: MyProject.region,
   entry: "app.mjs",
   handler: "handler",
   name: "my-function",

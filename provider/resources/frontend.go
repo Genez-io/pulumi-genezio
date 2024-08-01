@@ -21,6 +21,7 @@ type FrontendArgs struct {
 	ProjectName string `pulumi:"projectName"`
 	Region 	string `pulumi:"region"`
 	Stage 	*string `pulumi:"stage,optional"`
+	// Project ProjectState `pulumi:"project"` TODO - See if we can do something like this for nested resources
 	Path string `pulumi:"path"`
 	Subdomain *string `pulumi:"subdomain,optional"`
 	Publish string `pulumi:"publish"`
@@ -148,7 +149,7 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 		return name, state, nil
 	}
 
-	stage := ""
+	stage := "prod"
 	if input.Stage != nil {
 		stage = *input.Stage
 	}
@@ -193,7 +194,7 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 		Publish: input.Publish,
 	}
 
-	response, err := cloudAdapter.DeployFrontend(ctx, input.ProjectName,input.Region, frontendConfiguration, stage,)
+	response, err := cloudAdapter.DeployFrontend(ctx, input.ProjectName,input.Region, frontendConfiguration, stage)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to deploy the frontend %v\n", err)
 		return "", FrontendState{}, err
@@ -206,7 +207,7 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 func (*Frontend) Delete(ctx p.Context, id string, state FrontendState) error {
 	projectDetails, err := requests.GetProjectDetails(ctx, state.ProjectName)
 	if err != nil {
-		if strings.Contains(err.Error(), "record not found") {
+		if strings.Contains(err.Error(), "405 Method Not Allowed") {
 			return  nil
 		}
 		log.Println("Error getting project details", err)
@@ -239,6 +240,9 @@ func (*Frontend) Delete(ctx p.Context, id string, state FrontendState) error {
 		if frontend.GenezioDomain == *state.Subdomain {
 			err := requests.DeleteFrontend(ctx, frontend.GenezioDomain)
 			if err != nil {
+				if strings.Contains(err.Error(), "record not found") {
+					return nil
+				}
 				log.Println("Error deleting frontend", err)
 				return err
 			}

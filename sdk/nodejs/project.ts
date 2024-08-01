@@ -36,7 +36,7 @@ export class Project extends pulumi.CustomResource {
     public /*out*/ readonly projectEnvId!: pulumi.Output<string>;
     public /*out*/ readonly projectId!: pulumi.Output<string>;
     public readonly region!: pulumi.Output<string>;
-    public readonly stage!: pulumi.Output<string>;
+    public readonly stage!: pulumi.Output<string | undefined>;
 
     /**
      * Create a Project resource with the given unique name, arguments, and options.
@@ -57,9 +57,6 @@ export class Project extends pulumi.CustomResource {
             }
             if ((!args || args.region === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'region'");
-            }
-            if ((!args || args.stage === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'stage'");
             }
             resourceInputs["cloudProvider"] = args ? args.cloudProvider : undefined;
             resourceInputs["name"] = args ? args.name : undefined;
@@ -87,5 +84,5 @@ export interface ProjectArgs {
     cloudProvider: pulumi.Input<string>;
     name: pulumi.Input<string>;
     region: pulumi.Input<string>;
-    stage: pulumi.Input<string>;
+    stage?: pulumi.Input<string>;
 }

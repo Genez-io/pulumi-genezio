@@ -77,20 +77,6 @@ func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news Databas
 
 }
 
-func (*Database) Delete(ctx p.Context, id string, state DatabaseState) error {
-
-	err := requests.DeleteDatabase(ctx, state.DatabaseId)
-	if err != nil {
-		if strings.Contains(err.Error(), "405 Method Not Allowed") {
-			log.Println("Database is already deleted")
-			return nil
-		}
-		log.Println("Error deleting database", err.Error())
-		return err
-	}
-	return nil
-}
-
 func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState, error) {
 	databases, err := requests.ListDatabases(ctx)
 	if err != nil {
@@ -162,4 +148,18 @@ func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview 
 	}
 
 	return name, state, nil
+}
+
+func (*Database) Delete(ctx p.Context, id string, state DatabaseState) error {
+
+	err := requests.DeleteDatabase(ctx, state.DatabaseId)
+	if err != nil {
+		if strings.Contains(err.Error(), "405 Method Not Allowed") {
+			log.Println("Database is already deleted")
+			return nil
+		}
+		log.Println("Error deleting database", err.Error())
+		return err
+	}
+	return nil
 }
