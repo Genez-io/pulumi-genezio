@@ -86,8 +86,6 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 
 func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state FrontendState) (string, FrontendArgs ,FrontendState, error) {
 
-	log.Printf("Read frontend called with argumets id: %s, inputs: %v, state: %v\n", id, inputs, state)
-	
 	projectDetails,err := requests.GetProjectDetails(ctx, inputs.ProjectName)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {

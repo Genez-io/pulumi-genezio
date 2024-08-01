@@ -2,6 +2,7 @@ package resources
 
 import (
 	"log"
+	"strings"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
@@ -78,20 +79,14 @@ func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news Databas
 
 func (*Database) Delete(ctx p.Context, id string, state DatabaseState) error {
 
-	databases, err := requests.ListDatabases(ctx)
+	err := requests.DeleteDatabase(ctx, state.DatabaseId)
 	if err != nil {
-		return err
-	}
-
-	for _, database := range databases {
-		if database.Id == state.DatabaseId {
-			err := requests.DeleteDatabase(ctx, state.DatabaseId)
-			if err != nil {
-				log.Println("Error deleting database", err)
-				return err
-			}
-			break			
+		if strings.Contains(err.Error(), "405 Method Not Allowed") {
+			log.Println("Database is already deleted")
+			return nil
 		}
+		log.Println("Error deleting database", err.Error())
+		return err
 	}
 	return nil
 }
