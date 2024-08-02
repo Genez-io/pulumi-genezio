@@ -28,7 +28,7 @@ const myFrontend = new genezio.Frontend("MyFrontend", {
   projectName: MyProject.name,
   region: MyProject.region,
   path: "./client",
-  publish: "./dist",
+  publish: new pulumi.asset.FileArchive("./client/dist"),
   subdomain: "my-frontend-pulumi-10",
 });
 

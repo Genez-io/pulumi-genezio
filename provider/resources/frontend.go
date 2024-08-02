@@ -13,6 +13,7 @@ import (
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 )
 
 type Frontend struct{}
@@ -24,7 +25,7 @@ type FrontendArgs struct {
 	// Project ProjectState `pulumi:"project"` TODO - See if we can do something like this for nested resources
 	Path string `pulumi:"path"`
 	Subdomain *string `pulumi:"subdomain,optional"`
-	Publish string `pulumi:"publish"`
+	Publish resource.Archive `pulumi:"publish"`
 }
 
 type FrontendState struct {
@@ -74,7 +75,7 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 		}
 	}
 
-	if olds.Publish != news.Publish {
+	if olds.Publish.Hash != news.Publish.Hash {
 		diff["publish"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
@@ -144,6 +145,10 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 
 func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview bool) (string, FrontendState, error) {
 
+	// TODO Will need to investigate further why this is needed, For now this is needed for the FileArchive to work
+	// More info here https://pulumi-developer-docs.readthedocs.io/en/latest/architecture/deployment-schema.html#dabf18193072939515e22adb298388d-required
+	input.Publish.Sig = "0def7320c3a5731c473e5ecbe6d01bc7"
+
 	state := FrontendState{FrontendArgs: input}
 	if preview {
 		return name, state, nil
@@ -164,7 +169,12 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 		}
 	}
 
-	frontendPath := filepath.Join(input.Path, input.Publish)
+	
+	relPublishPath, err := filepath.Rel(input.Path, input.Publish.Path)
+	if err != nil {
+		return "", FrontendState{}, err
+	}
+	frontendPath := filepath.Join(input.Path, relPublishPath)
 
 	if _, err := os.Stat(frontendPath); os.IsNotExist(err) {
 		return "", FrontendState{}, fmt.Errorf("publish folder does not exist")
@@ -191,7 +201,7 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 	frontendConfiguration := domain.FrontendConfiguration{
 		Path: input.Path,
 		Subdomain: *input.Subdomain,
-		Publish: input.Publish,
+		Publish: relPublishPath,
 	}
 
 	response, err := cloudAdapter.DeployFrontend(ctx, input.ProjectName,input.Region, frontendConfiguration, stage)

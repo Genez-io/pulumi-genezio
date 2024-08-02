@@ -33,7 +33,7 @@ export class Frontend extends pulumi.CustomResource {
 
     public readonly path!: pulumi.Output<string>;
     public readonly projectName!: pulumi.Output<string>;
-    public readonly publish!: pulumi.Output<string>;
+    public readonly publish!: pulumi.Output<pulumi.asset.Archive>;
     public readonly region!: pulumi.Output<string>;
     public readonly stage!: pulumi.Output<string | undefined>;
     public readonly subdomain!: pulumi.Output<string | undefined>;
@@ -89,7 +89,7 @@ export class Frontend extends pulumi.CustomResource {
 export interface FrontendArgs {
     path: pulumi.Input<string>;
     projectName: pulumi.Input<string>;
-    publish: pulumi.Input<string>;
+    publish: pulumi.Input<pulumi.asset.Archive>;
     region: pulumi.Input<string>;
     stage?: pulumi.Input<string>;
     subdomain?: pulumi.Input<string>;
