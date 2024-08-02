@@ -8,6 +8,7 @@ import (
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
 	p "github.com/pulumi/pulumi-go-provider"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 )
 
 
@@ -21,11 +22,10 @@ type ServerlessFunctionArgs struct {
 	CloudProvider *string `pulumi:"cloudProvider,optional"`
 	BackendPath *string `pulumi:"backendPath,optional"`
 	Language *string `pulumi:"language,optional"`
-	Path string `pulumi:"path"` 
+	PathAsset resource.Archive `pulumi:"pathAsset"` 
 	Name string `pulumi:"name"`
 	Entry string `pulumi:"entry"`
 	Handler string `pulumi:"handler"`
-	FolderHash *string `pulumi:"folderHash,optional"`
 }
 
 type ServerlessFunctionState struct {
@@ -111,7 +111,7 @@ func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctio
 		}
 	}
 
-	if olds.Path != news.Path {
+	if olds.PathAsset.Hash != news.PathAsset.Hash {
 		diff["path"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
@@ -127,20 +127,6 @@ func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctio
 		diff["handler"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
-	if olds.FolderHash == nil {
-		if news.FolderHash != nil {
-			diff["folderHash"] = p.PropertyDiff{Kind: p.DeleteReplace}
-		}
-	} else {
-		if news.FolderHash == nil {
-			diff["folderHash"] = p.PropertyDiff{Kind: p.DeleteReplace}
-		} else {
-			if *olds.FolderHash != *news.FolderHash {
-				diff["folderHash"] = p.PropertyDiff{Kind: p.DeleteReplace}
-			}
-		}
-	}
-
 	return p.DiffResponse{
 		DeleteBeforeReplace: true,
 		HasChanges: len(diff) > 0,
@@ -154,6 +140,10 @@ func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctio
 
 func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
 	
+	// TODO Will need to investigate further why this is needed, For now this is needed for the FileArchive to work
+	// More info here https://pulumi-developer-docs.readthedocs.io/en/latest/architecture/deployment-schema.html#dabf18193072939515e22adb298388d-required
+	input.PathAsset.Sig = "0def7320c3a5731c473e5ecbe6d01bc7"
+
 	state := ServerlessFunctionState{ServerlessFunctionArgs: input}
 	if preview {
 		return name, state, nil
@@ -180,7 +170,6 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 	}
 
 
-
 	projectConfiguration := domain.ProjectConfiguration{
 		Name: input.ProjectName,
 		Region: input.Region,
@@ -200,7 +189,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		Functions: []domain.FunctionConfiguration{
 			{
 				Name: input.Name,
-				Path: input.Path,
+				Path: input.PathAsset.Path,
 				Language: language,
 				Handler: input.Handler,
 				Entry: input.Entry,

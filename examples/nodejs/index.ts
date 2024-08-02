@@ -7,24 +7,6 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-function sha256FromFolder(folderPath: string): string {
-  const hash = crypto.createHash("sha256");
-  const files = fs.readdirSync(folderPath);
-  for (const file of files) {
-    const filePath = path.join(folderPath, file);
-    const stat = fs.statSync(filePath);
-    if (stat.isDirectory()) {
-      const dirHash = sha256FromFolder(filePath);
-      hash.update(dirHash);
-    } else {
-      const content = fs.readFileSync(filePath);
-      hash.update(content);
-    }
-  }
-
-  return hash.digest("hex");
-}
-
 const myDatabase = new genezio.Database("MyDatabase", {
   name: "my-database-fullstack-pulumi-6",
   type: "postgres-neon",
@@ -59,8 +41,7 @@ const myFrontend = new genezio.Frontend("MyFrontend", {
 // };
 
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
-  folderHash: sha256FromFolder("./function"),
-  path: "./function",
+  pathAsset: new pulumi.asset.FileArchive("./function"),
   projectName: MyProject.name,
   region: MyProject.region,
   entry: "app.mjs",
