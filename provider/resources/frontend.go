@@ -209,8 +209,15 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 		fmt.Printf("An error occurred while trying to deploy the frontend %v\n", err)
 		return "", FrontendState{}, err
 	}
-
+	
 	state.URL = response
+
+	err = utils.DeleteTemporaryFolder()
+	if err != nil {
+		log.Println("Error deleting temporary folder", err)
+		return "", state, err
+	}
+	
 	return name, state, nil
 }
 

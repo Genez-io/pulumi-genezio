@@ -2,11 +2,13 @@ package resources
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	ca "github.com/Genez-io/pulumi-genezio/provider/cloud_adapters"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 )
@@ -218,6 +220,12 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 	state.URL = response.Functions[0].CloudUrl
 	state.ProjectId = response.ProjectID
 	state.ProjectEnvId = response.ProjectEnvID
+
+	err = utils.DeleteTemporaryFolder()
+	if err != nil {
+		log.Println("Error deleting temporary folder", err)
+		return "", state, err
+	}
 
 	return name, state, nil
 }
