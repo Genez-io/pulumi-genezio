@@ -13,7 +13,7 @@ func UploadContentToS3(
 	archivePath string,
 	userId *string,
 ) error {
-	if presignedUrl == nil || archivePath=="" {
+	if presignedUrl == nil || archivePath == "" {
 		return fmt.Errorf("presignedUrl, archivePath are required")
 	}
 	_, err := url.Parse(*presignedUrl)
@@ -21,18 +21,16 @@ func UploadContentToS3(
 		return err
 	}
 
-	file, err:= os.Open(archivePath)
+	file, err := os.Open(archivePath)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-
 	fileInfo, err := file.Stat()
 	if err != nil {
 		return err
 	}
-
 
 	bufferFile := make([]byte, fileInfo.Size())
 	_, err = file.Read(bufferFile)
@@ -40,13 +38,11 @@ func UploadContentToS3(
 		return err
 	}
 
-
-
 	req, err := http.NewRequest(http.MethodPut, *presignedUrl, bytes.NewBuffer(bufferFile))
 	if err != nil {
 		return err
 	}
-	
+
 	req.Header.Set("Content-Type", "application/octet-stream")
 	req.Header.Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
 
@@ -54,13 +50,11 @@ func UploadContentToS3(
 		req.Header.Set("x-amz-meta-userid", *userId)
 	}
 
-	client := &http.Client{
-	}
+	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
-
 
 	defer resp.Body.Close()
 

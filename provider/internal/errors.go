@@ -25,5 +25,5 @@ type ErrorPayload struct {
 
 type ErrorResponse struct {
 	Status requests.ResponseStatus `json:"status"`
-	Error  ErrorPayload   `json:"error"`
+	Error  ErrorPayload            `json:"error"`
 }

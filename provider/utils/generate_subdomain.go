@@ -5,7 +5,6 @@ import (
 	"github.com/dillonstreator/go-unique-name-generator/dictionaries"
 )
 
-
 func GenerateRandomSubdomain() string {
 	generator := ung.NewUniqueNameGenerator(
 		ung.WithDictionaries(

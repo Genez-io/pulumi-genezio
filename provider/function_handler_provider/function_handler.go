@@ -13,18 +13,17 @@ import (
 )
 
 type FunctionHandlerProvider interface {
-	Write(outputPath string, handlerFileName string, functionConfiguration domain.FunctionConfiguration) (error)
+	Write(outputPath string, handlerFileName string, functionConfiguration domain.FunctionConfiguration) error
 }
 
 type awsFunctionHandlerProvider struct {
-
 }
 
 func NewAwsFunctionHandlerProvider() FunctionHandlerProvider {
 	return &awsFunctionHandlerProvider{}
 }
 
-func (p *awsFunctionHandlerProvider) Write( outputPath string, handlerFileName string, functionConfiguration domain.FunctionConfiguration) (error) {
+func (p *awsFunctionHandlerProvider) Write(outputPath string, handlerFileName string, functionConfiguration domain.FunctionConfiguration) error {
 
 	streamifyOverrideFileContent := `global.awslambda = {
         streamifyResponse: function (handler) {
@@ -69,9 +68,9 @@ func (p *awsFunctionHandlerProvider) Write( outputPath string, handlerFileName s
 	  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
 	  const seconds = String(date.getUTCSeconds()).padStart(2, "0");
 	
-	  const formattedDate = ` +
-				"`${day}/${month}/${year}:${hours}:${minutes}:${seconds} +0000`" +
-				`;
+	  const formattedDate = `+
+		"`${day}/${month}/${year}:${hours}:${minutes}:${seconds} +0000`"+
+		`;
 	  return formattedDate;
 	}
 	
@@ -126,12 +125,12 @@ func (p *awsFunctionHandlerProvider) Write( outputPath string, handlerFileName s
 	
 	export { handler };`, randomFileId, functionConfiguration.Handler, functionConfiguration.Entry)
 
-	err = utils.WriteToFile(outputPath,handlerFileName,handlerContent,false)
+	err = utils.WriteToFile(outputPath, handlerFileName, handlerContent, false)
 	if err != nil {
 		return err
 	}
 
-	err = utils.WriteToFile(outputPath,fmt.Sprintf("setupLambdaGlobals_%s.mjs",randomFileId),streamifyOverrideFileContent,false)
+	err = utils.WriteToFile(outputPath, fmt.Sprintf("setupLambdaGlobals_%s.mjs", randomFileId), streamifyOverrideFileContent, false)
 	if err != nil {
 		return err
 	}
@@ -143,14 +142,13 @@ func (p *awsFunctionHandlerProvider) Write( outputPath string, handlerFileName s
 func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendPath string) (domain.GenezioCloudInput, error) {
 	handlerProvider := NewAwsFunctionHandlerProvider()
 
-	tmpFolderPath, err := utils.CreateTemporaryFolder(nil, nil);
+	tmpFolderPath, err := utils.CreateTemporaryFolder(nil, nil)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to create a temporary folder %v\n", err)
 		return domain.GenezioCloudInput{}, err
 	}
 
-
-	tmpFolderArchivePath,err := utils.CreateTemporaryFolder(nil, nil);
+	tmpFolderArchivePath, err := utils.CreateTemporaryFolder(nil, nil)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to create a temporary folder for the archive %v\n", err)
 		return domain.GenezioCloudInput{}, err
@@ -164,8 +162,7 @@ func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendP
 		return domain.GenezioCloudInput{}, err
 	}
 
-
-	unzippedBundleSize,err :=  GetBundleFolderSizeLimit(tmpFolderPath)
+	unzippedBundleSize, err := GetBundleFolderSizeLimit(tmpFolderPath)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to get the size of the bundle %v\n", err)
 		return domain.GenezioCloudInput{}, err
@@ -173,16 +170,16 @@ func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendP
 
 	entryFileName := "index.mjs"
 
-	for _, err := os.Stat(filepath.Join(tmpFolderPath, entryFileName)); !os.IsNotExist(err);{
+	for _, err := os.Stat(filepath.Join(tmpFolderPath, entryFileName)); !os.IsNotExist(err); {
 		randomName := make([]byte, 6)
 		_, err := rand.Read(randomName)
-		
+
 		if err != nil {
 			fmt.Printf("An error occurred while trying to generate a random name %v\n", err)
-			return domain.GenezioCloudInput{},err
+			return domain.GenezioCloudInput{}, err
 		}
 		tmpName := fmt.Sprintf("%x", randomName)
-		entryFileName = fmt.Sprintf("index-%s.mjs",tmpName )
+		entryFileName = fmt.Sprintf("index-%s.mjs", tmpName)
 
 	}
 
@@ -192,18 +189,18 @@ func FunctionToCloudInput(functionElement domain.FunctionConfiguration, backendP
 		return domain.GenezioCloudInput{}, err
 	}
 
-	exclussionList := []string{".git",".github"}
-	err = utils.ZipDirectory(tmpFolderPath, archivePath,exclussionList)
+	exclussionList := []string{".git", ".github"}
+	err = utils.ZipDirectory(tmpFolderPath, archivePath, exclussionList)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to zip the directory %v\n", err)
 		return domain.GenezioCloudInput{}, err
 	}
 
 	return domain.GenezioCloudInput{
-		Type: "function",
-		Name: functionElement.Name,
-		ArchivePath: archivePath,
-		EntryFile: entryFileName,
+		Type:               "function",
+		Name:               functionElement.Name,
+		ArchivePath:        archivePath,
+		EntryFile:          entryFileName,
 		UnzippedBundleSize: unzippedBundleSize,
 	}, nil
 }
@@ -227,6 +224,3 @@ func GetBundleFolderSizeLimit(directoryPath string) (int64, error) {
 
 	return totalSize, nil
 }
-
-
-

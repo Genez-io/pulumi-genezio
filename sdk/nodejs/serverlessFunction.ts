@@ -38,12 +38,11 @@ export class ServerlessFunction extends pulumi.CustomResource {
     public readonly handler!: pulumi.Output<string>;
     public readonly language!: pulumi.Output<string | undefined>;
     public readonly name!: pulumi.Output<string>;
-    public readonly pathAsset!: pulumi.Output<pulumi.asset.Archive>;
+    public readonly path!: pulumi.Output<pulumi.asset.Archive>;
     public /*out*/ readonly projectEnvId!: pulumi.Output<string>;
     public /*out*/ readonly projectId!: pulumi.Output<string>;
     public readonly projectName!: pulumi.Output<string>;
     public readonly region!: pulumi.Output<string>;
-    public readonly stage!: pulumi.Output<string | undefined>;
     public /*out*/ readonly url!: pulumi.Output<string>;
 
     /**
@@ -66,8 +65,8 @@ export class ServerlessFunction extends pulumi.CustomResource {
             if ((!args || args.name === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'name'");
             }
-            if ((!args || args.pathAsset === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'pathAsset'");
+            if ((!args || args.path === undefined) && !opts.urn) {
+                throw new Error("Missing required property 'path'");
             }
             if ((!args || args.projectName === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'projectName'");
@@ -81,10 +80,9 @@ export class ServerlessFunction extends pulumi.CustomResource {
             resourceInputs["handler"] = args ? args.handler : undefined;
             resourceInputs["language"] = args ? args.language : undefined;
             resourceInputs["name"] = args ? args.name : undefined;
-            resourceInputs["pathAsset"] = args ? args.pathAsset : undefined;
+            resourceInputs["path"] = args ? args.path : undefined;
             resourceInputs["projectName"] = args ? args.projectName : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
-            resourceInputs["stage"] = args ? args.stage : undefined;
             resourceInputs["functionId"] = undefined /*out*/;
             resourceInputs["projectEnvId"] = undefined /*out*/;
             resourceInputs["projectId"] = undefined /*out*/;
@@ -97,12 +95,11 @@ export class ServerlessFunction extends pulumi.CustomResource {
             resourceInputs["handler"] = undefined /*out*/;
             resourceInputs["language"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
-            resourceInputs["pathAsset"] = undefined /*out*/;
+            resourceInputs["path"] = undefined /*out*/;
             resourceInputs["projectEnvId"] = undefined /*out*/;
             resourceInputs["projectId"] = undefined /*out*/;
             resourceInputs["projectName"] = undefined /*out*/;
             resourceInputs["region"] = undefined /*out*/;
-            resourceInputs["stage"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
@@ -120,8 +117,7 @@ export interface ServerlessFunctionArgs {
     handler: pulumi.Input<string>;
     language?: pulumi.Input<string>;
     name: pulumi.Input<string>;
-    pathAsset: pulumi.Input<pulumi.asset.Archive>;
+    path: pulumi.Input<pulumi.asset.Archive>;
     projectName: pulumi.Input<string>;
     region: pulumi.Input<string>;
-    stage?: pulumi.Input<string>;
 }

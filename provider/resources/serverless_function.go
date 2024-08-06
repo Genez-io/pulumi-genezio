@@ -13,33 +13,30 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 )
 
-
-
 type ServerlessFunction struct{}
 
 type ServerlessFunctionArgs struct {
-	ProjectName  string `pulumi:"projectName"`
-	Region	   string `pulumi:"region"`
-	Stage *string `pulumi:"stage,optional"`
-	CloudProvider *string `pulumi:"cloudProvider,optional"`
-	BackendPath *string `pulumi:"backendPath,optional"`
-	Language *string `pulumi:"language,optional"`
-	PathAsset resource.Archive `pulumi:"pathAsset"` 
-	Name string `pulumi:"name"`
-	Entry string `pulumi:"entry"`
-	Handler string `pulumi:"handler"`
+	ProjectName   string           `pulumi:"projectName"`
+	Region        string           `pulumi:"region"`
+	CloudProvider *string          `pulumi:"cloudProvider,optional"`
+	BackendPath   *string          `pulumi:"backendPath,optional"`
+	Language      *string          `pulumi:"language,optional"`
+	Path          resource.Archive `pulumi:"path"`
+	Name          string           `pulumi:"name"`
+	Entry         string           `pulumi:"entry"`
+	Handler       string           `pulumi:"handler"`
 }
 
 type ServerlessFunctionState struct {
 	ServerlessFunctionArgs
 
-	ID string `pulumi:"functionId"`
-	URL string `pulumi:"url"`
-	ProjectId string `pulumi:"projectId"`
+	ID           string `pulumi:"functionId"`
+	URL          string `pulumi:"url"`
+	ProjectId    string `pulumi:"projectId"`
 	ProjectEnvId string `pulumi:"projectEnvId"`
 }
 
-func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctionState, news ServerlessFunctionArgs) (p.DiffResponse, error){
+func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctionState, news ServerlessFunctionArgs) (p.DiffResponse, error) {
 	diff := map[string]p.PropertyDiff{}
 
 	if olds.ProjectName != news.ProjectName {
@@ -48,22 +45,6 @@ func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctio
 
 	if olds.Region != news.Region {
 		diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
-	}
-
-	if olds.Stage == nil {
-		if news.Stage != nil && *news.Stage != "prod" {
-			diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
-		}
-	} else {
-		if news.Stage != nil {
-			if *olds.Stage != *news.Stage {
-				diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
-			}
-		} else {
-			if *olds.Stage != "prod" {
-				diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
-			}
-		}
 	}
 
 	if olds.CloudProvider == nil {
@@ -81,7 +62,6 @@ func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctio
 			}
 		}
 	}
-
 
 	if olds.BackendPath == nil {
 		if news.BackendPath != nil {
@@ -113,7 +93,7 @@ func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctio
 		}
 	}
 
-	if olds.PathAsset.Hash != news.PathAsset.Hash {
+	if olds.Path.Hash != news.Path.Hash {
 		diff["path"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
@@ -131,20 +111,17 @@ func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctio
 
 	return p.DiffResponse{
 		DeleteBeforeReplace: true,
-		HasChanges: len(diff) > 0,
-		DetailedDiff: diff,
+		HasChanges:          len(diff) > 0,
+		DetailedDiff:        diff,
 	}, nil
 
-
-	
 }
 
-
 func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFunctionArgs, preview bool) (string, ServerlessFunctionState, error) {
-	
-	// TODO Will need to investigate further why this is needed, For now this is needed for the FileArchive to work
-	// More info here https://pulumi-developer-docs.readthedocs.io/en/latest/architecture/deployment-schema.html#dabf18193072939515e22adb298388d-required
-	input.PathAsset.Sig = "0def7320c3a5731c473e5ecbe6d01bc7"
+
+	// // TODO Will need to investigate further why this is needed, For now this is needed for the FileArchive to work
+	// // More info here https://pulumi-developer-docs.readthedocs.io/en/latest/architecture/deployment-schema.html#dabf18193072939515e22adb298388d-required
+	input.Path.Sig = "0def7320c3a5731c473e5ecbe6d01bc7"
 
 	state := ServerlessFunctionState{ServerlessFunctionArgs: input}
 	if preview {
@@ -156,7 +133,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		cloudProvider = *input.CloudProvider
 	}
 
-	backendPath,err := os.Getwd()
+	backendPath, err := os.Getwd()
 	if err != nil {
 		fmt.Printf("An error occurred while trying to get the current working directory %v", err)
 		return "", ServerlessFunctionState{}, err
@@ -171,12 +148,11 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		language = *input.Language
 	}
 
-
 	projectConfiguration := domain.ProjectConfiguration{
-		Name: input.ProjectName,
+		Name:   input.ProjectName,
 		Region: input.Region,
 		Options: domain.Options{
-			NodeRuntime: "nodejs20.x",
+			NodeRuntime:  "nodejs20.x",
 			Architecture: "arm64",
 		},
 		CloudProvider: cloudProvider,
@@ -190,12 +166,12 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		Classes: []string{},
 		Functions: []domain.FunctionConfiguration{
 			{
-				Name: input.Name,
-				Path: input.PathAsset.Path,
+				Name:     input.Name,
+				Path:     input.Path.Path,
 				Language: language,
-				Handler: input.Handler,
-				Entry: input.Entry,
-				Type: "aws",
+				Handler:  input.Handler,
+				Entry:    input.Entry,
+				Type:     "aws",
 			},
 		},
 	}
@@ -209,14 +185,13 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 
 	cloudAdapter := ca.NewGenezioCloudAdapter()
 
-	response, err := cloudAdapter.Deploy(ctx, cloudInputs, projectConfiguration, ca.CloudAdapterOptions{Stage: input.Stage}, nil)
+	response, err := cloudAdapter.Deploy(ctx, cloudInputs, projectConfiguration, ca.CloudAdapterOptions{Stage: nil}, nil)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to deploy the function %v", err)
 		return "", ServerlessFunctionState{}, err
 	}
 
-
-	state.ID = response.Functions[0].ID	
+	state.ID = response.Functions[0].ID
 	state.URL = response.Functions[0].CloudUrl
 	state.ProjectId = response.ProjectID
 	state.ProjectEnvId = response.ProjectEnvID

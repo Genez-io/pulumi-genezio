@@ -13,11 +13,10 @@ import (
 type Project struct{}
 
 type ProjectArgs struct {
-	Name          string `pulumi:"name"`
-	Region        string `pulumi:"region"`
-	Stage         *string `pulumi:"stage,optional"`
-	CloudProvider string `pulumi:"cloudProvider"`
-	EnvironmentVariables map[string]string `pulumi:"environmentVariables,optional"`
+	Name                 string                        `pulumi:"name"`
+	Region               string                        `pulumi:"region"`
+	CloudProvider        *string                       `pulumi:"cloudProvider,optional"`
+	EnvironmentVariables *[]domain.EnvironmentVariable `pulumi:"environmentVariables,optional"`
 }
 
 type ProjectState struct {
@@ -38,33 +37,41 @@ func (*Project) Diff(ctx p.Context, id string, olds ProjectState, news ProjectAr
 		diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
+	if olds.CloudProvider == nil {
+		if news.CloudProvider != nil && *news.CloudProvider != "genezio-cloud" {
+			diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.CloudProvider != nil {
+			if *olds.CloudProvider != *news.CloudProvider {
+				diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		} else {
+			if *olds.CloudProvider != "genezio-cloud" {
+				diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		}
+	}
+
 	if olds.CloudProvider != news.CloudProvider {
 		diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
-	if olds.Stage == nil {
-		if news.Stage != nil && *news.Stage != "prod" {
-			diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	if olds.EnvironmentVariables == nil {
+		if news.EnvironmentVariables != nil {
+			diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
 		}
 	} else {
-		if news.Stage != nil {
-			if *olds.Stage != *news.Stage {
-				diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
-			}
-		} else {
-			if *olds.Stage != "prod" {
-				diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
-			}
-		}
-	}
-
-	if len(olds.EnvironmentVariables) != len(news.EnvironmentVariables) {
-		diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
-	} else {
-		for key, value := range news.EnvironmentVariables {
-			if oldValue, ok := olds.EnvironmentVariables[key]; !ok || oldValue != value {
+		if news.EnvironmentVariables != nil {
+			if len(*olds.EnvironmentVariables) != len(*news.EnvironmentVariables) {
 				diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
-				break
+			} else {
+				for i, envVar := range *news.EnvironmentVariables {
+					if (*olds.EnvironmentVariables)[i].Name != envVar.Name || (*olds.EnvironmentVariables)[i].Value != envVar.Value {
+						diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+						break
+					}
+				}
 			}
 		}
 	}
@@ -76,11 +83,9 @@ func (*Project) Diff(ctx p.Context, id string, olds ProjectState, news ProjectAr
 	}, nil
 }
 
-
-
 func (*Project) Read(ctx p.Context, id string, inputs ProjectArgs, state ProjectState) (string, ProjectArgs, ProjectState, error) {
-	
-	projectDetails,err := requests.GetProjectDetails(ctx, inputs.Name)
+
+	projectDetails, err := requests.GetProjectDetails(ctx, inputs.Name)
 	if err != nil {
 		if strings.Contains(err.Error(), "405 Method Not Allowed") {
 			return id, inputs, ProjectState{}, nil
@@ -89,9 +94,6 @@ func (*Project) Read(ctx p.Context, id string, inputs ProjectArgs, state Project
 	}
 
 	stage := "prod"
-	if state.Stage != nil {
-		stage = *state.Stage
-	}
 
 	var currentProjectEnv *domain.ProjectEnvDetails
 	for _, projectEnv := range projectDetails.Project.ProjectEnvs {
@@ -108,9 +110,8 @@ func (*Project) Read(ctx p.Context, id string, inputs ProjectArgs, state Project
 	state.ProjectId = projectDetails.Project.Id
 	state.ProjectEnvId = currentProjectEnv.Id
 	state.CloudProvider = inputs.CloudProvider
-	state.Region = inputs.Region
-	state.Name = inputs.Name
-	state.Stage = inputs.Stage
+	state.Region = projectDetails.Project.Region
+	state.Name = projectDetails.Project.Name
 
 	return id, inputs, state, nil
 }
@@ -121,39 +122,33 @@ func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bo
 		return name, state, nil
 	}
 
-
 	stage := "prod"
-	if input.Stage != nil {
-		stage = *input.Stage
+
+	cloudProvider := "genezio-cloud"
+	if input.CloudProvider != nil {
+		cloudProvider = *input.CloudProvider
 	}
-	
-	createProjectResponse,err := requests.CreateProject(ctx, domain.CreateProjectRequest{
-		ProjectName: input.Name,
-		Region: input.Region,
-		Stage: stage,
-		CloudProvider: input.CloudProvider,
+
+	createProjectResponse, err := requests.CreateProject(ctx, domain.CreateProjectRequest{
+		ProjectName:   input.Name,
+		Region:        input.Region,
+		Stage:         stage,
+		CloudProvider: cloudProvider,
 	})
 	if err != nil {
 		return name, state, fmt.Errorf("error creating project: %v", err)
 	}
 
 	// Set environment variables
-	var environmentVariablesData []domain.EnvironmentVariable
-	for key, value := range input.EnvironmentVariables {
-		environmentVariablesData = append(environmentVariablesData, domain.EnvironmentVariable{
-			Name: key,
-			Value: value,
-		})
-	}
-	if len(environmentVariablesData) > 0{
+	if input.EnvironmentVariables != nil && len(*input.EnvironmentVariables) > 0 {
 		err := requests.SetEnvironmentVariables(ctx, createProjectResponse.ProjectID, createProjectResponse.ProjectEnvID, domain.SetEnvironmentVariablesRequest{
-			EnvironmentVariables: environmentVariablesData,
+			EnvironmentVariables: *input.EnvironmentVariables,
 		})
-			if err != nil {
-				log.Println("Error setting environment variables", err)
-				return "", ProjectState{}, err
-			}
+		if err != nil {
+			log.Println("Error setting environment variables", err)
+			return name, state, err
 		}
+	}
 
 	state.ProjectId = createProjectResponse.ProjectID
 	state.ProjectEnvId = createProjectResponse.ProjectEnvID
@@ -162,34 +157,24 @@ func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bo
 }
 
 func (*Project) Update(ctx p.Context, id string, olds ProjectState, news ProjectArgs, preview bool) (ProjectState, error) {
-	
+
 	state := ProjectState{ProjectArgs: news}
 	if preview {
 		return state, nil
 	}
-	
-	state.ProjectId = olds.ProjectId
-	state.ProjectEnvId = olds.ProjectEnvId
-	
-	// Set environment variables
-	var environmentVariablesData []domain.EnvironmentVariable
-	for key, value := range news.EnvironmentVariables {
-		environmentVariablesData = append(environmentVariablesData, domain.EnvironmentVariable{
-			Name: key,
-			Value: value,
+
+	if news.EnvironmentVariables != nil && len(*news.EnvironmentVariables) > 0 {
+		err := requests.SetEnvironmentVariables(ctx, state.ProjectId, state.ProjectEnvId, domain.SetEnvironmentVariablesRequest{
+			EnvironmentVariables: *news.EnvironmentVariables,
 		})
+		if err != nil {
+			log.Println("Error setting environment variables", err)
+			return ProjectState{}, err
+		}
 	}
 
-
-	if len(environmentVariablesData) > 0{
-		err := requests.SetEnvironmentVariables(ctx, state.ProjectId, state.ProjectEnvId, domain.SetEnvironmentVariablesRequest{
-			EnvironmentVariables: environmentVariablesData,
-		})
-			if err != nil {
-				log.Println("Error setting environment variables", err)
-				return ProjectState{}, err
-			}
-		}
+	state.ProjectId = olds.ProjectId
+	state.ProjectEnvId = olds.ProjectEnvId
 
 	return state, nil
 }

@@ -35,7 +35,6 @@ export class Frontend extends pulumi.CustomResource {
     public readonly projectName!: pulumi.Output<string>;
     public readonly publish!: pulumi.Output<pulumi.asset.Archive>;
     public readonly region!: pulumi.Output<string>;
-    public readonly stage!: pulumi.Output<string | undefined>;
     public readonly subdomain!: pulumi.Output<string | undefined>;
     public /*out*/ readonly url!: pulumi.Output<string>;
 
@@ -66,7 +65,6 @@ export class Frontend extends pulumi.CustomResource {
             resourceInputs["projectName"] = args ? args.projectName : undefined;
             resourceInputs["publish"] = args ? args.publish : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
-            resourceInputs["stage"] = args ? args.stage : undefined;
             resourceInputs["subdomain"] = args ? args.subdomain : undefined;
             resourceInputs["url"] = undefined /*out*/;
         } else {
@@ -74,7 +72,6 @@ export class Frontend extends pulumi.CustomResource {
             resourceInputs["projectName"] = undefined /*out*/;
             resourceInputs["publish"] = undefined /*out*/;
             resourceInputs["region"] = undefined /*out*/;
-            resourceInputs["stage"] = undefined /*out*/;
             resourceInputs["subdomain"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         }
@@ -91,6 +88,5 @@ export interface FrontendArgs {
     projectName: pulumi.Input<string>;
     publish: pulumi.Input<pulumi.asset.Archive>;
     region: pulumi.Input<string>;
-    stage?: pulumi.Input<string>;
     subdomain?: pulumi.Input<string>;
 }

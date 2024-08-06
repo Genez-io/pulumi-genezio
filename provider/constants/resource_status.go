@@ -1,6 +1,6 @@
 package constants
 
 const (
-	ResourceStatusActive = "active"
+	ResourceStatusActive   = "active"
 	ResourceStatusInactive = "inactive"
 )

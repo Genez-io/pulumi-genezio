@@ -20,12 +20,12 @@ type Frontend struct{}
 
 type FrontendArgs struct {
 	ProjectName string `pulumi:"projectName"`
-	Region 	string `pulumi:"region"`
-	Stage 	*string `pulumi:"stage,optional"`
+	Region      string `pulumi:"region"`
 	// Project ProjectState `pulumi:"project"` TODO - See if we can do something like this for nested resources
-	Path string `pulumi:"path"`
-	Subdomain *string `pulumi:"subdomain,optional"`
-	Publish resource.Archive `pulumi:"publish"`
+	// Project domain.Project `pulumi:"project"`
+	Path      string           `pulumi:"path"`
+	Subdomain *string          `pulumi:"subdomain,optional"`
+	Publish   resource.Archive `pulumi:"publish"`
 }
 
 type FrontendState struct {
@@ -37,28 +37,17 @@ type FrontendState struct {
 func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news FrontendArgs) (p.DiffResponse, error) {
 	diff := map[string]p.PropertyDiff{}
 
+	// areProjectsIdentical := utils.CompareProjects(olds.Project, news.Project)
+	// if !areProjectsIdentical {
+	// 	diff["project"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	// }
+
 	if olds.ProjectName != news.ProjectName {
 		diff["projectName"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
 	if olds.Region != news.Region {
 		diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
-	}
-
-	if olds.Stage == nil {
-		if news.Stage != nil && *news.Stage != "prod" {
-			diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
-		}
-	} else {
-		if news.Stage != nil {
-			if *olds.Stage != *news.Stage {
-				diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
-			}
-		} else {
-			if *olds.Stage != "prod" {
-			diff["stage"] = p.PropertyDiff{Kind: p.DeleteReplace}
-			}
-		}
 	}
 
 	if olds.Path != news.Path {
@@ -68,7 +57,7 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 	if olds.Subdomain == nil {
 		if news.Subdomain != nil {
 			diff["subdomain"] = p.PropertyDiff{Kind: p.DeleteReplace}
-		} 
+		}
 	} else {
 		if news.Subdomain != nil && *olds.Subdomain != *news.Subdomain {
 			diff["subdomain"] = p.PropertyDiff{Kind: p.DeleteReplace}
@@ -81,14 +70,15 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 
 	return p.DiffResponse{
 		DeleteBeforeReplace: true,
-		HasChanges: 		len(diff) > 0,
-		DetailedDiff: 		diff,
+		HasChanges:          len(diff) > 0,
+		DetailedDiff:        diff,
 	}, nil
 }
 
-func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state FrontendState) (string, FrontendArgs ,FrontendState, error) {
+func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state FrontendState) (string, FrontendArgs, FrontendState, error) {
 
-	projectDetails,err := requests.GetProjectDetails(ctx, inputs.ProjectName)
+	// projectDetails,err := requests.GetProjectDetails(ctx, inputs.Project.Name)
+	projectDetails, err := requests.GetProjectDetails(ctx, inputs.ProjectName)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return id, inputs, FrontendState{}, nil
@@ -97,9 +87,6 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 	}
 
 	stage := "prod"
-	if inputs.Stage != nil {
-		stage = *inputs.Stage
-	}
 
 	var currentProjectEnv *domain.ProjectEnvDetails
 	for _, projectEnv := range projectDetails.Project.ProjectEnvs {
@@ -130,18 +117,17 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 	}
 	for _, frontend := range frontends.List {
 		if frontend.GenezioDomain == subdomain {
+			// state.Project = inputs.Project
 			state.ProjectName = inputs.ProjectName
 			state.Region = inputs.Region
-			state.Stage = inputs.Stage
 			state.Path = inputs.Path
 			state.Subdomain = &subdomain
 			state.Publish = inputs.Publish
 			return id, inputs, state, nil
 		}
 	}
-	return id, inputs, FrontendState{}, nil 
+	return id, inputs, FrontendState{}, nil
 }
-
 
 func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview bool) (string, FrontendState, error) {
 
@@ -155,9 +141,6 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 	}
 
 	stage := "prod"
-	if input.Stage != nil {
-		stage = *input.Stage
-	}
 
 	if input.Subdomain != nil {
 		match, err := regexp.MatchString("^[a-z0-9-]+$", *input.Subdomain)
@@ -169,7 +152,6 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 		}
 	}
 
-	
 	relPublishPath, err := filepath.Rel(input.Path, input.Publish.Path)
 	if err != nil {
 		return "", FrontendState{}, err
@@ -199,17 +181,18 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 	cloudAdapter := ca.NewGenezioCloudAdapter()
 
 	frontendConfiguration := domain.FrontendConfiguration{
-		Path: input.Path,
+		Path:      input.Path,
 		Subdomain: *input.Subdomain,
-		Publish: relPublishPath,
+		Publish:   relPublishPath,
 	}
 
-	response, err := cloudAdapter.DeployFrontend(ctx, input.ProjectName,input.Region, frontendConfiguration, stage)
+	// response, err := cloudAdapter.DeployFrontend(ctx, input.Project.Name,input.Project.Region, frontendConfiguration, stage)
+	response, err := cloudAdapter.DeployFrontend(ctx, input.ProjectName, input.Region, frontendConfiguration, stage)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to deploy the frontend %v\n", err)
 		return "", FrontendState{}, err
 	}
-	
+
 	state.URL = response
 
 	err = utils.DeleteTemporaryFolder()
@@ -217,24 +200,22 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 		log.Println("Error deleting temporary folder", err)
 		return "", state, err
 	}
-	
+
 	return name, state, nil
 }
 
 func (*Frontend) Delete(ctx p.Context, id string, state FrontendState) error {
+	// projectDetails, err := requests.GetProjectDetails(ctx, state.Project.Name)
 	projectDetails, err := requests.GetProjectDetails(ctx, state.ProjectName)
 	if err != nil {
 		if strings.Contains(err.Error(), "405 Method Not Allowed") {
-			return  nil
+			return nil
 		}
 		log.Println("Error getting project details", err)
 		return err
 	}
 
 	stage := "prod"
-	if state.Stage != nil {
-		stage = *state.Stage
-	}
 
 	var currentProjectEnv *domain.ProjectEnvDetails
 	for _, projectEnv := range projectDetails.Project.ProjectEnvs {
@@ -268,4 +249,3 @@ func (*Frontend) Delete(ctx p.Context, id string, state FrontendState) error {
 
 	return nil
 }
-

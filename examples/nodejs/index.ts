@@ -16,9 +16,12 @@ const MyProject = new genezio.Project("MyProject", {
   name: "my-fullstack-pulumi",
   region: "us-east-1",
   cloudProvider: "genezio-cloud",
-  environmentVariables: {
-    POSTGRES_URL2: myDatabase.url,
-  },
+  environmentVariables: [
+    {
+      name: "DATABASE_URL",
+      value: myDatabase.url,
+    },
+  ],
 });
 
 // console.log(typeof MyProject.stage);
@@ -41,7 +44,7 @@ const myFrontend = new genezio.Frontend("MyFrontend", {
 // };
 
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
-  pathAsset: new pulumi.asset.FileArchive("./function"),
+  path: new pulumi.asset.FileArchive("./function"),
   projectName: MyProject.name,
   region: MyProject.region,
   entry: "app.mjs",
