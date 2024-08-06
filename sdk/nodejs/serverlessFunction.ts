@@ -2,6 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 export class ServerlessFunction extends pulumi.CustomResource {
@@ -32,17 +34,15 @@ export class ServerlessFunction extends pulumi.CustomResource {
     }
 
     public readonly backendPath!: pulumi.Output<string | undefined>;
-    public readonly cloudProvider!: pulumi.Output<string | undefined>;
     public readonly entry!: pulumi.Output<string>;
     public /*out*/ readonly functionId!: pulumi.Output<string>;
     public readonly handler!: pulumi.Output<string>;
     public readonly language!: pulumi.Output<string | undefined>;
     public readonly name!: pulumi.Output<string>;
     public readonly path!: pulumi.Output<pulumi.asset.Archive>;
+    public readonly project!: pulumi.Output<outputs.domain.Project>;
     public /*out*/ readonly projectEnvId!: pulumi.Output<string>;
     public /*out*/ readonly projectId!: pulumi.Output<string>;
-    public readonly projectName!: pulumi.Output<string>;
-    public readonly region!: pulumi.Output<string>;
     public /*out*/ readonly url!: pulumi.Output<string>;
 
     /**
@@ -68,38 +68,31 @@ export class ServerlessFunction extends pulumi.CustomResource {
             if ((!args || args.path === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'path'");
             }
-            if ((!args || args.projectName === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'projectName'");
-            }
-            if ((!args || args.region === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'region'");
+            if ((!args || args.project === undefined) && !opts.urn) {
+                throw new Error("Missing required property 'project'");
             }
             resourceInputs["backendPath"] = args ? args.backendPath : undefined;
-            resourceInputs["cloudProvider"] = args ? args.cloudProvider : undefined;
             resourceInputs["entry"] = args ? args.entry : undefined;
             resourceInputs["handler"] = args ? args.handler : undefined;
             resourceInputs["language"] = args ? args.language : undefined;
             resourceInputs["name"] = args ? args.name : undefined;
             resourceInputs["path"] = args ? args.path : undefined;
-            resourceInputs["projectName"] = args ? args.projectName : undefined;
-            resourceInputs["region"] = args ? args.region : undefined;
+            resourceInputs["project"] = args ? args.project : undefined;
             resourceInputs["functionId"] = undefined /*out*/;
             resourceInputs["projectEnvId"] = undefined /*out*/;
             resourceInputs["projectId"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         } else {
             resourceInputs["backendPath"] = undefined /*out*/;
-            resourceInputs["cloudProvider"] = undefined /*out*/;
             resourceInputs["entry"] = undefined /*out*/;
             resourceInputs["functionId"] = undefined /*out*/;
             resourceInputs["handler"] = undefined /*out*/;
             resourceInputs["language"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["path"] = undefined /*out*/;
+            resourceInputs["project"] = undefined /*out*/;
             resourceInputs["projectEnvId"] = undefined /*out*/;
             resourceInputs["projectId"] = undefined /*out*/;
-            resourceInputs["projectName"] = undefined /*out*/;
-            resourceInputs["region"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
@@ -112,12 +105,10 @@ export class ServerlessFunction extends pulumi.CustomResource {
  */
 export interface ServerlessFunctionArgs {
     backendPath?: pulumi.Input<string>;
-    cloudProvider?: pulumi.Input<string>;
     entry: pulumi.Input<string>;
     handler: pulumi.Input<string>;
     language?: pulumi.Input<string>;
     name: pulumi.Input<string>;
     path: pulumi.Input<pulumi.asset.Archive>;
-    projectName: pulumi.Input<string>;
-    region: pulumi.Input<string>;
+    project: pulumi.Input<inputs.domain.ProjectArgs>;
 }

@@ -10,4 +10,9 @@ export namespace domain {
         name: pulumi.Input<string>;
         value: pulumi.Input<string>;
     }
+
+    export interface ProjectArgs {
+        name: pulumi.Input<string>;
+        region: pulumi.Input<string>;
+    }
 }

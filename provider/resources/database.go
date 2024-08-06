@@ -6,16 +6,17 @@ import (
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
+	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
 type Database struct{}
 
 type DatabaseArgs struct {
-	Name        string  `pulumi:"name"`
-	ProjectName *string `pulumi:"projectName,optional"`
-	Type        *string `pulumi:"type,optional"`
-	Region      *string `pulumi:"region,optional"`
+	Name    string          `pulumi:"name"`
+	Project *domain.Project `pulumi:"project,optional"`
+	Type    *string         `pulumi:"type,optional"`
+	Region  *string         `pulumi:"region,optional"`
 }
 
 type DatabaseState struct {
@@ -33,8 +34,16 @@ func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news Databas
 		diff["name"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
-	if olds.ProjectName != news.ProjectName {
-		diff["projectName"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	if olds.Project == nil && news.Project != nil {
+		diff["project"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	} else if olds.Project != nil && news.Project == nil {
+		diff["project"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	} else if olds.Project != nil && news.Project != nil {
+		areProjectsIdentical := utils.CompareProjects(*olds.Project, *news.Project)
+		if !areProjectsIdentical {
+			diff["project"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+
 	}
 
 	if olds.Type == nil {
@@ -129,8 +138,8 @@ func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview 
 	state.DatabaseId = createDatabaseResponse.DatabaseId
 
 	// If a project name is provided, link the database to the project
-	if input.ProjectName != nil {
-		projectDetails, err := requests.GetProjectDetails(ctx, *input.ProjectName)
+	if input.Project != nil {
+		projectDetails, err := requests.GetProjectDetails(ctx, input.Project.Name)
 		if err != nil {
 			log.Println("Error getting project details", err)
 			return name, state, err

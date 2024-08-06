@@ -11,4 +11,9 @@ export namespace domain {
         value: string;
     }
 
+    export interface Project {
+        name: string;
+        region: string;
+    }
+
 }

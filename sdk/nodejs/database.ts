@@ -2,6 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 export class Database extends pulumi.CustomResource {
@@ -33,7 +35,7 @@ export class Database extends pulumi.CustomResource {
 
     public /*out*/ readonly databaseId!: pulumi.Output<string>;
     public readonly name!: pulumi.Output<string>;
-    public readonly projectName!: pulumi.Output<string | undefined>;
+    public readonly project!: pulumi.Output<outputs.domain.Project | undefined>;
     public readonly region!: pulumi.Output<string | undefined>;
     public readonly type!: pulumi.Output<string | undefined>;
     public /*out*/ readonly url!: pulumi.Output<string>;
@@ -53,7 +55,7 @@ export class Database extends pulumi.CustomResource {
                 throw new Error("Missing required property 'name'");
             }
             resourceInputs["name"] = args ? args.name : undefined;
-            resourceInputs["projectName"] = args ? args.projectName : undefined;
+            resourceInputs["project"] = args ? args.project : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
             resourceInputs["type"] = args ? args.type : undefined;
             resourceInputs["databaseId"] = undefined /*out*/;
@@ -61,7 +63,7 @@ export class Database extends pulumi.CustomResource {
         } else {
             resourceInputs["databaseId"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
-            resourceInputs["projectName"] = undefined /*out*/;
+            resourceInputs["project"] = undefined /*out*/;
             resourceInputs["region"] = undefined /*out*/;
             resourceInputs["type"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
@@ -76,7 +78,7 @@ export class Database extends pulumi.CustomResource {
  */
 export interface DatabaseArgs {
     name: pulumi.Input<string>;
-    projectName?: pulumi.Input<string>;
+    project?: pulumi.Input<inputs.domain.ProjectArgs>;
     region?: pulumi.Input<string>;
     type?: pulumi.Input<string>;
 }

@@ -2,6 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 export class Frontend extends pulumi.CustomResource {
@@ -32,9 +34,8 @@ export class Frontend extends pulumi.CustomResource {
     }
 
     public readonly path!: pulumi.Output<string>;
-    public readonly projectName!: pulumi.Output<string>;
+    public readonly project!: pulumi.Output<outputs.domain.Project>;
     public readonly publish!: pulumi.Output<pulumi.asset.Archive>;
-    public readonly region!: pulumi.Output<string>;
     public readonly subdomain!: pulumi.Output<string | undefined>;
     public /*out*/ readonly url!: pulumi.Output<string>;
 
@@ -52,26 +53,21 @@ export class Frontend extends pulumi.CustomResource {
             if ((!args || args.path === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'path'");
             }
-            if ((!args || args.projectName === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'projectName'");
+            if ((!args || args.project === undefined) && !opts.urn) {
+                throw new Error("Missing required property 'project'");
             }
             if ((!args || args.publish === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'publish'");
             }
-            if ((!args || args.region === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'region'");
-            }
             resourceInputs["path"] = args ? args.path : undefined;
-            resourceInputs["projectName"] = args ? args.projectName : undefined;
+            resourceInputs["project"] = args ? args.project : undefined;
             resourceInputs["publish"] = args ? args.publish : undefined;
-            resourceInputs["region"] = args ? args.region : undefined;
             resourceInputs["subdomain"] = args ? args.subdomain : undefined;
             resourceInputs["url"] = undefined /*out*/;
         } else {
             resourceInputs["path"] = undefined /*out*/;
-            resourceInputs["projectName"] = undefined /*out*/;
+            resourceInputs["project"] = undefined /*out*/;
             resourceInputs["publish"] = undefined /*out*/;
-            resourceInputs["region"] = undefined /*out*/;
             resourceInputs["subdomain"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         }
@@ -85,8 +81,7 @@ export class Frontend extends pulumi.CustomResource {
  */
 export interface FrontendArgs {
     path: pulumi.Input<string>;
-    projectName: pulumi.Input<string>;
+    project: pulumi.Input<inputs.domain.ProjectArgs>;
     publish: pulumi.Input<pulumi.asset.Archive>;
-    region: pulumi.Input<string>;
     subdomain?: pulumi.Input<string>;
 }

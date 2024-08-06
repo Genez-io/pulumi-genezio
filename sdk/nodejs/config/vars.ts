@@ -15,6 +15,14 @@ Object.defineProperty(exports, "authToken", {
     enumerable: true,
 });
 
+export declare const stage: string | undefined;
+Object.defineProperty(exports, "stage", {
+    get() {
+        return __config.get("stage");
+    },
+    enumerable: true,
+});
+
 export declare const version: string | undefined;
 Object.defineProperty(exports, "version", {
     get() {

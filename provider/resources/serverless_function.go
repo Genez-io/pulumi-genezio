@@ -4,27 +4,27 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	ca "github.com/Genez-io/pulumi-genezio/provider/cloud_adapters"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
 	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
+	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 )
 
 type ServerlessFunction struct{}
 
 type ServerlessFunctionArgs struct {
-	ProjectName   string           `pulumi:"projectName"`
-	Region        string           `pulumi:"region"`
-	CloudProvider *string          `pulumi:"cloudProvider,optional"`
-	BackendPath   *string          `pulumi:"backendPath,optional"`
-	Language      *string          `pulumi:"language,optional"`
-	Path          resource.Archive `pulumi:"path"`
-	Name          string           `pulumi:"name"`
-	Entry         string           `pulumi:"entry"`
-	Handler       string           `pulumi:"handler"`
+	Project     domain.Project   `pulumi:"project"`
+	BackendPath *string          `pulumi:"backendPath,optional"`
+	Language    *string          `pulumi:"language,optional"`
+	Path        resource.Archive `pulumi:"path"`
+	Name        string           `pulumi:"name"`
+	Entry       string           `pulumi:"entry"`
+	Handler     string           `pulumi:"handler"`
 }
 
 type ServerlessFunctionState struct {
@@ -39,28 +39,9 @@ type ServerlessFunctionState struct {
 func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctionState, news ServerlessFunctionArgs) (p.DiffResponse, error) {
 	diff := map[string]p.PropertyDiff{}
 
-	if olds.ProjectName != news.ProjectName {
-		diff["projectName"] = p.PropertyDiff{Kind: p.DeleteReplace}
-	}
-
-	if olds.Region != news.Region {
-		diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
-	}
-
-	if olds.CloudProvider == nil {
-		if news.CloudProvider != nil && *news.CloudProvider != "genezio-cloud" {
-			diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
-		}
-	} else {
-		if news.CloudProvider != nil {
-			if *olds.CloudProvider != *news.CloudProvider {
-				diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
-			}
-		} else {
-			if *olds.CloudProvider != "genezio-cloud" {
-				diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
-			}
-		}
+	areProjectsIdentical := utils.CompareProjects(olds.Project, news.Project)
+	if !areProjectsIdentical {
+		diff["project"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
 	if olds.BackendPath == nil {
@@ -129,18 +110,29 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 	}
 
 	cloudProvider := "genezio-cloud"
-	if input.CloudProvider != nil {
-		cloudProvider = *input.CloudProvider
+
+	stage := "prod"
+	contextStage := infer.GetConfig[*domain.Config](ctx).Stage
+	if contextStage != nil {
+		stage = *contextStage
 	}
 
+	var absolueBackendPath string
 	backendPath, err := os.Getwd()
 	if err != nil {
 		fmt.Printf("An error occurred while trying to get the current working directory %v", err)
 		return "", ServerlessFunctionState{}, err
 	}
+	absolueBackendPath = backendPath
 
 	if input.BackendPath != nil {
-		backendPath = *input.BackendPath
+		absolueBackendPath = filepath.Join(absolueBackendPath, *input.BackendPath)
+	}
+
+	relFunctionPath, err := filepath.Rel(absolueBackendPath, input.Path.Path)
+	if err != nil {
+		fmt.Printf("An error occurred while trying to get the relative path %v", err)
+		return "", ServerlessFunctionState{}, err
 	}
 
 	language := "js"
@@ -149,15 +141,15 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 	}
 
 	projectConfiguration := domain.ProjectConfiguration{
-		Name:   input.ProjectName,
-		Region: input.Region,
+		Name:   input.Project.Name,
+		Region: input.Project.Region,
 		Options: domain.Options{
 			NodeRuntime:  "nodejs20.x",
 			Architecture: "arm64",
 		},
 		CloudProvider: cloudProvider,
 		Workspace: domain.Workspace{
-			Backend: backendPath,
+			Backend: absolueBackendPath,
 		},
 		AstSummary: domain.AstSummary{
 			Version: "2",
@@ -167,7 +159,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		Functions: []domain.FunctionConfiguration{
 			{
 				Name:     input.Name,
-				Path:     input.Path.Path,
+				Path:     relFunctionPath,
 				Language: language,
 				Handler:  input.Handler,
 				Entry:    input.Entry,
@@ -185,7 +177,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 
 	cloudAdapter := ca.NewGenezioCloudAdapter()
 
-	response, err := cloudAdapter.Deploy(ctx, cloudInputs, projectConfiguration, ca.CloudAdapterOptions{Stage: nil}, nil)
+	response, err := cloudAdapter.Deploy(ctx, cloudInputs, projectConfiguration, ca.CloudAdapterOptions{Stage: &stage}, nil)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to deploy the function %v", err)
 		return "", ServerlessFunctionState{}, err

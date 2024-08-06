@@ -13,16 +13,14 @@ import (
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
+	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/resource"
 )
 
 type Frontend struct{}
 
 type FrontendArgs struct {
-	ProjectName string `pulumi:"projectName"`
-	Region      string `pulumi:"region"`
-	// Project ProjectState `pulumi:"project"` TODO - See if we can do something like this for nested resources
-	// Project domain.Project `pulumi:"project"`
+	Project   domain.Project   `pulumi:"project"`
 	Path      string           `pulumi:"path"`
 	Subdomain *string          `pulumi:"subdomain,optional"`
 	Publish   resource.Archive `pulumi:"publish"`
@@ -37,17 +35,9 @@ type FrontendState struct {
 func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news FrontendArgs) (p.DiffResponse, error) {
 	diff := map[string]p.PropertyDiff{}
 
-	// areProjectsIdentical := utils.CompareProjects(olds.Project, news.Project)
-	// if !areProjectsIdentical {
-	// 	diff["project"] = p.PropertyDiff{Kind: p.DeleteReplace}
-	// }
-
-	if olds.ProjectName != news.ProjectName {
-		diff["projectName"] = p.PropertyDiff{Kind: p.DeleteReplace}
-	}
-
-	if olds.Region != news.Region {
-		diff["region"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	areProjectsIdentical := utils.CompareProjects(olds.Project, news.Project)
+	if !areProjectsIdentical {
+		diff["project"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
 	if olds.Path != news.Path {
@@ -77,8 +67,7 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 
 func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state FrontendState) (string, FrontendArgs, FrontendState, error) {
 
-	// projectDetails,err := requests.GetProjectDetails(ctx, inputs.Project.Name)
-	projectDetails, err := requests.GetProjectDetails(ctx, inputs.ProjectName)
+	projectDetails, err := requests.GetProjectDetails(ctx, inputs.Project.Name)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return id, inputs, FrontendState{}, nil
@@ -117,9 +106,7 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 	}
 	for _, frontend := range frontends.List {
 		if frontend.GenezioDomain == subdomain {
-			// state.Project = inputs.Project
-			state.ProjectName = inputs.ProjectName
-			state.Region = inputs.Region
+			state.Project = inputs.Project
 			state.Path = inputs.Path
 			state.Subdomain = &subdomain
 			state.Publish = inputs.Publish
@@ -142,6 +129,11 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 
 	stage := "prod"
 
+	contextStage := infer.GetConfig[*domain.Config](ctx).Stage
+	if contextStage != nil {
+		stage = *contextStage
+	}
+
 	if input.Subdomain != nil {
 		match, err := regexp.MatchString("^[a-z0-9-]+$", *input.Subdomain)
 		if err != nil {
@@ -152,17 +144,26 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 		}
 	}
 
-	relPublishPath, err := filepath.Rel(input.Path, input.Publish.Path)
+	var absolueFrontendPath string
+	frontendPath, err := os.Getwd()
+	if err != nil {
+		fmt.Printf("An error occurred while trying to get the current working directory %v", err)
+		return "", FrontendState{}, err
+	}
+	absolueFrontendPath = frontendPath
+
+	absolueFrontendPath = filepath.Join(absolueFrontendPath, input.Path)
+
+	relPublishPath, err := filepath.Rel(absolueFrontendPath, input.Publish.Path)
 	if err != nil {
 		return "", FrontendState{}, err
 	}
-	frontendPath := filepath.Join(input.Path, relPublishPath)
 
-	if _, err := os.Stat(frontendPath); os.IsNotExist(err) {
+	if _, err := os.Stat(input.Publish.Path); os.IsNotExist(err) {
 		return "", FrontendState{}, fmt.Errorf("publish folder does not exist")
 	}
 
-	dir, err := os.ReadDir(frontendPath)
+	dir, err := os.ReadDir(input.Publish.Path)
 	if err != nil {
 		return "", FrontendState{}, err
 	}
@@ -181,13 +182,12 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 	cloudAdapter := ca.NewGenezioCloudAdapter()
 
 	frontendConfiguration := domain.FrontendConfiguration{
-		Path:      input.Path,
+		Path:      absolueFrontendPath,
 		Subdomain: *input.Subdomain,
 		Publish:   relPublishPath,
 	}
 
-	// response, err := cloudAdapter.DeployFrontend(ctx, input.Project.Name,input.Project.Region, frontendConfiguration, stage)
-	response, err := cloudAdapter.DeployFrontend(ctx, input.ProjectName, input.Region, frontendConfiguration, stage)
+	response, err := cloudAdapter.DeployFrontend(ctx, input.Project.Name, input.Project.Region, frontendConfiguration, stage)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to deploy the frontend %v\n", err)
 		return "", FrontendState{}, err
@@ -205,8 +205,7 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 }
 
 func (*Frontend) Delete(ctx p.Context, id string, state FrontendState) error {
-	// projectDetails, err := requests.GetProjectDetails(ctx, state.Project.Name)
-	projectDetails, err := requests.GetProjectDetails(ctx, state.ProjectName)
+	projectDetails, err := requests.GetProjectDetails(ctx, state.Project.Name)
 	if err != nil {
 		if strings.Contains(err.Error(), "405 Method Not Allowed") {
 			return nil

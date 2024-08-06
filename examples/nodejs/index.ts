@@ -15,7 +15,6 @@ const myDatabase = new genezio.Database("MyDatabase", {
 const MyProject = new genezio.Project("MyProject", {
   name: "my-fullstack-pulumi",
   region: "us-east-1",
-  cloudProvider: "genezio-cloud",
   environmentVariables: [
     {
       name: "DATABASE_URL",
@@ -24,14 +23,15 @@ const MyProject = new genezio.Project("MyProject", {
   ],
 });
 
-// console.log(typeof MyProject.stage);
-// export const MyProjectOutput = MyProject.projectEnvId;
+const frontendPublishPath = path.join(__dirname, "client", "dist");
 
 const myFrontend = new genezio.Frontend("MyFrontend", {
-  projectName: MyProject.name,
-  region: MyProject.region,
+  project: {
+    name: MyProject.name,
+    region: MyProject.region,
+  },
   path: "./client",
-  publish: new pulumi.asset.FileArchive("./client/dist"),
+  publish: new pulumi.asset.FileArchive(frontendPublishPath),
   subdomain: "my-frontend-pulumi-10",
 });
 
@@ -43,11 +43,16 @@ const myFrontend = new genezio.Frontend("MyFrontend", {
 //   endpoint: myDatabase.url,
 // };
 
+const functionPath = path.join(__dirname, "function");
+
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
-  path: new pulumi.asset.FileArchive("./function"),
-  projectName: MyProject.name,
-  region: MyProject.region,
+  path: new pulumi.asset.FileArchive(functionPath),
+  project: {
+    name: MyProject.name,
+    region: MyProject.region,
+  },
   entry: "app.mjs",
   handler: "handler",
   name: "my-function",
+  backendPath: ".",
 });

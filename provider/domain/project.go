@@ -137,7 +137,6 @@ type GetPresignedUrlResponse struct {
 }
 
 type Project struct {
-	Name          string  `pulumi:"name" json:"name"`
-	Region        string  `pulumi:"region" json:"region"`
-	CloudProvider *string `pulumi:"cloudProvider,optional" json:"cloudProvider"`
+	Name   string `pulumi:"name" json:"name"`
+	Region string `pulumi:"region" json:"region"`
 }

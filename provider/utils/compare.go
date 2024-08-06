@@ -11,25 +11,5 @@ func CompareProjects(old, new domain.Project) bool {
 		return false
 	}
 
-	// if old.CloudProvider == nil {
-	// 	if new.CloudProvider != nil && *new.CloudProvider != "genezio-cloud" {
-	// 		return false
-	// 	}
-	// } else {
-	// 	if new.CloudProvider != nil {
-	// 		if *old.CloudProvider != *new.CloudProvider {
-	// 			return false
-	// 		}
-	// 	} else {
-	// 		if *old.CloudProvider != "genezio-cloud" {
-	// 			return false
-	// 		}
-	// 	}
-	// }
-
-	if old.CloudProvider != new.CloudProvider {
-		return false
-	}
-
 	return true
 }
