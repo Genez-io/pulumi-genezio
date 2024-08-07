@@ -11,6 +11,6 @@ type GenezioCloudInput struct {
 type GenezioCloudOutput struct {
 	ProjectID    string                       `pulumi:"projectID"`
 	ProjectEnvID string                       `pulumi:"projectEnvID"`
-	Classes      []string                     `pulumi:"classes"`
+	Classes      []ClassDetails               `pulumi:"classes"`
 	Functions    []DeployCodeFunctionResponse `pulumi:"functions"`
 }

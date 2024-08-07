@@ -22,7 +22,7 @@ type DatabaseArgs struct {
 type DatabaseState struct {
 	DatabaseArgs
 
-	URL        string `pulumi:"url"`
+	URL        string `pulumi:"url" provider:"secret"`
 	DatabaseId string `pulumi:"databaseId"`
 }
 

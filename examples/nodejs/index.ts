@@ -32,7 +32,7 @@ const myFrontend = new genezio.Frontend("MyFrontend", {
   },
   path: "./client",
   publish: new pulumi.asset.FileArchive(frontendPublishPath),
-  subdomain: "my-frontend-pulumi-10",
+  subdomain: "my-frontend-pulumi-12",
 });
 
 // export const databaseOutput = {
@@ -55,4 +55,16 @@ const myFunction = new genezio.ServerlessFunction("MyFunction", {
   handler: "handler",
   name: "my-function",
   backendPath: ".",
+});
+
+const myAuth = new genezio.Authentication("MyAuth", {
+  project: {
+    name: MyProject.name,
+    region: MyProject.region,
+  },
+  databaseType: "postgresql",
+  databaseUrl: myDatabase.url,
+  provider: {
+    email: true,
+  },
 });

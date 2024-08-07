@@ -33,10 +33,11 @@ func Provider() p.Provider {
 	// In this case, a single custom resource.
 	return infer.Provider(infer.Options{
 		Resources: []infer.InferredResource{
-			infer.Resource[*r.ServerlessFunction,r.ServerlessFunctionArgs, r.ServerlessFunctionState](),
-			infer.Resource[*r.Database,r.DatabaseArgs,r.DatabaseState](),
-			infer.Resource[*r.Project,r.ProjectArgs,r.ProjectState](),
-			infer.Resource[*r.Frontend,r.FrontendArgs,r.FrontendState](),
+			infer.Resource[*r.ServerlessFunction, r.ServerlessFunctionArgs, r.ServerlessFunctionState](),
+			infer.Resource[*r.Database, r.DatabaseArgs, r.DatabaseState](),
+			infer.Resource[*r.Project, r.ProjectArgs, r.ProjectState](),
+			infer.Resource[*r.Frontend, r.FrontendArgs, r.FrontendState](),
+			infer.Resource[*r.Authentication, r.AuthenticationArgs, r.AuthenticationState](),
 		},
 		ModuleMap: map[tokens.ModuleName]tokens.ModuleName{
 			"resources": "index",
@@ -55,13 +56,3 @@ func Provider() p.Provider {
 // - Delete: Custom logic when the resource is deleted.
 // - Annotate: Describe fields and set defaults for a resource.
 // - WireDependencies: Control how outputs and secrets flows through values.
-
-
-
-
-
-
-
-
-
-

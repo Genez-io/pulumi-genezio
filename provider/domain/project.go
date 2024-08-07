@@ -13,20 +13,10 @@ const (
 	GenezioCluster   Provider = "genezio-cluster"
 )
 
-type FunctionDetails struct {
-	Id          string           `json:"id"`
-	Name        string           `json:"name"`
-	ProjectName string           `json:"projectName"`
-	Status      DeploymentStatus `json:"status"`
-	CloudURL    string           `json:"cloudURL"`
-	CreatedAt   int64            `json:"createdAt"`
-	UpdatedAt   int64            `json:"updatedAt"`
-}
-
 type ProjectEnvDetails struct {
 	Id        string            `json:"id"`
 	Name      string            `json:"name"`
-	Classes   []string          `json:"classes"` // TODO - This is incomplete
+	Classes   []ClassDetails    `json:"classes"` // TODO - This is incomplete
 	Functions []FunctionDetails `json:"functions"`
 }
 
@@ -53,24 +43,6 @@ type Options struct {
 	Architecture string `pulumi:"architecture"`
 }
 
-type Workspace struct {
-	Backend string `pulumi:"backend"`
-}
-
-type FunctionConfiguration struct {
-	Name     string `pulumi:"name"`
-	Path     string `pulumi:"path"`
-	Language string `pulumi:"language"`
-	Handler  string `pulumi:"handler"`
-	Entry    string `pulumi:"entry"`
-	Type     string `pulumi:"type"`
-}
-
-type AstSummary struct {
-	Version string   `pulumi:"version"`
-	Classes []string `pulumi:"classes"`
-}
-
 type ProjectConfiguration struct {
 	Name          string                  `pulumi:"name"`
 	Region        string                  `pulumi:"region"`
@@ -78,7 +50,7 @@ type ProjectConfiguration struct {
 	CloudProvider string                  `pulumi:"cloudProvider"`
 	Workspace     Workspace               `pulumi:"workspace"`
 	AstSummary    AstSummary              `pulumi:"astSummary"`
-	Classes       []string                `pulumi:"classes"`
+	Classes       []ClassDetails          `pulumi:"classes"`
 	Functions     []FunctionConfiguration `pulumi:"functions"`
 }
 
@@ -92,7 +64,7 @@ type DeployCodeResponse struct {
 	Status       string                       `pulumi:"status"`
 	ProjectID    string                       `pulumi:"projectID"`
 	ProjectEnvID string                       `pulumi:"projectEnvID"`
-	Classes      []string                     `pulumi:"classes"`
+	Classes      []ClassDetails               `pulumi:"classes"`
 	Functions    []DeployCodeFunctionResponse `pulumi:"functions"`
 }
 
@@ -108,15 +80,9 @@ type CreateProjectRequest struct {
 	Stage         string `json:"stage"`
 }
 
-type MappedFunction struct {
-	Name      string `json:"name"`
-	Language  string `json:"language"`
-	EntryFile string `json:"entryFile"`
-}
-
 type DeployRequest struct {
 	Options       Options          `json:"options"`
-	Classes       []string         `json:"classes"`
+	Classes       []ClassDetails   `json:"classes"`
 	Functions     []MappedFunction `json:"functions"`
 	ProjectName   string           `json:"projectName"`
 	Region        string           `json:"region"`

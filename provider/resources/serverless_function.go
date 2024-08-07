@@ -156,7 +156,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 			Version: "2",
 			Classes: []string{},
 		},
-		Classes: []string{},
+		Classes: []domain.ClassDetails{},
 		Functions: []domain.FunctionConfiguration{
 			{
 				Name:     input.Name,

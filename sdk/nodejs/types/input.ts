@@ -6,9 +6,20 @@ import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 
 export namespace domain {
+    export interface AuthenticationProvidersArgs {
+        email?: pulumi.Input<boolean>;
+        google?: pulumi.Input<inputs.domain.GoogleProviderArgs>;
+        web3?: pulumi.Input<boolean>;
+    }
+
     export interface EnvironmentVariableArgs {
         name: pulumi.Input<string>;
         value: pulumi.Input<string>;
+    }
+
+    export interface GoogleProviderArgs {
+        id: pulumi.Input<string>;
+        secret: pulumi.Input<string>;
     }
 
     export interface ProjectArgs {

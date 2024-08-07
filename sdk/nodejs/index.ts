@@ -5,6 +5,11 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 // Export members:
+export { AuthenticationArgs } from "./authentication";
+export type Authentication = import("./authentication").Authentication;
+export const Authentication: typeof import("./authentication").Authentication = null as any;
+utilities.lazyLoad(exports, ["Authentication"], () => require("./authentication"));
+
 export { DatabaseArgs } from "./database";
 export type Database = import("./database").Database;
 export const Database: typeof import("./database").Database = null as any;
@@ -44,6 +49,8 @@ const _module = {
     version: utilities.getVersion(),
     construct: (name: string, type: string, urn: string): pulumi.Resource => {
         switch (type) {
+            case "genezio:index:Authentication":
+                return new Authentication(name, <any>undefined, { urn })
             case "genezio:index:Database":
                 return new Database(name, <any>undefined, { urn })
             case "genezio:index:Frontend":

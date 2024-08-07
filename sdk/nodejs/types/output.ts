@@ -6,9 +6,20 @@ import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 
 export namespace domain {
+    export interface AuthenticationProviders {
+        email?: boolean;
+        google?: outputs.domain.GoogleProvider;
+        web3?: boolean;
+    }
+
     export interface EnvironmentVariable {
         name: string;
         value: string;
+    }
+
+    export interface GoogleProvider {
+        id: string;
+        secret: string;
     }
 
     export interface Project {

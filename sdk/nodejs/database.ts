@@ -69,6 +69,8 @@ export class Database extends pulumi.CustomResource {
             resourceInputs["url"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
+        const secretOpts = { additionalSecretOutputs: ["url"] };
+        opts = pulumi.mergeOptions(opts, secretOpts);
         super(Database.__pulumiType, name, resourceInputs, opts);
     }
 }

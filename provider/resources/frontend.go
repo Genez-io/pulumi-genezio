@@ -67,7 +67,7 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 
 func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state FrontendState) (string, FrontendArgs, FrontendState, error) {
 
-	projectDetails, err := requests.GetProjectDetails(ctx, inputs.Project.Name)
+	projectDetails, err := requests.GetProjectDetails(ctx, state.Project.Name)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
 			return id, inputs, FrontendState{}, nil
@@ -76,6 +76,11 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 	}
 
 	stage := "prod"
+
+	contextStage := infer.GetConfig[*domain.Config](ctx).Stage
+	if contextStage != nil {
+		stage = *contextStage
+	}
 
 	var currentProjectEnv *domain.ProjectEnvDetails
 	for _, projectEnv := range projectDetails.Project.ProjectEnvs {
