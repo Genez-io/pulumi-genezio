@@ -26,7 +26,6 @@ type DatabaseState struct {
 	DatabaseId string `pulumi:"databaseId"`
 }
 
-// TODO - Improve this to handle changes for region and type - now they are ignored
 func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news DatabaseArgs) (p.DiffResponse, error) {
 	diff := map[string]p.PropertyDiff{}
 
