@@ -15,7 +15,7 @@ func CreateProject(ctx p.Context, request domain.CreateProjectRequest) (domain.C
 
 	return domain.CreateProjectResponse{
 		ProjectEnvID: response.ProjectEnvID,
-		ProjectID: response.ProjectID,
+		ProjectID:    response.ProjectID,
 	}, err
 
 }
@@ -32,7 +32,7 @@ func GetPresignedUrl(
 	request domain.GetPresignedUrlRequest,
 ) (domain.GetPresignedUrlResponse, error) {
 
-	if request.Region == "" || request.Filename=="" || request.ProjectName=="" || request.ClassName=="" {
+	if request.Region == "" || request.Filename == "" || request.ProjectName == "" || request.ClassName == "" {
 		return domain.GetPresignedUrlResponse{}, fmt.Errorf("invalid request to get presigned url")
 	}
 

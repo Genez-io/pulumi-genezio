@@ -84,54 +84,59 @@ type ProjectConfiguration struct {
 
 type DeployCodeFunctionResponse struct {
 	CloudUrl string `pulumi:"cloudUrl"`
-	ID string `pulumi:"functionID"`
-	Name string `pulumi:"name"`
+	ID       string `pulumi:"functionID"`
+	Name     string `pulumi:"name"`
 }
 
 type DeployCodeResponse struct {
-	Status string `pulumi:"status"`
-	ProjectID string `pulumi:"projectID"`
-	ProjectEnvID string `pulumi:"projectEnvID"`
-	Classes []string `pulumi:"classes"`
-	Functions []DeployCodeFunctionResponse `pulumi:"functions"`
+	Status       string                       `pulumi:"status"`
+	ProjectID    string                       `pulumi:"projectID"`
+	ProjectEnvID string                       `pulumi:"projectEnvID"`
+	Classes      []string                     `pulumi:"classes"`
+	Functions    []DeployCodeFunctionResponse `pulumi:"functions"`
 }
 
 type CreateProjectResponse struct {
-	ProjectID string `pulumi:"projectID"`
+	ProjectID    string `pulumi:"projectID"`
 	ProjectEnvID string `pulumi:"projectEnvID"`
 }
 
 type CreateProjectRequest struct {
-	ProjectName string `json:"projectName"`
+	ProjectName   string `json:"projectName"`
 	CloudProvider string `json:"cloudProvider"`
-	Region string `json:"region"`
-	Stage string `json:"stage"`
+	Region        string `json:"region"`
+	Stage         string `json:"stage"`
 }
 
 type MappedFunction struct {
-	Name string `json:"name"`
-	Language string `json:"language"`
+	Name      string `json:"name"`
+	Language  string `json:"language"`
 	EntryFile string `json:"entryFile"`
 }
 
 type DeployRequest struct {
-	Options Options `json:"options"`
-	Classes []string `json:"classes"`
-	Functions []MappedFunction `json:"functions"`
-	ProjectName string `json:"projectName"`
-	Region string `json:"region"`
-	CloudProvider string `json:"cloudProvider"`
-	Stage string `json:"stage"`
-	Stack []string `json:"stack"`
+	Options       Options          `json:"options"`
+	Classes       []string         `json:"classes"`
+	Functions     []MappedFunction `json:"functions"`
+	ProjectName   string           `json:"projectName"`
+	Region        string           `json:"region"`
+	CloudProvider string           `json:"cloudProvider"`
+	Stage         string           `json:"stage"`
+	Stack         []string         `json:"stack"`
 }
 
 type GetPresignedUrlRequest struct {
-	Region string `json:"region"`
-	Filename string `json:"filename"`
+	Region      string `json:"region"`
+	Filename    string `json:"filename"`
 	ProjectName string `json:"projectName"`
-	ClassName string `json:"className"`
+	ClassName   string `json:"className"`
 }
 
 type GetPresignedUrlResponse struct {
 	PresignedUrl string `json:"presignedUrl"`
+}
+
+type Project struct {
+	Name   string `pulumi:"name" json:"name"`
+	Region string `pulumi:"region" json:"region"`
 }

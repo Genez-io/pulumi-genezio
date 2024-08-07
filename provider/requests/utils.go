@@ -42,7 +42,7 @@ func MakeRequest(ctx p.Context, method string, endpoint string, body interface{}
 
 	client := &http.Client{
 		Transport: &http.Transport{
-			MaxIdleConns: 100,
+			MaxIdleConns:        100,
 			MaxIdleConnsPerHost: 100,
 		},
 	}
@@ -61,14 +61,12 @@ func MakeRequest(ctx p.Context, method string, endpoint string, body interface{}
 		return fmt.Errorf("error: %s and response %v", string(bodyBytes), resp)
 	}
 
-
 	if response != nil {
 		err = json.Unmarshal(bodyBytes, &response)
 		if err != nil {
 			return err
 		}
 	}
-	
 
 	return nil
 }

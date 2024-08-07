@@ -8,10 +8,9 @@ type GenezioCloudInput struct {
 	UnzippedBundleSize int64  `pulumi:"unzippedBundleSize"`
 }
 
-
 type GenezioCloudOutput struct {
-	ProjectID string `pulumi:"projectID"`
-	ProjectEnvID string `pulumi:"projectEnvID"`
-	Classes []string `pulumi:"classes"`
-	Functions []DeployCodeFunctionResponse `pulumi:"functions"`
+	ProjectID    string                       `pulumi:"projectID"`
+	ProjectEnvID string                       `pulumi:"projectEnvID"`
+	Classes      []string                     `pulumi:"classes"`
+	Functions    []DeployCodeFunctionResponse `pulumi:"functions"`
 }

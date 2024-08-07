@@ -30,62 +30,58 @@ func (g *genezioCloudAdapter) Deploy(ctx p.Context, input []domain.GenezioCloudI
 		stage = *cloudAdapterOptions.Stage
 	}
 
-	
-		for _, element := range input {
-			presignedUrlResponse,err := requests.GetPresignedUrl(ctx, domain.GetPresignedUrlRequest{
-				ProjectName: projectConfiguration.Name,
-				Region: projectConfiguration.Region,
-				Filename: "genezioDeploy.zip",
-				ClassName: element.Name,
-			})
-			if err != nil {
-				fmt.Printf("An error occurred while trying to get the presigned url %v\n", err)
-				return domain.GenezioCloudOutput{}, err
-			}
-
-
-
-			err = requests.UploadContentToS3(&presignedUrlResponse.PresignedUrl, element.ArchivePath, nil)
-			if err != nil {
-				fmt.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
-				return domain.GenezioCloudOutput{}, err
-			}
-
-			
-		} 
-	
-		mappedFunctions := []domain.MappedFunction{}
-
-		for _, fun := range projectConfiguration.Functions {
-			entryFile := ""
-			for _, input := range input {
-				if input.Name == fun.Name {
-					entryFile = input.EntryFile
-					break
-				}
-			}
-
-			mappedFunctions = append(mappedFunctions, domain.MappedFunction{
-				Name: fun.Name,
-				Language: fun.Language,
-				EntryFile: entryFile,
-			})
+	for _, element := range input {
+		presignedUrlResponse, err := requests.GetPresignedUrl(ctx, domain.GetPresignedUrlRequest{
+			ProjectName: projectConfiguration.Name,
+			Region:      projectConfiguration.Region,
+			Filename:    "genezioDeploy.zip",
+			ClassName:   element.Name,
+		})
+		if err != nil {
+			fmt.Printf("An error occurred while trying to get the presigned url %v\n", err)
+			return domain.GenezioCloudOutput{}, err
 		}
 
-		response, err:= requests.DeployRequest(ctx, domain.DeployRequest{
-			Options: projectConfiguration.Options,
-			Classes: projectConfiguration.Classes,
-			Functions: mappedFunctions,
-			ProjectName: projectConfiguration.Name,
-			Region: projectConfiguration.Region,
-			CloudProvider: projectConfiguration.CloudProvider,
-			Stage: stage,
-			Stack: nil,
-		}) 
+		err = requests.UploadContentToS3(&presignedUrlResponse.PresignedUrl, element.ArchivePath, nil)
 		if err != nil {
 			fmt.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
 			return domain.GenezioCloudOutput{}, err
 		}
+
+	}
+
+	mappedFunctions := []domain.MappedFunction{}
+
+	for _, fun := range projectConfiguration.Functions {
+		entryFile := ""
+		for _, input := range input {
+			if input.Name == fun.Name {
+				entryFile = input.EntryFile
+				break
+			}
+		}
+
+		mappedFunctions = append(mappedFunctions, domain.MappedFunction{
+			Name:      fun.Name,
+			Language:  fun.Language,
+			EntryFile: entryFile,
+		})
+	}
+
+	response, err := requests.DeployRequest(ctx, domain.DeployRequest{
+		Options:       projectConfiguration.Options,
+		Classes:       projectConfiguration.Classes,
+		Functions:     mappedFunctions,
+		ProjectName:   projectConfiguration.Name,
+		Region:        projectConfiguration.Region,
+		CloudProvider: projectConfiguration.CloudProvider,
+		Stage:         stage,
+		Stack:         nil,
+	})
+	if err != nil {
+		fmt.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
+		return domain.GenezioCloudOutput{}, err
+	}
 
 	return domain.GenezioCloudOutput{
 		ProjectID:    response.ProjectID,
@@ -127,9 +123,9 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 
 	presignedUrl, err := requests.GetFrontendPresignedUrl(ctx, domain.GetFrontendPresignedUrlRequest{
 		SubdomainName: finalSubdomain,
-		ProjectName: projectName,
-		Region: projectRegion,
-		Stage: stage,
+		ProjectName:   projectName,
+		Region:        projectRegion,
+		Stage:         stage,
 	})
 	if err != nil {
 		fmt.Printf("An error occurred while trying to get the presigned url %v\n", err)
@@ -142,18 +138,17 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 		return "", err
 	}
 
-
 	createFrontendResponse, err := requests.CreateFrontendProject(ctx, domain.CreateFrontendProjectRequest{
-		ProjectName: projectName,
-		Region: projectRegion,
+		ProjectName:   projectName,
+		Region:        projectRegion,
 		GenezioDomain: finalSubdomain,
-		Stage: stage,
+		Stage:         stage,
 	})
 	if err != nil {
 		fmt.Printf("An error occurred while trying to create the frontend project %v\n", err)
 		return "", err
 	}
-	
+
 	fmt.Printf("Frontend deployed successfully at %s\n", createFrontendResponse.Domain)
 	return createFrontendResponse.Domain, nil
 }

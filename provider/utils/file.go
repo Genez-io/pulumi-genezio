@@ -284,3 +284,14 @@ func HashFile(filePath string) (string, error) {
 
 	return fmt.Sprintf("%x", hash.Sum(nil)), nil
 }
+
+func DeleteFolder(folderPath string) error {
+	return os.RemoveAll(folderPath)
+}
+
+func DeleteTemporaryFolder() error {
+	tmpDir := os.TempDir()
+	folderName := fmt.Sprintf("genezio-%d", os.Getpid())
+	tmpParentFolder := filepath.Join(tmpDir, folderName)
+	return DeleteFolder(tmpParentFolder)
+}

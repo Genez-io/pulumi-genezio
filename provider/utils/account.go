@@ -12,7 +12,7 @@ import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 )
 
-func GetAuthToken(ctx p.Context) (string, error)  {
+func GetAuthToken(ctx p.Context) (string, error) {
 	token := infer.GetConfig[*domain.Config](ctx).AuthToken
 	if token == "" {
 		return "", fmt.Errorf("no authentification token provided")
@@ -28,8 +28,8 @@ func IsLoggedIn(ctx p.Context) (string, error) {
 	}
 
 	return authToken, nil
-	
-} 
+
+}
 
 func GetUser(ctx p.Context) (string, string, error) {
 
@@ -38,7 +38,7 @@ func GetUser(ctx p.Context) (string, string, error) {
 		return "", "", err
 	}
 
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/users/user", constants.API_URL),nil)
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/users/user", constants.API_URL), nil)
 	if err != nil {
 		return "", "", err
 	}
@@ -50,12 +50,12 @@ func GetUser(ctx p.Context) (string, string, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", "" , err
+		return "", "", err
 	}
 
 	defer resp.Body.Close()
 
-	body,err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", "", err
 	}

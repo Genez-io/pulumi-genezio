@@ -7,7 +7,7 @@ import (
 	p "github.com/pulumi/pulumi-go-provider"
 )
 
-func CreateFrontendProject(ctx p.Context, request domain.CreateFrontendProjectRequest) (domain.CreateFrontendProjectResponse, error){
+func CreateFrontendProject(ctx p.Context, request domain.CreateFrontendProjectRequest) (domain.CreateFrontendProjectResponse, error) {
 
 	var response domain.CreateFrontendProjectResponse
 	err := MakeRequest(ctx, http.MethodPut, "frontend", request, &response)

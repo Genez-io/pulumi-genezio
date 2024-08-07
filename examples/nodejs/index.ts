@@ -7,43 +7,32 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-function sha256FromFolder(folderPath: string): string {
-  const hash = crypto.createHash("sha256");
-  const files = fs.readdirSync(folderPath);
-  for (const file of files) {
-    const filePath = path.join(folderPath, file);
-    const stat = fs.statSync(filePath);
-    if (stat.isDirectory()) {
-      const dirHash = sha256FromFolder(filePath);
-      hash.update(dirHash);
-    } else {
-      const content = fs.readFileSync(filePath);
-      hash.update(content);
-    }
-  }
-
-  return hash.digest("hex");
-}
+const myDatabase = new genezio.Database("MyDatabase", {
+  name: "my-database-fullstack-pulumi-6",
+  type: "postgres-neon",
+});
 
 const MyProject = new genezio.Project("MyProject", {
   name: "my-fullstack-pulumi",
   region: "us-east-1",
-  cloudProvider: "genezio-cloud",
-  stage: "prod",
+  environmentVariables: [
+    {
+      name: "DATABASE_URL",
+      value: myDatabase.url,
+    },
+  ],
 });
+
+const frontendPublishPath = path.join(__dirname, "client", "dist");
 
 const myFrontend = new genezio.Frontend("MyFrontend", {
-  projectName: "my-fullstack-pulumi",
-  region: "us-east-1",
+  project: {
+    name: MyProject.name,
+    region: MyProject.region,
+  },
   path: "./client",
-  publish: "./dist",
+  publish: new pulumi.asset.FileArchive(frontendPublishPath),
   subdomain: "my-frontend-pulumi-10",
-});
-
-const myDatabase = new genezio.Database("MyDatabase", {
-  name: "my-database-fullstack-pulumi-4",
-  type: "postgres-neon",
-  region: "aws-us-east-1",
 });
 
 // export const databaseOutput = {
@@ -54,20 +43,16 @@ const myDatabase = new genezio.Database("MyDatabase", {
 //   endpoint: myDatabase.url,
 // };
 
-// export enum DatabaseType {
-//   POSTGRES = "postgres-neon",
-//   MYSQL = "mysql-neon",
-// }
+const functionPath = path.join(__dirname, "function");
 
 const myFunction = new genezio.ServerlessFunction("MyFunction", {
-  folderHash: sha256FromFolder("./function"),
-  path: "./function",
-  projectName: "my-fullstack-pulumi",
-  region: "us-east-1",
+  path: new pulumi.asset.FileArchive(functionPath),
+  project: {
+    name: MyProject.name,
+    region: MyProject.region,
+  },
   entry: "app.mjs",
   handler: "handler",
   name: "my-function",
-  environmentVariables: {
-    POSTGRES_URL: myDatabase.url,
-  },
+  backendPath: ".",
 });
