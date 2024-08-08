@@ -16,7 +16,7 @@ type Authentication struct{}
 
 type AuthenticationArgs struct {
 	Project      domain.Project                  `pulumi:"project"`
-	DatabaseType string                          `pulumi:"databaseType"`
+	DatabaseType *string                         `pulumi:"databaseType,optional"`
 	DatabaseUrl  string                          `pulumi:"databaseUrl"`
 	Provider     *domain.AuthenticationProviders `pulumi:"provider,optional"`
 }
@@ -34,6 +34,22 @@ func (*Authentication) Diff(ctx p.Context, id string, olds AuthenticationState, 
 	areProjectsIdentical := utils.CompareProjects(olds.Project, news.Project)
 	if !areProjectsIdentical {
 		diff["project"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
+
+	if olds.DatabaseType == nil {
+		if news.DatabaseType != nil && *news.DatabaseType != "postgresql" {
+			diff["databaseType"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.DatabaseType != nil {
+			if *olds.DatabaseType != *news.DatabaseType {
+				diff["databaseType"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		} else {
+			if *olds.DatabaseType != "postgresql" {
+				diff["databaseType"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			}
+		}
 	}
 
 	if olds.DatabaseType != news.DatabaseType {
@@ -98,7 +114,7 @@ func (*Authentication) Read(ctx p.Context, id string, inputs AuthenticationArgs,
 		return id, inputs, state, err
 	}
 
-	state.DatabaseType = getAuthenticationResponse.DatabaseType
+	state.DatabaseType = &getAuthenticationResponse.DatabaseType
 	state.DatabaseUrl = getAuthenticationResponse.DatabaseUrl
 	state.Token = getAuthenticationResponse.Token
 	state.Region = getAuthenticationResponse.Region
@@ -264,6 +280,11 @@ func (*Authentication) Create(ctx p.Context, name string, input AuthenticationAr
 		stage = *contextStage
 	}
 
+	databaseType := "postgresql"
+	if input.DatabaseType != nil {
+		databaseType = *input.DatabaseType
+	}
+
 	projectDetails, err := requests.GetProjectDetails(ctx, input.Project.Name)
 	if err != nil {
 		log.Println("Error getting project details: ", err)
@@ -284,7 +305,7 @@ func (*Authentication) Create(ctx p.Context, name string, input AuthenticationAr
 
 	createAuthenticationResponse, err := requests.SetAuthentication(ctx, currentProjectEnv.Id, domain.SetAuthenticationRequest{
 		Enabled:      true,
-		DatabaseType: input.DatabaseType,
+		DatabaseType: databaseType,
 		DatabaseUrl:  input.DatabaseUrl,
 	})
 	if err != nil {
