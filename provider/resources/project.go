@@ -8,6 +8,7 @@ import (
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	p "github.com/pulumi/pulumi-go-provider"
+	"github.com/pulumi/pulumi-go-provider/infer"
 )
 
 type Project struct{}
@@ -85,7 +86,7 @@ func (*Project) Diff(ctx p.Context, id string, olds ProjectState, news ProjectAr
 
 func (*Project) Read(ctx p.Context, id string, inputs ProjectArgs, state ProjectState) (string, ProjectArgs, ProjectState, error) {
 
-	projectDetails, err := requests.GetProjectDetails(ctx, inputs.Name)
+	projectDetails, err := requests.GetProjectDetails(ctx, state.Name)
 	if err != nil {
 		if strings.Contains(err.Error(), "405 Method Not Allowed") {
 			return id, inputs, ProjectState{}, nil
@@ -94,6 +95,11 @@ func (*Project) Read(ctx p.Context, id string, inputs ProjectArgs, state Project
 	}
 
 	stage := "prod"
+
+	contextStage := infer.GetConfig[*domain.Config](ctx).Stage
+	if contextStage != nil {
+		stage = *contextStage
+	}
 
 	var currentProjectEnv *domain.ProjectEnvDetails
 	for _, projectEnv := range projectDetails.Project.ProjectEnvs {
@@ -158,7 +164,11 @@ func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bo
 
 func (*Project) Update(ctx p.Context, id string, olds ProjectState, news ProjectArgs, preview bool) (ProjectState, error) {
 
-	state := ProjectState{ProjectArgs: news}
+	state := ProjectState{
+		ProjectArgs:  news,
+		ProjectId:    olds.ProjectId,
+		ProjectEnvId: olds.ProjectEnvId,
+	}
 	if preview {
 		return state, nil
 	}
@@ -172,9 +182,6 @@ func (*Project) Update(ctx p.Context, id string, olds ProjectState, news Project
 			return ProjectState{}, err
 		}
 	}
-
-	state.ProjectId = olds.ProjectId
-	state.ProjectEnvId = olds.ProjectEnvId
 
 	return state, nil
 }

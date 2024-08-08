@@ -37,3 +37,15 @@ const myFrontend = new genezio.Frontend("MyFrontend", {
   publish: new pulumi.asset.FileArchive("./client/dist"),
   subdomain: "my-frontend-pulumi-10",
 });
+
+const myAuth = new genezio.Authentication("MyAuth", {
+  project: {
+    name: MyProject.name,
+    region: MyProject.region,
+  },
+  databaseType: "postgresql",
+  databaseUrl: myDatabase.url,
+  provider: {
+    email: true,
+  },
+});
