@@ -1,0 +1,6 @@
+name: provider-genezio-native
+runtime: nodejs
+plugins:
+  providers:
+    - name: genezio
+      path: ../../bin
