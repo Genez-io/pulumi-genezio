@@ -33,7 +33,7 @@ export class Authentication extends pulumi.CustomResource {
         return obj['__pulumiType'] === Authentication.__pulumiType;
     }
 
-    public readonly databaseType!: pulumi.Output<string>;
+    public readonly databaseType!: pulumi.Output<string | undefined>;
     public readonly databaseUrl!: pulumi.Output<string>;
     public readonly project!: pulumi.Output<outputs.domain.Project>;
     public readonly provider!: pulumi.Output<outputs.domain.AuthenticationProviders | undefined>;
@@ -51,9 +51,6 @@ export class Authentication extends pulumi.CustomResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if ((!args || args.databaseType === undefined) && !opts.urn) {
-                throw new Error("Missing required property 'databaseType'");
-            }
             if ((!args || args.databaseUrl === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'databaseUrl'");
             }
@@ -83,7 +80,7 @@ export class Authentication extends pulumi.CustomResource {
  * The set of arguments for constructing a Authentication resource.
  */
 export interface AuthenticationArgs {
-    databaseType: pulumi.Input<string>;
+    databaseType?: pulumi.Input<string>;
     databaseUrl: pulumi.Input<string>;
     project: pulumi.Input<inputs.domain.ProjectArgs>;
     provider?: pulumi.Input<inputs.domain.AuthenticationProvidersArgs>;

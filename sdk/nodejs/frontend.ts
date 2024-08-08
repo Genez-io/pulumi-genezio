@@ -33,6 +33,8 @@ export class Frontend extends pulumi.CustomResource {
         return obj['__pulumiType'] === Frontend.__pulumiType;
     }
 
+    public readonly buildCommand!: pulumi.Output<string>;
+    public readonly environmentVariables!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
     public readonly path!: pulumi.Output<string>;
     public readonly project!: pulumi.Output<outputs.domain.Project>;
     public readonly publish!: pulumi.Output<pulumi.asset.Archive>;
@@ -50,6 +52,9 @@ export class Frontend extends pulumi.CustomResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
+            if ((!args || args.buildCommand === undefined) && !opts.urn) {
+                throw new Error("Missing required property 'buildCommand'");
+            }
             if ((!args || args.path === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'path'");
             }
@@ -59,12 +64,16 @@ export class Frontend extends pulumi.CustomResource {
             if ((!args || args.publish === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'publish'");
             }
+            resourceInputs["buildCommand"] = args ? args.buildCommand : undefined;
+            resourceInputs["environmentVariables"] = args ? args.environmentVariables : undefined;
             resourceInputs["path"] = args ? args.path : undefined;
             resourceInputs["project"] = args ? args.project : undefined;
             resourceInputs["publish"] = args ? args.publish : undefined;
             resourceInputs["subdomain"] = args ? args.subdomain : undefined;
             resourceInputs["url"] = undefined /*out*/;
         } else {
+            resourceInputs["buildCommand"] = undefined /*out*/;
+            resourceInputs["environmentVariables"] = undefined /*out*/;
             resourceInputs["path"] = undefined /*out*/;
             resourceInputs["project"] = undefined /*out*/;
             resourceInputs["publish"] = undefined /*out*/;
@@ -80,6 +89,8 @@ export class Frontend extends pulumi.CustomResource {
  * The set of arguments for constructing a Frontend resource.
  */
 export interface FrontendArgs {
+    buildCommand: pulumi.Input<string>;
+    environmentVariables?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
     path: pulumi.Input<string>;
     project: pulumi.Input<inputs.domain.ProjectArgs>;
     publish: pulumi.Input<pulumi.asset.Archive>;

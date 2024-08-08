@@ -20,10 +20,12 @@ import (
 type Frontend struct{}
 
 type FrontendArgs struct {
-	Project   domain.Project   `pulumi:"project"`
-	Path      string           `pulumi:"path"`
-	Subdomain *string          `pulumi:"subdomain,optional"`
-	Publish   resource.Archive `pulumi:"publish"`
+	Project              domain.Project                `pulumi:"project"`
+	Path                 string                        `pulumi:"path"`
+	Subdomain            *string                       `pulumi:"subdomain,optional"`
+	Publish              resource.Archive              `pulumi:"publish"`
+	BuildCommand         string                        `pulumi:"buildCommand"`
+	EnvironmentVariables *[]domain.EnvironmentVariable `pulumi:"environmentVariables,optional"`
 }
 
 type FrontendState struct {
@@ -56,6 +58,29 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 
 	if olds.Publish.Hash != news.Publish.Hash {
 		diff["publish"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
+
+	if olds.BuildCommand != news.BuildCommand {
+		diff["buildCommand"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
+
+	if olds.EnvironmentVariables == nil {
+		if news.EnvironmentVariables != nil {
+			diff["environmentVariables"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.EnvironmentVariables != nil {
+			if len(*olds.EnvironmentVariables) != len(*news.EnvironmentVariables) {
+				diff["environmentVariables"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			} else {
+				for i, envVar := range *news.EnvironmentVariables {
+					if (*olds.EnvironmentVariables)[i].Name != envVar.Name || (*olds.EnvironmentVariables)[i].Value != envVar.Value {
+						diff["environmentVariables"] = p.PropertyDiff{Kind: p.DeleteReplace}
+						break
+					}
+				}
+			}
+		}
 	}
 
 	return p.DiffResponse{
@@ -137,6 +162,11 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 	state := FrontendState{FrontendArgs: input}
 	if preview {
 		return name, state, nil
+	}
+
+	err := utils.RunScriptInDirectory(input.Path, input.BuildCommand, input.EnvironmentVariables)
+	if err != nil {
+		return "", FrontendState{}, err
 	}
 
 	stage := "prod"
