@@ -7,6 +7,7 @@ import (
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	"github.com/Genez-io/pulumi-genezio/provider/utils"
+	"github.com/uber/jaeger-client-go/crossdock/log"
 
 	p "github.com/pulumi/pulumi-go-provider"
 )
@@ -14,6 +15,7 @@ import (
 type CloudAdapter interface {
 	Deploy(ctx p.Context, input []domain.GenezioCloudInput, projectConfiguration domain.ProjectConfiguration, cloudAdapterOptions CloudAdapterOptions, stack *string) (domain.GenezioCloudOutput, error)
 	DeployFrontend(ctx p.Context, projectName string, projectRegion string, frontend domain.FrontendConfiguration, stage string) (string, error)
+	DeployFunction(ctx p.Context, projectName string, projectRegion string, function domain.FunctionConfiguration, cloudInput domain.GenezioCloudInput, stage string) (domain.FunctionDetails, error)
 }
 
 type genezioCloudAdapter struct {
@@ -38,19 +40,19 @@ func (g *genezioCloudAdapter) Deploy(ctx p.Context, input []domain.GenezioCloudI
 			ClassName:   element.Name,
 		})
 		if err != nil {
-			fmt.Printf("An error occurred while trying to get the presigned url %v\n", err)
+			log.Printf("An error occurred while trying to get the presigned url %v\n", err)
 			return domain.GenezioCloudOutput{}, err
 		}
 
 		err = requests.UploadContentToS3(&presignedUrlResponse.PresignedUrl, element.ArchivePath, nil)
 		if err != nil {
-			fmt.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
+			log.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
 			return domain.GenezioCloudOutput{}, err
 		}
 
 	}
 
-	mappedFunctions := []domain.MappedFunction{}
+	mappedFunctions := []domain.DeployProjectFunctionElement{}
 
 	for _, fun := range projectConfiguration.Functions {
 		entryFile := ""
@@ -61,7 +63,7 @@ func (g *genezioCloudAdapter) Deploy(ctx p.Context, input []domain.GenezioCloudI
 			}
 		}
 
-		mappedFunctions = append(mappedFunctions, domain.MappedFunction{
+		mappedFunctions = append(mappedFunctions, domain.DeployProjectFunctionElement{
 			Name:      fun.Name,
 			Language:  fun.Language,
 			EntryFile: entryFile,
@@ -79,7 +81,7 @@ func (g *genezioCloudAdapter) Deploy(ctx p.Context, input []domain.GenezioCloudI
 		Stack:         nil,
 	})
 	if err != nil {
-		fmt.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
+		log.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
 		return domain.GenezioCloudOutput{}, err
 	}
 
@@ -104,7 +106,7 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 
 	temporaryFolder, err := utils.CreateTemporaryFolder(nil, nil)
 	if err != nil {
-		fmt.Printf("An error occurred while trying to create a temporary folder %v\n", err)
+		log.Printf("An error occurred while trying to create a temporary folder %v\n", err)
 		return "", err
 	}
 
@@ -117,7 +119,7 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 	exclussionList := []string{".git", ".github"}
 	err = utils.ZipDirectoryToDestinationPath(frontendPath, finalSubdomain, archivePath, exclussionList)
 	if err != nil {
-		fmt.Printf("An error occurred while trying to zip the directory %v\n", err)
+		log.Printf("An error occurred while trying to zip the directory %v\n", err)
 		return "", err
 	}
 
@@ -128,13 +130,13 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 		Stage:         stage,
 	})
 	if err != nil {
-		fmt.Printf("An error occurred while trying to get the presigned url %v\n", err)
+		log.Printf("An error occurred while trying to get the presigned url %v\n", err)
 		return "", err
 	}
 
 	err = requests.UploadContentToS3(&presignedUrl.PresignedURL, archivePath, &presignedUrl.UserID)
 	if err != nil {
-		fmt.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
+		log.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
 		return "", err
 	}
 
@@ -145,12 +147,53 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 		Stage:         stage,
 	})
 	if err != nil {
-		fmt.Printf("An error occurred while trying to create the frontend project %v\n", err)
+		log.Printf("An error occurred while trying to create the frontend project %v\n", err)
 		return "", err
 	}
 
-	fmt.Printf("Frontend deployed successfully at %s\n", createFrontendResponse.Domain)
+	log.Printf("Frontend deployed successfully at %s\n", createFrontendResponse.Domain)
 	return createFrontendResponse.Domain, nil
+}
+
+func (g *genezioCloudAdapter) DeployFunction(ctx p.Context, projectName string, projectRegion string, function domain.FunctionConfiguration, cloudInput domain.GenezioCloudInput, stage string) (domain.FunctionDetails, error) {
+	presignedUrlResponse, err := requests.GetPresignedUrl(ctx, domain.GetPresignedUrlRequest{
+		ProjectName: projectName,
+		Region:      projectRegion,
+		Filename:    "genezioDeploy.zip",
+		ClassName:   function.Name,
+	})
+	if err != nil {
+		log.Printf("An error occurred while trying to get the presigned url %v\n", err)
+		return domain.FunctionDetails{}, err
+	}
+
+	err = requests.UploadContentToS3(&presignedUrlResponse.PresignedUrl, cloudInput.ArchivePath, nil)
+	if err != nil {
+		log.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
+		return domain.FunctionDetails{}, err
+	}
+
+	mappedFunction := domain.DeployProjectFunctionElement{
+		Name:      function.Name,
+		Language:  function.Language,
+		EntryFile: function.Entry,
+	}
+
+	createFunctionRequest := domain.CreateFunctionRequest{
+		ProjectName: projectName,
+		StageName:   stage,
+		Function:    mappedFunction,
+	}
+
+	createFunctionResponse, err := requests.CreateFunction(ctx, createFunctionRequest)
+	if err != nil {
+		log.Printf("An error occurred while trying to create the function %v\n", err)
+		return domain.FunctionDetails{}, err
+	}
+
+	log.Printf("Function deployed successfully at %s\n", createFunctionResponse.Function.CloudURL)
+
+	return createFunctionResponse.Function, nil
 }
 
 type CloudAdapterOptions struct {

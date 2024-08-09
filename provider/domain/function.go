@@ -19,8 +19,23 @@ type FunctionConfiguration struct {
 	Type     string `pulumi:"type"`
 }
 
-type MappedFunction struct {
+type DeployProjectFunctionElement struct {
 	Name      string `json:"name"`
 	Language  string `json:"language"`
 	EntryFile string `json:"entryFile"`
+}
+
+type CreateFunctionRequest struct {
+	ProjectName string                       `json:"projectName"`
+	StageName   string                       `json:"stageName"`
+	Function    DeployProjectFunctionElement `json:"function"`
+}
+
+type GetFunctionResponse struct {
+	Status   ResponseStatus  `json:"status"`
+	Function FunctionDetails `json:"function"`
+}
+
+type DeleteFunctionResponse struct {
+	Status ResponseStatus `json:"status"`
 }

@@ -52,10 +52,6 @@ func (*Authentication) Diff(ctx p.Context, id string, olds AuthenticationState, 
 		}
 	}
 
-	if olds.DatabaseType != news.DatabaseType {
-		diff["databaseType"] = p.PropertyDiff{Kind: p.DeleteReplace}
-	}
-
 	if olds.DatabaseUrl != news.DatabaseUrl {
 		diff["databaseUrl"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}

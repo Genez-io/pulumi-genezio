@@ -81,14 +81,14 @@ type CreateProjectRequest struct {
 }
 
 type DeployRequest struct {
-	Options       Options          `json:"options"`
-	Classes       []ClassDetails   `json:"classes"`
-	Functions     []MappedFunction `json:"functions"`
-	ProjectName   string           `json:"projectName"`
-	Region        string           `json:"region"`
-	CloudProvider string           `json:"cloudProvider"`
-	Stage         string           `json:"stage"`
-	Stack         []string         `json:"stack"`
+	Options       Options                        `json:"options"`
+	Classes       []ClassDetails                 `json:"classes"`
+	Functions     []DeployProjectFunctionElement `json:"functions"`
+	ProjectName   string                         `json:"projectName"`
+	Region        string                         `json:"region"`
+	CloudProvider string                         `json:"cloudProvider"`
+	Stage         string                         `json:"stage"`
+	Stack         []string                       `json:"stack"`
 }
 
 type GetPresignedUrlRequest struct {
