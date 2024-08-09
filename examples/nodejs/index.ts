@@ -2,55 +2,57 @@ import * as genezio from "@pulumi/genezio";
 import * as pulumi from "@pulumi/pulumi";
 import path = require("path");
 
-// const myDatabase = new genezio.Database("MyDatabase", {
-//   name: "my-database-fullstack-pulumi",
-// });
+const project = new genezio.Project("MyProject", {
+  name: "my-project-fullstack-pulumi",
+  region: "us-east-1",
+  environmentVariables: [
+    {
+      name: "CUSTOM_ENV_VAR",
+      value: "my-env-var",
+    },
+  ],
+});
 
-// const MyProject = new genezio.Project("MyProject", {
-//   name: "my-project-fullstack-pulumi",
-//   region: "us-east-1",
-//   environmentVariables: [
-//     {
-//       name: "CUSTOM_DATABASE_URL",
-//       value: myDatabase.url,
-//     },
-//   ],
-// });
+const database = new genezio.Database("MyDatabase", {
+  project: {
+    name: project.name,
+    region: project.region,
+  },
+  name: "my-database-fullstack-pulumi",
+});
 
 const functionPath = path.join(__dirname, "function");
 
-const myFunction = new genezio.ServerlessFunction("MyFunction", {
+const serverlessFunction = new genezio.ServerlessFunction("MyFunction", {
   path: new pulumi.asset.FileArchive(functionPath),
   project: {
-    name: "my-project-fullstack-pulumi",
-    region: "us-east-1",
+    name: project.name,
+    region: project.region,
   },
   entry: "app.mjs",
   handler: "handler",
   name: "my-function",
-  backendPath: ".",
 });
 
-// const frontendPublishPath = path.join(__dirname, "client", "dist");
+const frontendPublishPath = path.join(__dirname, "client", "dist");
 
-// const myFrontend = new genezio.Frontend("MyFrontend", {
-//   project: {
-//     name: MyProject.name,
-//     region: MyProject.region,
-//   },
-//   path: "./client",
-//   publish: new pulumi.asset.FileArchive(frontendPublishPath),
-//   subdomain: "my-frontend-pulumi",
-// });
+const frontend = new genezio.Frontend("MyFrontend", {
+  project: {
+    name: project.name,
+    region: project.region,
+  },
+  path: "./client",
+  publish: new pulumi.asset.FileArchive(frontendPublishPath),
+  subdomain: "my-frontend-pulumi",
+});
 
-// const myAuth = new genezio.Authentication("MyAuth", {
-//   project: {
-//     name: MyProject.name,
-//     region: MyProject.region,
-//   },
-//   databaseType: "postgresql",
-//   databaseUrl: myDatabase.url,
-//   provider: {
-//     email: true,
-//   },
-// });
+const auth = new genezio.Authentication("MyAuth", {
+  project: {
+    name: project.name,
+    region: project.region,
+  },
+  databaseUrl: database.url,
+  provider: {
+    email: true,
+  },
+});
