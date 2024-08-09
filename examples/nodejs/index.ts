@@ -41,7 +41,7 @@ const myFrontend = new genezio.Frontend("MyFrontend", {
   path: "./client",
   publish: new pulumi.asset.FileArchive(frontendPublishPath),
   subdomain: "my-frontend-pulumi",
-  buildCommand: "npm run build",
+  buildCommands: ["npm install", "npm run build"],
   environmentVariables: [
     {
       name: "VITE_HELLO_WORLD_FUNCTION_URL",

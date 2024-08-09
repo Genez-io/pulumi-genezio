@@ -24,7 +24,7 @@ type FrontendArgs struct {
 	Path                 string                        `pulumi:"path"`
 	Subdomain            *string                       `pulumi:"subdomain,optional"`
 	Publish              resource.Archive              `pulumi:"publish"`
-	BuildCommand         string                        `pulumi:"buildCommand"`
+	BuildCommands        *[]string                     `pulumi:"buildCommands,optional"`
 	EnvironmentVariables *[]domain.EnvironmentVariable `pulumi:"environmentVariables,optional"`
 }
 
@@ -60,8 +60,25 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 		diff["publish"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
-	if olds.BuildCommand != news.BuildCommand {
-		diff["buildCommand"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	if olds.BuildCommands == nil {
+		if news.BuildCommands != nil {
+			diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.BuildCommands != nil {
+			if len(*olds.BuildCommands) != len(*news.BuildCommands) {
+				diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			} else {
+				for i, buildCommand := range *news.BuildCommands {
+					if (*olds.BuildCommands)[i] != buildCommand {
+						diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+						break
+					}
+				}
+			}
+		} else {
+			diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
 	}
 
 	if olds.EnvironmentVariables == nil {
@@ -143,9 +160,7 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 		if frontend.GenezioDomain == subdomain {
 			state.Project.Name = projectDetails.Project.Name
 			state.Project.Region = projectDetails.Project.Region
-			state.Path = inputs.Path
 			state.Subdomain = &subdomain
-			state.Publish = inputs.Publish
 			return id, inputs, state, nil
 		}
 	}
@@ -164,9 +179,11 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 		return name, state, nil
 	}
 
-	err := utils.RunScriptInDirectory(input.Path, input.BuildCommand, input.EnvironmentVariables)
-	if err != nil {
-		return "", FrontendState{}, err
+	if input.BuildCommands != nil {
+		err := utils.RunScriptsInDirectory(input.Path, *input.BuildCommands, input.EnvironmentVariables)
+		if err != nil {
+			return "", FrontendState{}, err
+		}
 	}
 
 	stage := "prod"
