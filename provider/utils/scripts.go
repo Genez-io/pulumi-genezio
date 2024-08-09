@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
@@ -16,7 +17,13 @@ func RunScriptsInDirectory(dir string, scripts []string, envVars *[]domain.Envir
 		cmdName := parts[0]
 		cmdArgs := parts[1:]
 
-		cmd := exec.Command(cmdName, cmdArgs...)
+		var cmd *exec.Cmd
+		if runtime.GOOS == "windows" {
+			cmd = exec.Command("cmd", append([]string{"/C", cmdName}, cmdArgs...)...)
+		} else {
+			cmd = exec.Command(cmdName, cmdArgs...)
+		}
+
 		cmd.Dir = dir
 
 		if envVars != nil {
