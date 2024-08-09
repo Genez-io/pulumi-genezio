@@ -20,10 +20,12 @@ import (
 type Frontend struct{}
 
 type FrontendArgs struct {
-	Project   domain.Project   `pulumi:"project"`
-	Path      string           `pulumi:"path"`
-	Subdomain *string          `pulumi:"subdomain,optional"`
-	Publish   resource.Archive `pulumi:"publish"`
+	Project              domain.Project                `pulumi:"project"`
+	Path                 string                        `pulumi:"path"`
+	Subdomain            *string                       `pulumi:"subdomain,optional"`
+	Publish              resource.Archive              `pulumi:"publish"`
+	BuildCommands        *[]string                     `pulumi:"buildCommands,optional"`
+	EnvironmentVariables *[]domain.EnvironmentVariable `pulumi:"environmentVariables,optional"`
 }
 
 type FrontendState struct {
@@ -56,6 +58,46 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 
 	if olds.Publish.Hash != news.Publish.Hash {
 		diff["publish"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	}
+
+	if olds.BuildCommands == nil {
+		if news.BuildCommands != nil {
+			diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.BuildCommands != nil {
+			if len(*olds.BuildCommands) != len(*news.BuildCommands) {
+				diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			} else {
+				for i, buildCommand := range *news.BuildCommands {
+					if (*olds.BuildCommands)[i] != buildCommand {
+						diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+						break
+					}
+				}
+			}
+		} else {
+			diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	}
+
+	if olds.EnvironmentVariables == nil {
+		if news.EnvironmentVariables != nil {
+			diff["environmentVariables"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		}
+	} else {
+		if news.EnvironmentVariables != nil {
+			if len(*olds.EnvironmentVariables) != len(*news.EnvironmentVariables) {
+				diff["environmentVariables"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			} else {
+				for i, envVar := range *news.EnvironmentVariables {
+					if (*olds.EnvironmentVariables)[i].Name != envVar.Name || (*olds.EnvironmentVariables)[i].Value != envVar.Value {
+						diff["environmentVariables"] = p.PropertyDiff{Kind: p.DeleteReplace}
+						break
+					}
+				}
+			}
+		}
 	}
 
 	return p.DiffResponse{
@@ -118,9 +160,7 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 		if frontend.GenezioDomain == subdomain {
 			state.Project.Name = projectDetails.Project.Name
 			state.Project.Region = projectDetails.Project.Region
-			state.Path = inputs.Path
 			state.Subdomain = &subdomain
-			state.Publish = inputs.Publish
 			return id, inputs, state, nil
 		}
 	}
@@ -137,6 +177,13 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 	state := FrontendState{FrontendArgs: input}
 	if preview {
 		return name, state, nil
+	}
+
+	if input.BuildCommands != nil {
+		err := utils.RunScriptsInDirectory(input.Path, *input.BuildCommands, input.EnvironmentVariables)
+		if err != nil {
+			return "", FrontendState{}, err
+		}
 	}
 
 	stage := "prod"
