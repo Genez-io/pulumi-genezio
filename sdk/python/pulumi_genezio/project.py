@@ -8,43 +8,26 @@ import pulumi
 import pulumi.runtime
 from typing import Any, Mapping, Optional, Sequence, Union, overload
 from . import _utilities
+from . import domain as _domain
 
 __all__ = ['ProjectArgs', 'Project']
 
 @pulumi.input_type
 class ProjectArgs:
     def __init__(__self__, *,
-                 auth_token: pulumi.Input[str],
-                 cloud_provider: pulumi.Input[str],
                  name: pulumi.Input[str],
                  region: pulumi.Input[str],
-                 stage: pulumi.Input[str]):
+                 cloud_provider: Optional[pulumi.Input[str]] = None,
+                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]] = None):
         """
         The set of arguments for constructing a Project resource.
         """
-        pulumi.set(__self__, "auth_token", auth_token)
-        pulumi.set(__self__, "cloud_provider", cloud_provider)
         pulumi.set(__self__, "name", name)
         pulumi.set(__self__, "region", region)
-        pulumi.set(__self__, "stage", stage)
-
-    @property
-    @pulumi.getter(name="authToken")
-    def auth_token(self) -> pulumi.Input[str]:
-        return pulumi.get(self, "auth_token")
-
-    @auth_token.setter
-    def auth_token(self, value: pulumi.Input[str]):
-        pulumi.set(self, "auth_token", value)
-
-    @property
-    @pulumi.getter(name="cloudProvider")
-    def cloud_provider(self) -> pulumi.Input[str]:
-        return pulumi.get(self, "cloud_provider")
-
-    @cloud_provider.setter
-    def cloud_provider(self, value: pulumi.Input[str]):
-        pulumi.set(self, "cloud_provider", value)
+        if cloud_provider is not None:
+            pulumi.set(__self__, "cloud_provider", cloud_provider)
+        if environment_variables is not None:
+            pulumi.set(__self__, "environment_variables", environment_variables)
 
     @property
     @pulumi.getter
@@ -65,13 +48,22 @@ class ProjectArgs:
         pulumi.set(self, "region", value)
 
     @property
-    @pulumi.getter
-    def stage(self) -> pulumi.Input[str]:
-        return pulumi.get(self, "stage")
+    @pulumi.getter(name="cloudProvider")
+    def cloud_provider(self) -> Optional[pulumi.Input[str]]:
+        return pulumi.get(self, "cloud_provider")
 
-    @stage.setter
-    def stage(self, value: pulumi.Input[str]):
-        pulumi.set(self, "stage", value)
+    @cloud_provider.setter
+    def cloud_provider(self, value: Optional[pulumi.Input[str]]):
+        pulumi.set(self, "cloud_provider", value)
+
+    @property
+    @pulumi.getter(name="environmentVariables")
+    def environment_variables(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]:
+        return pulumi.get(self, "environment_variables")
+
+    @environment_variables.setter
+    def environment_variables(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]):
+        pulumi.set(self, "environment_variables", value)
 
 
 class Project(pulumi.CustomResource):
@@ -79,11 +71,10 @@ class Project(pulumi.CustomResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 auth_token: Optional[pulumi.Input[str]] = None,
                  cloud_provider: Optional[pulumi.Input[str]] = None,
+                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
                  name: Optional[pulumi.Input[str]] = None,
                  region: Optional[pulumi.Input[str]] = None,
-                 stage: Optional[pulumi.Input[str]] = None,
                  __props__=None):
         """
         Create a Project resource with the given unique name, props, and options.
@@ -113,11 +104,10 @@ class Project(pulumi.CustomResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 auth_token: Optional[pulumi.Input[str]] = None,
                  cloud_provider: Optional[pulumi.Input[str]] = None,
+                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
                  name: Optional[pulumi.Input[str]] = None,
                  region: Optional[pulumi.Input[str]] = None,
-                 stage: Optional[pulumi.Input[str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -127,21 +117,14 @@ class Project(pulumi.CustomResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = ProjectArgs.__new__(ProjectArgs)
 
-            if auth_token is None and not opts.urn:
-                raise TypeError("Missing required property 'auth_token'")
-            __props__.__dict__["auth_token"] = auth_token
-            if cloud_provider is None and not opts.urn:
-                raise TypeError("Missing required property 'cloud_provider'")
             __props__.__dict__["cloud_provider"] = cloud_provider
+            __props__.__dict__["environment_variables"] = environment_variables
             if name is None and not opts.urn:
                 raise TypeError("Missing required property 'name'")
             __props__.__dict__["name"] = name
             if region is None and not opts.urn:
                 raise TypeError("Missing required property 'region'")
             __props__.__dict__["region"] = region
-            if stage is None and not opts.urn:
-                raise TypeError("Missing required property 'stage'")
-            __props__.__dict__["stage"] = stage
             __props__.__dict__["project_env_id"] = None
             __props__.__dict__["project_id"] = None
         super(Project, __self__).__init__(
@@ -166,24 +149,23 @@ class Project(pulumi.CustomResource):
 
         __props__ = ProjectArgs.__new__(ProjectArgs)
 
-        __props__.__dict__["auth_token"] = None
         __props__.__dict__["cloud_provider"] = None
+        __props__.__dict__["environment_variables"] = None
         __props__.__dict__["name"] = None
         __props__.__dict__["project_env_id"] = None
         __props__.__dict__["project_id"] = None
         __props__.__dict__["region"] = None
-        __props__.__dict__["stage"] = None
         return Project(resource_name, opts=opts, __props__=__props__)
 
     @property
-    @pulumi.getter(name="authToken")
-    def auth_token(self) -> pulumi.Output[str]:
-        return pulumi.get(self, "auth_token")
+    @pulumi.getter(name="cloudProvider")
+    def cloud_provider(self) -> pulumi.Output[Optional[str]]:
+        return pulumi.get(self, "cloud_provider")
 
     @property
-    @pulumi.getter(name="cloudProvider")
-    def cloud_provider(self) -> pulumi.Output[str]:
-        return pulumi.get(self, "cloud_provider")
+    @pulumi.getter(name="environmentVariables")
+    def environment_variables(self) -> pulumi.Output[Optional[Sequence['_domain.outputs.EnvironmentVariable']]]:
+        return pulumi.get(self, "environment_variables")
 
     @property
     @pulumi.getter
@@ -204,9 +186,4 @@ class Project(pulumi.CustomResource):
     @pulumi.getter
     def region(self) -> pulumi.Output[str]:
         return pulumi.get(self, "region")
-
-    @property
-    @pulumi.getter
-    def stage(self) -> pulumi.Output[str]:
-        return pulumi.get(self, "stage")
 

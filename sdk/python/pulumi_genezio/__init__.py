@@ -5,10 +5,23 @@
 from . import _utilities
 import typing
 # Export this package's modules as members:
+from .authentication import *
 from .database import *
+from .frontend import *
 from .project import *
 from .provider import *
 from .serverless_function import *
+
+# Make subpackages available:
+if typing.TYPE_CHECKING:
+    import pulumi_genezio.config as __config
+    config = __config
+    import pulumi_genezio.domain as __domain
+    domain = __domain
+else:
+    config = _utilities.lazy_import('pulumi_genezio.config')
+    domain = _utilities.lazy_import('pulumi_genezio.domain')
+
 _utilities.register(
     resource_modules="""
 [
@@ -17,7 +30,9 @@ _utilities.register(
   "mod": "index",
   "fqn": "pulumi_genezio",
   "classes": {
+   "genezio:index:Authentication": "Authentication",
    "genezio:index:Database": "Database",
+   "genezio:index:Frontend": "Frontend",
    "genezio:index:Project": "Project",
    "genezio:index:ServerlessFunction": "ServerlessFunction"
   }
