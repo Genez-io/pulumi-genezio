@@ -88,7 +88,7 @@ func (*Project) Read(ctx p.Context, id string, inputs ProjectArgs, state Project
 
 	projectDetails, err := requests.GetProjectDetails(ctx, state.Name)
 	if err != nil {
-		if strings.Contains(err.Error(), "405 Method Not Allowed") {
+		if strings.Contains(err.Error(), "record not found") {
 			return id, inputs, ProjectState{}, nil
 		}
 		return id, inputs, state, err
@@ -135,14 +135,50 @@ func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bo
 		cloudProvider = *input.CloudProvider
 	}
 
-	createProjectResponse, err := requests.CreateProject(ctx, domain.CreateProjectRequest{
-		ProjectName:   input.Name,
-		Region:        input.Region,
-		Stage:         stage,
-		CloudProvider: cloudProvider,
-	})
+	// Check if the project and stage exists exists
+	var currentProjectEnv *domain.ProjectEnvDetails
+	var createProjectResponse *domain.CreateProjectResponse
+	projectDetails, err := requests.GetProjectDetails(ctx, input.Name)
 	if err != nil {
-		return name, state, fmt.Errorf("error creating project: %v", err)
+		if strings.Contains(err.Error(), "record not found") {
+			response, err := requests.CreateProject(ctx, domain.CreateProjectRequest{
+				ProjectName:   input.Name,
+				Region:        input.Region,
+				Stage:         stage,
+				CloudProvider: cloudProvider,
+			})
+			if err != nil {
+				return name, state, fmt.Errorf("error creating project: %v", err)
+			}
+			createProjectResponse = &response
+
+		} else {
+			return name, state, fmt.Errorf("error getting project details: %v", err)
+		}
+	} else {
+		for _, projectEnv := range projectDetails.Project.ProjectEnvs {
+			if projectEnv.Name == stage {
+				currentProjectEnv = &projectEnv
+				break
+			}
+		}
+		if currentProjectEnv == nil {
+			response, err := requests.CreateProject(ctx, domain.CreateProjectRequest{
+				ProjectName:   input.Name,
+				Region:        input.Region,
+				Stage:         stage,
+				CloudProvider: cloudProvider,
+			})
+			if err != nil {
+				return name, state, fmt.Errorf("error creating project: %v", err)
+			}
+			createProjectResponse = &response
+		} else {
+			createProjectResponse = &domain.CreateProjectResponse{
+				ProjectID:    projectDetails.Project.Id,
+				ProjectEnvID: currentProjectEnv.Id,
+			}
+		}
 	}
 
 	// Set environment variables
@@ -189,7 +225,7 @@ func (*Project) Update(ctx p.Context, id string, olds ProjectState, news Project
 func (*Project) Delete(ctx p.Context, id string, state ProjectState) error {
 	_, err := requests.DeleteProject(ctx, state.ProjectId)
 	if err != nil {
-		if strings.Contains(err.Error(), "405 Method Not Allowed") {
+		if strings.Contains(err.Error(), "record not found") {
 			return nil
 		}
 		log.Println("Error deleting project", err)

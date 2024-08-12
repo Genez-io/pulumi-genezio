@@ -162,7 +162,7 @@ func (*Database) Delete(ctx p.Context, id string, state DatabaseState) error {
 
 	err := requests.DeleteDatabase(ctx, state.DatabaseId)
 	if err != nil {
-		if strings.Contains(err.Error(), "405 Method Not Allowed") {
+		if strings.Contains(err.Error(), "database id does not exist") {
 			log.Println("Database is already deleted")
 			return nil
 		}

@@ -114,10 +114,13 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 	// Code: https://github.com/pulumi/pulumi/blob/master/sdk/go/common/resource/sig/sig.go
 	// Documentation: https://pulumi-developer-docs.readthedocs.io/en/latest/architecture/deployment-schema.html#dabf18193072939515e22adb298388d-required
 	inputs.Publish.Sig = resource.ArchiveSig
+	state.Publish.Sig = resource.ArchiveSig
+
 	projectDetails, err := requests.GetProjectDetails(ctx, state.Project.Name)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
-			return id, inputs, FrontendState{}, nil
+			state.Project.Name = ""
+			return id, inputs, state, nil
 		}
 		return "", FrontendArgs{}, FrontendState{}, fmt.Errorf("error getting project details: %v", err)
 	}
@@ -138,7 +141,8 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 	}
 
 	if currentProjectEnv == nil {
-		return id, inputs, FrontendState{}, nil
+		state.Project.Name = ""
+		return id, inputs, state, nil
 	}
 
 	frontends, err := requests.GetFrontendsByEnvId(ctx, currentProjectEnv.Id)
@@ -151,7 +155,8 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 		if state.Subdomain != nil {
 			subdomain = *state.Subdomain
 		} else {
-			return id, inputs, FrontendState{}, nil
+			state.Project.Name = ""
+			return id, inputs, state, nil
 		}
 	} else {
 		subdomain = *inputs.Subdomain
@@ -266,7 +271,7 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 func (*Frontend) Delete(ctx p.Context, id string, state FrontendState) error {
 	projectDetails, err := requests.GetProjectDetails(ctx, state.Project.Name)
 	if err != nil {
-		if strings.Contains(err.Error(), "405 Method Not Allowed") {
+		if strings.Contains(err.Error(), "record not found") {
 			return nil
 		}
 		log.Println("Error getting project details", err)
