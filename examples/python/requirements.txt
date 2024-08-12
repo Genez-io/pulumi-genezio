@@ -1,2 +1,0 @@
-pulumi>=3.0.0,<4.0.0
-pulumi-genezio==0.0.1-alpha.1720512269+fb3ec06c.dirty

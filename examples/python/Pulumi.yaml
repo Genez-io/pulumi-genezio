@@ -1,6 +1,0 @@
-name: provider-genezio-native
-runtime: python
-plugins:
-  providers:
-    - name: genezio
-      path: ../../bin
