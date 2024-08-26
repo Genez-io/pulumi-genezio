@@ -26,9 +26,11 @@ func RunScriptsInDirectory(dir string, scripts []string, envVars *[]domain.Envir
 
 		cmd.Dir = dir
 
+		cmd.Env = os.Environ()
 		if envVars != nil {
 			for _, envVar := range *envVars {
-				cmd.Env = append(os.Environ(), fmt.Sprintf("%s=%s", envVar.Name, envVar.Value))
+
+				cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", envVar.Name, envVar.Value))
 			}
 		}
 
