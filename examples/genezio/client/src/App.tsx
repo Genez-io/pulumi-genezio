@@ -1,16 +1,34 @@
 import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import "./App.css";
-import { HELLO_WORLD_FUNCTION_URL } from "./constants";
-
 export default function App() {
   const [name, setName] = useState("");
   const [response, setResponse] = useState("");
 
   async function sayHello() {
-    console.log(import.meta.env.VITE_MY_TEST);
     const res = await fetch(
-      `${HELLO_WORLD_FUNCTION_URL}?name=${name}`
+      `${import.meta.env.VITE_HELLO_WORLD_FUNCTION_URL}?name=${name}`
+    );
+    setResponse(await res.text());
+  }
+
+  async function sayGoodbye() {
+    const res = await fetch(
+      `${import.meta.env.VITE_GOODBYE_FUNCTION_URL}?name=${name}`
+    );
+    setResponse(await res.text());
+  }
+
+  async function addToDatabase() {
+    const res = await fetch(
+      `${import.meta.env.VITE_ADD_USER_FUNCTION_URL}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: name }),
+      }
     );
     setResponse(await res.text());
   }
@@ -46,6 +64,8 @@ export default function App() {
         <br />
 
         <button onClick={() => sayHello()}>Say Hello</button>
+        <button onClick={() => sayGoodbye()}>Say Goodbye</button>
+        <button onClick={() => addToDatabase()}>Add to Database</button>
         <p className="read-the-docs">{response}</p>
       </div>
     </>

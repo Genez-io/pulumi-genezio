@@ -1,4 +1,4 @@
-name: provider-genezio-native
+name: genezio-fullstack-project
 runtime: nodejs
 plugins:
   providers:

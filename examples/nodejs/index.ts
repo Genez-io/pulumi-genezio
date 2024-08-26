@@ -1,5 +1,6 @@
 import * as genezio from "@pulumi/genezio";
 import * as pulumi from "@pulumi/pulumi";
+import { existsSync, mkdirSync } from "fs";
 import path = require("path");
 
 const project = new genezio.Project("MyProject", {
@@ -35,6 +36,11 @@ const serverlessFunction = new genezio.ServerlessFunction("MyFunction", {
 });
 
 const frontendPublishPath = path.join(__dirname, "client", "dist");
+
+// if the publish directory does not exist, create it
+if (!existsSync(frontendPublishPath)) {
+  mkdirSync(frontendPublishPath, { recursive: true });
+}
 
 const frontend = new genezio.Frontend("MyFrontend", {
   project: {
