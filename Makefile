@@ -133,7 +133,7 @@ devcontainer::
 
 .PHONY: build
 
-build:: provider nodejs_sdk python_sdk
+build:: provider nodejs_sdk
 
 show::
 	@echo "PROVIDER: ${PROVIDER}"

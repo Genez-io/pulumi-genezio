@@ -3,9 +3,9 @@ import * as pulumi from "@pulumi/pulumi";
 import path = require("path");
 
 const project = new genezio.Project("MyProject", {
-  name: "my-project-fullstack-pulumi",
+  name: "my-project",
   region: "us-east-1",
-  environmentVariables: [
+  environment: [
     {
       name: "CUSTOM_ENV_VAR",
       value: "my-env-var",
@@ -18,7 +18,7 @@ const database = new genezio.Database("MyDatabase", {
     name: project.name,
     region: project.region,
   },
-  name: "my-database-fullstack-pulumi",
+  name: "my-database",
 });
 
 const functionPath = path.join(__dirname, "function");
@@ -43,12 +43,12 @@ const frontend = new genezio.Frontend("MyFrontend", {
   },
   path: "./client",
   publish: new pulumi.asset.FileArchive(frontendPublishPath),
-  subdomain: "my-frontend-pulumi",
+  subdomain: "my-frontend",
   buildCommands: ["npm install", "npm run build"],
-  environmentVariables: [
+  environment: [
     {
       name: "VITE_HELLO_WORLD_FUNCTION_URL",
-      value: myFunction.url,
+      value: serverlessFunction.url,
     },
   ],
 });

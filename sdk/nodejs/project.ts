@@ -34,7 +34,7 @@ export class Project extends pulumi.CustomResource {
     }
 
     public readonly cloudProvider!: pulumi.Output<string | undefined>;
-    public readonly environmentVariables!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
+    public readonly environment!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
     public readonly name!: pulumi.Output<string>;
     public /*out*/ readonly projectEnvId!: pulumi.Output<string>;
     public /*out*/ readonly projectId!: pulumi.Output<string>;
@@ -58,14 +58,14 @@ export class Project extends pulumi.CustomResource {
                 throw new Error("Missing required property 'region'");
             }
             resourceInputs["cloudProvider"] = args ? args.cloudProvider : undefined;
-            resourceInputs["environmentVariables"] = args ? args.environmentVariables : undefined;
+            resourceInputs["environment"] = args ? args.environment : undefined;
             resourceInputs["name"] = args ? args.name : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
             resourceInputs["projectEnvId"] = undefined /*out*/;
             resourceInputs["projectId"] = undefined /*out*/;
         } else {
             resourceInputs["cloudProvider"] = undefined /*out*/;
-            resourceInputs["environmentVariables"] = undefined /*out*/;
+            resourceInputs["environment"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["projectEnvId"] = undefined /*out*/;
             resourceInputs["projectId"] = undefined /*out*/;
@@ -81,7 +81,7 @@ export class Project extends pulumi.CustomResource {
  */
 export interface ProjectArgs {
     cloudProvider?: pulumi.Input<string>;
-    environmentVariables?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
+    environment?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
     name: pulumi.Input<string>;
     region: pulumi.Input<string>;
 }

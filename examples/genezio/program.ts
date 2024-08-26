@@ -34,7 +34,7 @@ const helloWorldFunction = new genezio.ServerlessFunction("MyFunction", {
   name: "hello-world",
 });
 
-const goodbyeFunction = new genezio.ServerlessFunction("MyFunction", {
+const goodbyeFunction = new genezio.ServerlessFunction("Goodbye", {
   path: new pulumi.asset.FileArchive("./server"),
   backendPath: ".",
   project: {

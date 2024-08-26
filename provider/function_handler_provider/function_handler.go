@@ -42,6 +42,7 @@ func (p *awsFunctionHandlerProvider) Write(outputPath string, handlerFileName st
 
 	handlerContent := fmt.Sprintf(`import './setupLambdaGlobals_%s.mjs';
 	import { %s as genezioDeploy } from "./%s";
+	import { isUtf8 } from "buffer";
 	
 	function formatTimestamp(timestamp) {
 	  const date = new Date(timestamp);
@@ -80,6 +81,8 @@ func (p *awsFunctionHandlerProvider) Write(outputPath string, handlerFileName st
 		http2CompliantHeaders[header.toLowerCase()] = event.headers[header];
 	  }
 	
+	  const isBinary = !isUtf8(event.body);
+	
 	  const req = {
 		version: "2.0",
 		routeKey: "$default",
@@ -105,10 +108,8 @@ func (p *awsFunctionHandlerProvider) Write(outputPath string, handlerFileName st
 		  time: formatTimestamp(event.requestTimestampMs),
 		  timeEpoch: event.requestTimestampMs
 		},
-		body: event.isBase64Encoded
-		  ? Buffer.from(event.body, "base64")
-		  : event.body.toString(),
-		isBase64Encoded: event.isBase64Encoded,
+		body: event.body.toString(/* encoding= */ isBinary ? "base64" : "utf8"),
+		isBase64Encoded: isBinary,
 		responseStream: event.responseStream,
 	  };
 	
@@ -119,6 +120,12 @@ func (p *awsFunctionHandlerProvider) Write(outputPath string, handlerFileName st
 		  body: "Internal server error"
 		};
 	  });
+	
+	  if (result.cookies) {
+		for (const cookie of result.cookies) {
+		  result.headers["Set-Cookie"] = cookie;
+		}
+	  }
 	
 	  return result;
 	};

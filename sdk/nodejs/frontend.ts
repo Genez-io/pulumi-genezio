@@ -34,7 +34,7 @@ export class Frontend extends pulumi.CustomResource {
     }
 
     public readonly buildCommands!: pulumi.Output<string[] | undefined>;
-    public readonly environmentVariables!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
+    public readonly environment!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
     public readonly path!: pulumi.Output<string>;
     public readonly project!: pulumi.Output<outputs.domain.Project>;
     public readonly publish!: pulumi.Output<pulumi.asset.Archive>;
@@ -62,7 +62,7 @@ export class Frontend extends pulumi.CustomResource {
                 throw new Error("Missing required property 'publish'");
             }
             resourceInputs["buildCommands"] = args ? args.buildCommands : undefined;
-            resourceInputs["environmentVariables"] = args ? args.environmentVariables : undefined;
+            resourceInputs["environment"] = args ? args.environment : undefined;
             resourceInputs["path"] = args ? args.path : undefined;
             resourceInputs["project"] = args ? args.project : undefined;
             resourceInputs["publish"] = args ? args.publish : undefined;
@@ -70,7 +70,7 @@ export class Frontend extends pulumi.CustomResource {
             resourceInputs["url"] = undefined /*out*/;
         } else {
             resourceInputs["buildCommands"] = undefined /*out*/;
-            resourceInputs["environmentVariables"] = undefined /*out*/;
+            resourceInputs["environment"] = undefined /*out*/;
             resourceInputs["path"] = undefined /*out*/;
             resourceInputs["project"] = undefined /*out*/;
             resourceInputs["publish"] = undefined /*out*/;
@@ -87,7 +87,7 @@ export class Frontend extends pulumi.CustomResource {
  */
 export interface FrontendArgs {
     buildCommands?: pulumi.Input<pulumi.Input<string>[]>;
-    environmentVariables?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
+    environment?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
     path: pulumi.Input<string>;
     project: pulumi.Input<inputs.domain.ProjectArgs>;
     publish: pulumi.Input<pulumi.asset.Archive>;

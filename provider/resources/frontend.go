@@ -20,12 +20,12 @@ import (
 type Frontend struct{}
 
 type FrontendArgs struct {
-	Project              domain.Project                `pulumi:"project"`
-	Path                 string                        `pulumi:"path"`
-	Subdomain            *string                       `pulumi:"subdomain,optional"`
-	Publish              resource.Archive              `pulumi:"publish"`
-	BuildCommands        *[]string                     `pulumi:"buildCommands,optional"`
-	EnvironmentVariables *[]domain.EnvironmentVariable `pulumi:"environmentVariables,optional"`
+	Project       domain.Project                `pulumi:"project"`
+	Path          string                        `pulumi:"path"`
+	Subdomain     *string                       `pulumi:"subdomain,optional"`
+	Publish       resource.Archive              `pulumi:"publish"`
+	BuildCommands *[]string                     `pulumi:"buildCommands,optional"`
+	Environment   *[]domain.EnvironmentVariable `pulumi:"environment,optional"`
 }
 
 type FrontendState struct {
@@ -81,18 +81,18 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 		}
 	}
 
-	if olds.EnvironmentVariables == nil {
-		if news.EnvironmentVariables != nil {
-			diff["environmentVariables"] = p.PropertyDiff{Kind: p.DeleteReplace}
+	if olds.Environment == nil {
+		if news.Environment != nil {
+			diff["environment"] = p.PropertyDiff{Kind: p.DeleteReplace}
 		}
 	} else {
-		if news.EnvironmentVariables != nil {
-			if len(*olds.EnvironmentVariables) != len(*news.EnvironmentVariables) {
-				diff["environmentVariables"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		if news.Environment != nil {
+			if len(*olds.Environment) != len(*news.Environment) {
+				diff["environment"] = p.PropertyDiff{Kind: p.DeleteReplace}
 			} else {
-				for i, envVar := range *news.EnvironmentVariables {
-					if (*olds.EnvironmentVariables)[i].Name != envVar.Name || (*olds.EnvironmentVariables)[i].Value != envVar.Value {
-						diff["environmentVariables"] = p.PropertyDiff{Kind: p.DeleteReplace}
+				for i, envVar := range *news.Environment {
+					if (*olds.Environment)[i].Name != envVar.Name || (*olds.Environment)[i].Value != envVar.Value {
+						diff["environment"] = p.PropertyDiff{Kind: p.DeleteReplace}
 						break
 					}
 				}
@@ -115,6 +115,10 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 	// Documentation: https://pulumi-developer-docs.readthedocs.io/en/latest/architecture/deployment-schema.html#dabf18193072939515e22adb298388d-required
 	inputs.Publish.Sig = resource.ArchiveSig
 	state.Publish.Sig = resource.ArchiveSig
+
+	if state.Project.Name == "" {
+		return id, inputs, state, nil
+	}
 
 	projectDetails, err := requests.GetProjectDetails(ctx, state.Project.Name)
 	if err != nil {
@@ -185,7 +189,7 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 	}
 
 	if input.BuildCommands != nil {
-		err := utils.RunScriptsInDirectory(input.Path, *input.BuildCommands, input.EnvironmentVariables)
+		err := utils.RunScriptsInDirectory(input.Path, *input.BuildCommands, input.Environment)
 		if err != nil {
 			return "", FrontendState{}, err
 		}
@@ -269,6 +273,11 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 }
 
 func (*Frontend) Delete(ctx p.Context, id string, state FrontendState) error {
+
+	if state.Project.Name == "" {
+		return nil
+	}
+
 	projectDetails, err := requests.GetProjectDetails(ctx, state.Project.Name)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") {
