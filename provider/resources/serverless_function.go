@@ -9,7 +9,6 @@ import (
 
 	ca "github.com/Genez-io/pulumi-genezio/provider/cloud_adapters"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
-	fhp "github.com/Genez-io/pulumi-genezio/provider/function_handler_provider"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
@@ -165,19 +164,25 @@ func (*ServerlessFunction) Update(ctx p.Context, id string, olds ServerlessFunct
 		Path:     relFunctionPath,
 		Language: language,
 		Handler:  news.Handler,
-		Entry:    news.Entry,
+		Entry:    "index.mjs",
 		Type:     "aws",
 	}
-
-	cloudInput, err := fhp.FunctionToCloudInput(functionConfiguration, backendPath)
+	archivePath, err := utils.CreateTemporaryFolder(nil, nil)
 	if err != nil {
-		fmt.Printf("An error occurred while trying to convert the function to cloud input %v", err)
+		fmt.Printf("An error occurred while trying to create a temporary folder %v\n", err)
+		return ServerlessFunctionState{}, err
+	}
+
+	bundleFunctionScript := fmt.Sprintf("genezio bundleFunction --functionName %s --handler %s --entry %s --functionPath %s --backendPath %s --output %s", news.Name, news.Handler, news.Entry, relFunctionPath, absolueBackendPath, archivePath)
+	err = utils.RunScriptsInDirectory(absolueBackendPath, []string{bundleFunctionScript}, nil)
+	if err != nil {
+		fmt.Printf("An error occurred while trying to bundle the function %v", err)
 		return ServerlessFunctionState{}, err
 	}
 
 	cloudAdapter := ca.NewGenezioCloudAdapter()
 
-	response, err := cloudAdapter.DeployFunction(ctx, news.Project.Name, news.Project.Region, functionConfiguration, cloudInput, stage)
+	response, err := cloudAdapter.DeployFunction(ctx, news.Project.Name, news.Project.Region, functionConfiguration, archivePath, stage)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to deploy the function %v", err)
 		return ServerlessFunctionState{}, err
@@ -347,19 +352,26 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		Path:     relFunctionPath,
 		Language: language,
 		Handler:  input.Handler,
-		Entry:    input.Entry,
+		Entry:    "index.mjs",
 		Type:     "aws",
 	}
 
-	cloudInput, err := fhp.FunctionToCloudInput(functionConfiguration, backendPath)
+	archivePath, err := utils.CreateTemporaryFolder(nil, nil)
 	if err != nil {
-		fmt.Printf("An error occurred while trying to convert the function to cloud input %v", err)
+		fmt.Printf("An error occurred while trying to create a temporary folder %v\n", err)
+		return "", ServerlessFunctionState{}, err
+	}
+
+	bundleFunctionScript := fmt.Sprintf("genezio bundleFunction --functionName %s --handler %s --entry %s --functionPath %s --backendPath %s --output %s", input.Name, input.Handler, input.Entry, relFunctionPath, absolueBackendPath, archivePath)
+	err = utils.RunScriptsInDirectory(absolueBackendPath, []string{bundleFunctionScript}, nil)
+	if err != nil {
+		fmt.Printf("An error occurred while trying to bundle the function %v", err)
 		return "", ServerlessFunctionState{}, err
 	}
 
 	cloudAdapter := ca.NewGenezioCloudAdapter()
 
-	response, err := cloudAdapter.DeployFunction(ctx, input.Project.Name, input.Project.Region, functionConfiguration, cloudInput, stage)
+	response, err := cloudAdapter.DeployFunction(ctx, input.Project.Name, input.Project.Region, functionConfiguration, archivePath, stage)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to deploy the function %v", err)
 		return "", ServerlessFunctionState{}, err

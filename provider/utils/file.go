@@ -293,5 +293,8 @@ func DeleteTemporaryFolder() error {
 	tmpDir := os.TempDir()
 	folderName := fmt.Sprintf("genezio-%d", os.Getpid())
 	tmpParentFolder := filepath.Join(tmpDir, folderName)
+	if _, err := os.Stat(tmpParentFolder); os.IsNotExist(err) {
+		return nil
+	}
 	return DeleteFolder(tmpParentFolder)
 }
