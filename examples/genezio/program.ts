@@ -1,6 +1,5 @@
 import * as genezio from "@pulumi/genezio";
 import * as pulumi from "@pulumi/pulumi";
-import { existsSync, mkdirSync } from "fs";
 import path = require("path");
 
 // This example deploys a fullstack project with a frontend, serverless functions, and a database
@@ -21,7 +20,7 @@ const database = new genezio.Database("MyDatabase", {
     name: project.name,
     region: project.region,
   },
-  name: "core",
+  name: "core-database",
 });
 
 const serverPath = path.join(__dirname, "server");
@@ -59,20 +58,15 @@ const addUserFunction = new genezio.ServerlessFunction("AddUser", {
   name: "add-user",
 });
 
-const frontendPublishPath = path.join(__dirname, "client", "dist");
-
-// if the publish directory does not exist, create it
-if (!existsSync(frontendPublishPath)) {
-  mkdirSync(frontendPublishPath, { recursive: true });
-}
+const frontendPath = path.join(__dirname, "client");
 
 const myFrontend = new genezio.Frontend("MyFrontend", {
   project: {
     name: project.name,
     region: project.region,
   },
-  path: "./client",
-  publish: new pulumi.asset.FileArchive(frontendPublishPath),
+  path: new pulumi.asset.FileArchive(frontendPath),
+  publish: "dist",
   buildCommands: ["npm install", "npm run build"],
   environment: [
     {

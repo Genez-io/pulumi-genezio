@@ -35,9 +35,9 @@ export class Frontend extends pulumi.CustomResource {
 
     public readonly buildCommands!: pulumi.Output<string[] | undefined>;
     public readonly environment!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
-    public readonly path!: pulumi.Output<string>;
+    public readonly path!: pulumi.Output<pulumi.asset.Archive>;
     public readonly project!: pulumi.Output<outputs.domain.Project>;
-    public readonly publish!: pulumi.Output<pulumi.asset.Archive>;
+    public readonly publish!: pulumi.Output<string>;
     public readonly subdomain!: pulumi.Output<string | undefined>;
     public /*out*/ readonly url!: pulumi.Output<string>;
 
@@ -88,8 +88,8 @@ export class Frontend extends pulumi.CustomResource {
 export interface FrontendArgs {
     buildCommands?: pulumi.Input<pulumi.Input<string>[]>;
     environment?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
-    path: pulumi.Input<string>;
+    path: pulumi.Input<pulumi.asset.Archive>;
     project: pulumi.Input<inputs.domain.ProjectArgs>;
-    publish: pulumi.Input<pulumi.asset.Archive>;
+    publish: pulumi.Input<string>;
     subdomain?: pulumi.Input<string>;
 }

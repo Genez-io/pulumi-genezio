@@ -1,10 +1,19 @@
 // Import the postgres driver library at the top of your file
 import pg from "pg";
 const { Pool } = pg;
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const handler = async (event) => {
+  if (!process.env.CORE_DATABASE_DATABASE_URL) {
+    return {
+      statusCode: 500,
+      body: "Internal Server Error: CORE_DATABASE_URL environment variable is not set",
+    };
+  }
   const pool = new Pool({
-    connectionString: process.env.CORE_DATABASE_URL,
+    connectionString: process.env.CORE_DATABASE_DATABASE_URL,
     ssl: true,
   });
 

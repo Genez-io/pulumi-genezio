@@ -1,7 +1,6 @@
 import fetch from "node-fetch";
 
 export const handler = async (event) => {
-  console.log("Function was called");
   const name = event.queryStringParameters?.name || "World";
 
   const ipLocation = await fetch("http://ip-api.com/json/")

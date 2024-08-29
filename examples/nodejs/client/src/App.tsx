@@ -14,7 +14,7 @@ function App() {
     const url = `${envVar}?name=${name}`
     const response = await axios.get(url)
     const data = response.data
-    setServerString(data.message)
+    setServerString(data)
   }
 
   return (
