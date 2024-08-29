@@ -164,8 +164,10 @@ func (*ServerlessFunction) Update(ctx p.Context, id string, olds ServerlessFunct
 		Path:     relFunctionPath,
 		Language: language,
 		Handler:  news.Handler,
-		Entry:    "index.mjs",
-		Type:     "aws",
+		// TODO Fix this to use the entry file provided by the genezio bundleFunction command output
+		// This is a temporary fix but if a user has a function which has the entry file as index.mjs, this will fail
+		Entry: "index.mjs",
+		Type:  "aws",
 	}
 	archivePath, err := utils.CreateTemporaryFolder(nil, nil, &news.Path.Hash)
 	if err != nil {
@@ -351,8 +353,10 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		Path:     relFunctionPath,
 		Language: language,
 		Handler:  input.Handler,
-		Entry:    "index.mjs",
-		Type:     "aws",
+		// TODO Fix this to use the entry file provided by the genezio bundleFunction command output
+		// This is a temporary fix but if a user has a function which has the entry file as index.mjs, this will fail
+		Entry: "index.mjs",
+		Type:  "aws",
 	}
 
 	archivePath, err := utils.CreateTemporaryFolder(nil, nil, &input.Path.Hash)
