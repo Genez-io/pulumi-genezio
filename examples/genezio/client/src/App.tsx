@@ -1,18 +1,36 @@
 import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import "./App.css";
-import { HELLO_WORLD_FUNCTION_URL } from "./constants";
+
+import axios from "axios";
 
 export default function App() {
   const [name, setName] = useState("");
   const [response, setResponse] = useState("");
 
   async function sayHello() {
-    console.log(import.meta.env.VITE_MY_TEST);
-    const res = await fetch(
-      `${HELLO_WORLD_FUNCTION_URL}?name=${name}`
-    );
-    setResponse(await res.text());
+    const url = `${import.meta.env.VITE_HELLO_WORLD_FUNCTION_URL}?name=${name}`;
+    const response = await axios.get(url);
+    const data = response.data;
+    setResponse(data);
+  }
+
+  async function sayGoodbye() {
+    const url = `${import.meta.env.VITE_GOODBYE_FUNCTION_URL}?name=${name}`;
+    const response = await axios.get(url);
+    const data = response.data;
+    setResponse(data);
+  }
+
+  async function addToDatabase() {
+    const url = `${import.meta.env.VITE_ADD_USER_FUNCTION_URL}`;
+    const response = await axios.post(url, { name: name }, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = response.data;
+    setResponse(data);
   }
 
   return (
@@ -46,6 +64,8 @@ export default function App() {
         <br />
 
         <button onClick={() => sayHello()}>Say Hello</button>
+        <button onClick={() => sayGoodbye()}>Say Goodbye</button>
+        <button onClick={() => addToDatabase()}>Add to Database</button>
         <p className="read-the-docs">{response}</p>
       </div>
     </>

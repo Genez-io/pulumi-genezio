@@ -18,6 +18,20 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+@media (prefers-color-scheme: dark) {
+  .dark {
+    display: none; /* Hide light logo in light mode */
+  }
+}
+
+
+@media (prefers-color-scheme: light) {
+  .light {
+    display: none; /* Hide dark logo in dark mode */
+  }
+}
+
+
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -39,4 +53,12 @@
 
 .read-the-docs {
   color: #888;
+}
+
+.input-box {
+  width: 25%;
+  border-radius: 5px;
+  box-shadow: none !important;
+  border: 2px solid #888;
+  padding: 10px;
 }

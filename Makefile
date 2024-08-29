@@ -133,7 +133,7 @@ devcontainer::
 
 .PHONY: build
 
-build:: provider nodejs_sdk python_sdk
+build:: provider nodejs_sdk
 
 show::
 	@echo "PROVIDER: ${PROVIDER}"
@@ -157,7 +157,7 @@ lint::
 		pushd $$DIR && golangci-lint run -c ../.golangci.yml --timeout 10m && popd ; \
 	done
 
-install:: install_nodejs_sdk install_python_sdk
+install:: install_nodejs_sdk
 	cp $(WORKING_DIR)/bin/${PROVIDER} ${GOPATH}/bin
 
 GO_TEST 	 := go test -v -count=1 -cover -timeout 2h -parallel ${TESTPARALLELISM}

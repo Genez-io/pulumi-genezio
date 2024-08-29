@@ -2,12 +2,12 @@ package cloud_adapters
 
 import (
 	"fmt"
+	"log"
 	"path/filepath"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	"github.com/Genez-io/pulumi-genezio/provider/utils"
-	"github.com/uber/jaeger-client-go/crossdock/log"
 
 	p "github.com/pulumi/pulumi-go-provider"
 )
@@ -15,7 +15,7 @@ import (
 type CloudAdapter interface {
 	Deploy(ctx p.Context, input []domain.GenezioCloudInput, projectConfiguration domain.ProjectConfiguration, cloudAdapterOptions CloudAdapterOptions, stack *string) (domain.GenezioCloudOutput, error)
 	DeployFrontend(ctx p.Context, projectName string, projectRegion string, frontend domain.FrontendConfiguration, stage string) (string, error)
-	DeployFunction(ctx p.Context, projectName string, projectRegion string, function domain.FunctionConfiguration, cloudInput domain.GenezioCloudInput, stage string) (domain.FunctionDetails, error)
+	DeployFunction(ctx p.Context, projectName string, projectRegion string, function domain.FunctionConfiguration, archivePath string, stage string) (domain.FunctionDetails, error)
 }
 
 type genezioCloudAdapter struct {
@@ -78,7 +78,7 @@ func (g *genezioCloudAdapter) Deploy(ctx p.Context, input []domain.GenezioCloudI
 		Region:        projectConfiguration.Region,
 		CloudProvider: projectConfiguration.CloudProvider,
 		Stage:         stage,
-		Stack:         nil,
+		Stack:         []string{},
 	})
 	if err != nil {
 		log.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
@@ -104,7 +104,7 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 
 	finalSubdomain := fmt.Sprintf("%s%s", frontend.Subdomain, finalStageName)
 
-	temporaryFolder, err := utils.CreateTemporaryFolder(nil, nil)
+	temporaryFolder, err := utils.CreateTemporaryFolder(nil, nil, &finalSubdomain)
 	if err != nil {
 		log.Printf("An error occurred while trying to create a temporary folder %v\n", err)
 		return "", err
@@ -152,10 +152,17 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 	}
 
 	log.Printf("Frontend deployed successfully at %s\n", createFrontendResponse.Domain)
+
+	err = utils.DeleteTemporaryFolder(&finalSubdomain)
+	if err != nil {
+		log.Println("Error deleting temporary folder", err)
+	}
+
 	return createFrontendResponse.Domain, nil
 }
 
-func (g *genezioCloudAdapter) DeployFunction(ctx p.Context, projectName string, projectRegion string, function domain.FunctionConfiguration, cloudInput domain.GenezioCloudInput, stage string) (domain.FunctionDetails, error) {
+func (g *genezioCloudAdapter) DeployFunction(ctx p.Context, projectName string, projectRegion string, function domain.FunctionConfiguration, archivePath string, stage string) (domain.FunctionDetails, error) {
+
 	presignedUrlResponse, err := requests.GetPresignedUrl(ctx, domain.GetPresignedUrlRequest{
 		ProjectName: projectName,
 		Region:      projectRegion,
@@ -167,7 +174,9 @@ func (g *genezioCloudAdapter) DeployFunction(ctx p.Context, projectName string, 
 		return domain.FunctionDetails{}, err
 	}
 
-	err = requests.UploadContentToS3(&presignedUrlResponse.PresignedUrl, cloudInput.ArchivePath, nil)
+	archivePath = filepath.Join(archivePath, "genezioDeploy.zip")
+
+	err = requests.UploadContentToS3(&presignedUrlResponse.PresignedUrl, archivePath, nil)
 	if err != nil {
 		log.Printf("An error occurred while trying to upload the content to S3 %v\n", err)
 		return domain.FunctionDetails{}, err

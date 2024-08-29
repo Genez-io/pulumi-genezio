@@ -18,7 +18,7 @@ class ProjectArgs:
                  name: pulumi.Input[str],
                  region: pulumi.Input[str],
                  cloud_provider: Optional[pulumi.Input[str]] = None,
-                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]] = None):
+                 environment: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]] = None):
         """
         The set of arguments for constructing a Project resource.
         """
@@ -26,8 +26,8 @@ class ProjectArgs:
         pulumi.set(__self__, "region", region)
         if cloud_provider is not None:
             pulumi.set(__self__, "cloud_provider", cloud_provider)
-        if environment_variables is not None:
-            pulumi.set(__self__, "environment_variables", environment_variables)
+        if environment is not None:
+            pulumi.set(__self__, "environment", environment)
 
     @property
     @pulumi.getter
@@ -57,13 +57,13 @@ class ProjectArgs:
         pulumi.set(self, "cloud_provider", value)
 
     @property
-    @pulumi.getter(name="environmentVariables")
-    def environment_variables(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]:
-        return pulumi.get(self, "environment_variables")
+    @pulumi.getter
+    def environment(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]:
+        return pulumi.get(self, "environment")
 
-    @environment_variables.setter
-    def environment_variables(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]):
-        pulumi.set(self, "environment_variables", value)
+    @environment.setter
+    def environment(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]):
+        pulumi.set(self, "environment", value)
 
 
 class Project(pulumi.CustomResource):
@@ -72,7 +72,7 @@ class Project(pulumi.CustomResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  cloud_provider: Optional[pulumi.Input[str]] = None,
-                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
+                 environment: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
                  name: Optional[pulumi.Input[str]] = None,
                  region: Optional[pulumi.Input[str]] = None,
                  __props__=None):
@@ -105,7 +105,7 @@ class Project(pulumi.CustomResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  cloud_provider: Optional[pulumi.Input[str]] = None,
-                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
+                 environment: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
                  name: Optional[pulumi.Input[str]] = None,
                  region: Optional[pulumi.Input[str]] = None,
                  __props__=None):
@@ -118,7 +118,7 @@ class Project(pulumi.CustomResource):
             __props__ = ProjectArgs.__new__(ProjectArgs)
 
             __props__.__dict__["cloud_provider"] = cloud_provider
-            __props__.__dict__["environment_variables"] = environment_variables
+            __props__.__dict__["environment"] = environment
             if name is None and not opts.urn:
                 raise TypeError("Missing required property 'name'")
             __props__.__dict__["name"] = name
@@ -150,7 +150,7 @@ class Project(pulumi.CustomResource):
         __props__ = ProjectArgs.__new__(ProjectArgs)
 
         __props__.__dict__["cloud_provider"] = None
-        __props__.__dict__["environment_variables"] = None
+        __props__.__dict__["environment"] = None
         __props__.__dict__["name"] = None
         __props__.__dict__["project_env_id"] = None
         __props__.__dict__["project_id"] = None
@@ -163,9 +163,9 @@ class Project(pulumi.CustomResource):
         return pulumi.get(self, "cloud_provider")
 
     @property
-    @pulumi.getter(name="environmentVariables")
-    def environment_variables(self) -> pulumi.Output[Optional[Sequence['_domain.outputs.EnvironmentVariable']]]:
-        return pulumi.get(self, "environment_variables")
+    @pulumi.getter
+    def environment(self) -> pulumi.Output[Optional[Sequence['_domain.outputs.EnvironmentVariable']]]:
+        return pulumi.get(self, "environment")
 
     @property
     @pulumi.getter

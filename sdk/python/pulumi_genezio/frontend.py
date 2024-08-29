@@ -19,7 +19,7 @@ class FrontendArgs:
                  project: pulumi.Input['_domain.ProjectArgs'],
                  publish: pulumi.Input[pulumi.Archive],
                  build_commands: Optional[pulumi.Input[Sequence[pulumi.Input[str]]]] = None,
-                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]] = None,
+                 environment: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]] = None,
                  subdomain: Optional[pulumi.Input[str]] = None):
         """
         The set of arguments for constructing a Frontend resource.
@@ -29,8 +29,8 @@ class FrontendArgs:
         pulumi.set(__self__, "publish", publish)
         if build_commands is not None:
             pulumi.set(__self__, "build_commands", build_commands)
-        if environment_variables is not None:
-            pulumi.set(__self__, "environment_variables", environment_variables)
+        if environment is not None:
+            pulumi.set(__self__, "environment", environment)
         if subdomain is not None:
             pulumi.set(__self__, "subdomain", subdomain)
 
@@ -71,13 +71,13 @@ class FrontendArgs:
         pulumi.set(self, "build_commands", value)
 
     @property
-    @pulumi.getter(name="environmentVariables")
-    def environment_variables(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]:
-        return pulumi.get(self, "environment_variables")
+    @pulumi.getter
+    def environment(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]:
+        return pulumi.get(self, "environment")
 
-    @environment_variables.setter
-    def environment_variables(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]):
-        pulumi.set(self, "environment_variables", value)
+    @environment.setter
+    def environment(self, value: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]):
+        pulumi.set(self, "environment", value)
 
     @property
     @pulumi.getter
@@ -95,7 +95,7 @@ class Frontend(pulumi.CustomResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  build_commands: Optional[pulumi.Input[Sequence[pulumi.Input[str]]]] = None,
-                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
+                 environment: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
                  path: Optional[pulumi.Input[str]] = None,
                  project: Optional[pulumi.Input[pulumi.InputType['_domain.ProjectArgs']]] = None,
                  publish: Optional[pulumi.Input[pulumi.Archive]] = None,
@@ -130,7 +130,7 @@ class Frontend(pulumi.CustomResource):
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
                  build_commands: Optional[pulumi.Input[Sequence[pulumi.Input[str]]]] = None,
-                 environment_variables: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
+                 environment: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
                  path: Optional[pulumi.Input[str]] = None,
                  project: Optional[pulumi.Input[pulumi.InputType['_domain.ProjectArgs']]] = None,
                  publish: Optional[pulumi.Input[pulumi.Archive]] = None,
@@ -145,7 +145,7 @@ class Frontend(pulumi.CustomResource):
             __props__ = FrontendArgs.__new__(FrontendArgs)
 
             __props__.__dict__["build_commands"] = build_commands
-            __props__.__dict__["environment_variables"] = environment_variables
+            __props__.__dict__["environment"] = environment
             if path is None and not opts.urn:
                 raise TypeError("Missing required property 'path'")
             __props__.__dict__["path"] = path
@@ -180,7 +180,7 @@ class Frontend(pulumi.CustomResource):
         __props__ = FrontendArgs.__new__(FrontendArgs)
 
         __props__.__dict__["build_commands"] = None
-        __props__.__dict__["environment_variables"] = None
+        __props__.__dict__["environment"] = None
         __props__.__dict__["path"] = None
         __props__.__dict__["project"] = None
         __props__.__dict__["publish"] = None
@@ -194,9 +194,9 @@ class Frontend(pulumi.CustomResource):
         return pulumi.get(self, "build_commands")
 
     @property
-    @pulumi.getter(name="environmentVariables")
-    def environment_variables(self) -> pulumi.Output[Optional[Sequence['_domain.outputs.EnvironmentVariable']]]:
-        return pulumi.get(self, "environment_variables")
+    @pulumi.getter
+    def environment(self) -> pulumi.Output[Optional[Sequence['_domain.outputs.EnvironmentVariable']]]:
+        return pulumi.get(self, "environment")
 
     @property
     @pulumi.getter

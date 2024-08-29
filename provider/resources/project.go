@@ -14,10 +14,10 @@ import (
 type Project struct{}
 
 type ProjectArgs struct {
-	Name                 string                        `pulumi:"name"`
-	Region               string                        `pulumi:"region"`
-	CloudProvider        *string                       `pulumi:"cloudProvider,optional"`
-	EnvironmentVariables *[]domain.EnvironmentVariable `pulumi:"environmentVariables,optional"`
+	Name          string                        `pulumi:"name"`
+	Region        string                        `pulumi:"region"`
+	CloudProvider *string                       `pulumi:"cloudProvider,optional"`
+	Environment   *[]domain.EnvironmentVariable `pulumi:"environment,optional"`
 }
 
 type ProjectState struct {
@@ -58,18 +58,18 @@ func (*Project) Diff(ctx p.Context, id string, olds ProjectState, news ProjectAr
 		diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
 
-	if olds.EnvironmentVariables == nil {
-		if news.EnvironmentVariables != nil {
-			diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+	if olds.Environment == nil {
+		if news.Environment != nil {
+			diff["environment"] = p.PropertyDiff{Kind: p.Update}
 		}
 	} else {
-		if news.EnvironmentVariables != nil {
-			if len(*olds.EnvironmentVariables) != len(*news.EnvironmentVariables) {
-				diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+		if news.Environment != nil {
+			if len(*olds.Environment) != len(*news.Environment) {
+				diff["environment"] = p.PropertyDiff{Kind: p.Update}
 			} else {
-				for i, envVar := range *news.EnvironmentVariables {
-					if (*olds.EnvironmentVariables)[i].Name != envVar.Name || (*olds.EnvironmentVariables)[i].Value != envVar.Value {
-						diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+				for i, envVar := range *news.Environment {
+					if (*olds.Environment)[i].Name != envVar.Name || (*olds.Environment)[i].Value != envVar.Value {
+						diff["environment"] = p.PropertyDiff{Kind: p.Update}
 						break
 					}
 				}
@@ -85,6 +85,10 @@ func (*Project) Diff(ctx p.Context, id string, olds ProjectState, news ProjectAr
 }
 
 func (*Project) Read(ctx p.Context, id string, inputs ProjectArgs, state ProjectState) (string, ProjectArgs, ProjectState, error) {
+
+	if state.Name == "" {
+		return id, inputs, state, nil
+	}
 
 	projectDetails, err := requests.GetProjectDetails(ctx, state.Name)
 	if err != nil {
@@ -182,9 +186,9 @@ func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bo
 	}
 
 	// Set environment variables
-	if input.EnvironmentVariables != nil && len(*input.EnvironmentVariables) > 0 {
+	if input.Environment != nil && len(*input.Environment) > 0 {
 		err := requests.SetEnvironmentVariables(ctx, createProjectResponse.ProjectID, createProjectResponse.ProjectEnvID, domain.SetEnvironmentVariablesRequest{
-			EnvironmentVariables: *input.EnvironmentVariables,
+			EnvironmentVariables: *input.Environment,
 		})
 		if err != nil {
 			log.Println("Error setting environment variables", err)
@@ -209,9 +213,9 @@ func (*Project) Update(ctx p.Context, id string, olds ProjectState, news Project
 		return state, nil
 	}
 
-	if news.EnvironmentVariables != nil && len(*news.EnvironmentVariables) > 0 {
+	if news.Environment != nil && len(*news.Environment) > 0 {
 		err := requests.SetEnvironmentVariables(ctx, state.ProjectId, state.ProjectEnvId, domain.SetEnvironmentVariablesRequest{
-			EnvironmentVariables: *news.EnvironmentVariables,
+			EnvironmentVariables: *news.Environment,
 		})
 		if err != nil {
 			log.Println("Error setting environment variables", err)
@@ -225,7 +229,7 @@ func (*Project) Update(ctx p.Context, id string, olds ProjectState, news Project
 func (*Project) Delete(ctx p.Context, id string, state ProjectState) error {
 	_, err := requests.DeleteProject(ctx, state.ProjectId)
 	if err != nil {
-		if strings.Contains(err.Error(), "record not found") {
+		if strings.Contains(err.Error(), "record not found") || strings.Contains(err.Error(), "405 Method Not Allowed") {
 			return nil
 		}
 		log.Println("Error deleting project", err)
