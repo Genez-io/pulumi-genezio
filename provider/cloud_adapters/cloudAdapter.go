@@ -104,7 +104,7 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 
 	finalSubdomain := fmt.Sprintf("%s%s", frontend.Subdomain, finalStageName)
 
-	temporaryFolder, err := utils.CreateTemporaryFolder(nil, nil)
+	temporaryFolder, err := utils.CreateTemporaryFolder(nil, nil, &finalSubdomain)
 	if err != nil {
 		log.Printf("An error occurred while trying to create a temporary folder %v\n", err)
 		return "", err
@@ -152,6 +152,12 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 	}
 
 	log.Printf("Frontend deployed successfully at %s\n", createFrontendResponse.Domain)
+
+	err = utils.DeleteTemporaryFolder(&finalSubdomain)
+	if err != nil {
+		log.Println("Error deleting temporary folder", err)
+	}
+
 	return createFrontendResponse.Domain, nil
 }
 

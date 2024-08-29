@@ -43,7 +43,7 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 	}
 
 	if olds.Path != news.Path {
-		diff["path"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		diff["path"] = p.PropertyDiff{Kind: p.Update}
 	}
 
 	if olds.Subdomain == nil {
@@ -57,42 +57,42 @@ func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news Fronten
 	}
 
 	if olds.Publish.Hash != news.Publish.Hash {
-		diff["publish"] = p.PropertyDiff{Kind: p.DeleteReplace}
+		diff["publish"] = p.PropertyDiff{Kind: p.Update}
 	}
 
 	if olds.BuildCommands == nil {
 		if news.BuildCommands != nil {
-			diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			diff["buildCommands"] = p.PropertyDiff{Kind: p.Update}
 		}
 	} else {
 		if news.BuildCommands != nil {
 			if len(*olds.BuildCommands) != len(*news.BuildCommands) {
-				diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+				diff["buildCommands"] = p.PropertyDiff{Kind: p.Update}
 			} else {
 				for i, buildCommand := range *news.BuildCommands {
 					if (*olds.BuildCommands)[i] != buildCommand {
-						diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+						diff["buildCommands"] = p.PropertyDiff{Kind: p.Update}
 						break
 					}
 				}
 			}
 		} else {
-			diff["buildCommands"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			diff["buildCommands"] = p.PropertyDiff{Kind: p.Update}
 		}
 	}
 
 	if olds.Environment == nil {
 		if news.Environment != nil {
-			diff["environment"] = p.PropertyDiff{Kind: p.DeleteReplace}
+			diff["environment"] = p.PropertyDiff{Kind: p.Update}
 		}
 	} else {
 		if news.Environment != nil {
 			if len(*olds.Environment) != len(*news.Environment) {
-				diff["environment"] = p.PropertyDiff{Kind: p.DeleteReplace}
+				diff["environment"] = p.PropertyDiff{Kind: p.Update}
 			} else {
 				for i, envVar := range *news.Environment {
 					if (*olds.Environment)[i].Name != envVar.Name || (*olds.Environment)[i].Value != envVar.Value {
-						diff["environment"] = p.PropertyDiff{Kind: p.DeleteReplace}
+						diff["environment"] = p.PropertyDiff{Kind: p.Update}
 						break
 					}
 				}
@@ -174,6 +174,88 @@ func (*Frontend) Read(ctx p.Context, id string, inputs FrontendArgs, state Front
 		}
 	}
 	return id, inputs, FrontendState{}, nil
+}
+
+func (*Frontend) Update(ctx p.Context, id string, olds FrontendState, news FrontendArgs, preview bool) (FrontendState, error) {
+
+	news.Publish.Sig = resource.ArchiveSig
+	olds.Publish.Sig = resource.ArchiveSig
+
+	state := FrontendState{FrontendArgs: news, URL: olds.URL}
+
+	if preview {
+		return state, nil
+	}
+
+	if news.BuildCommands != nil {
+		err := utils.RunScriptsInDirectory(news.Path, *news.BuildCommands, news.Environment)
+		if err != nil {
+			return FrontendState{}, err
+		}
+	}
+
+	stage := "prod"
+
+	contextStage := infer.GetConfig[*domain.Config](ctx).Stage
+	if contextStage != nil {
+		stage = *contextStage
+	}
+
+	if news.Subdomain != nil {
+		match, err := regexp.MatchString("^[a-z0-9-]+$", *news.Subdomain)
+		if err != nil {
+			return FrontendState{}, err
+		}
+		if !match {
+			return FrontendState{}, fmt.Errorf("invalid subdomain format")
+		}
+	}
+
+	var absolueFrontendPath string
+	frontendPath, err := os.Getwd()
+	if err != nil {
+		fmt.Printf("An error occurred while trying to get the current working directory %v", err)
+		return FrontendState{}, err
+	}
+	absolueFrontendPath = frontendPath
+
+	absolueFrontendPath = filepath.Join(absolueFrontendPath, news.Path)
+
+	relPublishPath, err := filepath.Rel(absolueFrontendPath, news.Publish.Path)
+	if err != nil {
+		return FrontendState{}, err
+	}
+
+	if _, err := os.Stat(news.Publish.Path); os.IsNotExist(err) {
+		return FrontendState{}, fmt.Errorf("publish folder does not exist")
+	}
+
+	dir, err := os.ReadDir(news.Publish.Path)
+	if err != nil {
+		return FrontendState{}, err
+	}
+
+	if len(dir) == 0 {
+		return FrontendState{}, fmt.Errorf("publish directory is empty")
+	}
+
+	cloudAdapter := ca.NewGenezioCloudAdapter()
+
+	frontendConfiguration := domain.FrontendConfiguration{
+		Path:      absolueFrontendPath,
+		Subdomain: *olds.Subdomain,
+		Publish:   relPublishPath,
+	}
+
+	response, err := cloudAdapter.DeployFrontend(ctx, news.Project.Name, news.Project.Region, frontendConfiguration, stage)
+	if err != nil {
+		fmt.Printf("An error occurred while trying to deploy the frontend %v\n", err)
+		return FrontendState{}, err
+	}
+
+	state.URL = response
+
+	return state, nil
 }
 
 func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview bool) (string, FrontendState, error) {
@@ -262,12 +344,6 @@ func (*Frontend) Create(ctx p.Context, name string, input FrontendArgs, preview 
 	}
 
 	state.URL = response
-
-	err = utils.DeleteTemporaryFolder()
-	if err != nil {
-		log.Println("Error deleting temporary folder", err)
-		return "", state, err
-	}
 
 	return name, state, nil
 }

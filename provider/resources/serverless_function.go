@@ -167,7 +167,7 @@ func (*ServerlessFunction) Update(ctx p.Context, id string, olds ServerlessFunct
 		Entry:    "index.mjs",
 		Type:     "aws",
 	}
-	archivePath, err := utils.CreateTemporaryFolder(nil, nil)
+	archivePath, err := utils.CreateTemporaryFolder(nil, nil, &news.Path.Hash)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to create a temporary folder %v\n", err)
 		return ServerlessFunctionState{}, err
@@ -191,12 +191,11 @@ func (*ServerlessFunction) Update(ctx p.Context, id string, olds ServerlessFunct
 	state.ID = response.Id
 	state.URL = response.CloudURL
 
-	fmt.Printf("the temporary folder is genezio-%d\n", os.Getpid())
-	// err = utils.DeleteTemporaryFolder()
-	// if err != nil {
-	// 	log.Println("Error deleting temporary folder", err)
-	// 	return state, err
-	// }
+	err = utils.DeleteTemporaryFolder(&news.Path.Hash)
+	if err != nil {
+		log.Println("Error deleting temporary folder", err)
+		return state, err
+	}
 
 	return state, nil
 
@@ -356,7 +355,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 		Type:     "aws",
 	}
 
-	archivePath, err := utils.CreateTemporaryFolder(nil, nil)
+	archivePath, err := utils.CreateTemporaryFolder(nil, nil, &input.Path.Hash)
 	if err != nil {
 		fmt.Printf("An error occurred while trying to create a temporary folder %v\n", err)
 		return "", ServerlessFunctionState{}, err
@@ -380,7 +379,7 @@ func (*ServerlessFunction) Create(ctx p.Context, name string, input ServerlessFu
 	state.ID = response.Id
 	state.URL = response.CloudURL
 
-	err = utils.DeleteTemporaryFolder()
+	err = utils.DeleteTemporaryFolder(&input.Path.Hash)
 	if err != nil {
 		log.Println("Error deleting temporary folder", err)
 		return "", state, err
