@@ -1,10 +1,6 @@
 {
 	"name": "pulumi_genezio",
-	"version": "1.0.0",
-	"main": "./bin/index.js",
-	"repository": "",
-	"author": "",
-	"license": "Apache-2.0",
+	"main": "program.ts",
 	"dependencies": {
 		"@pulumi/pulumi": "^3.0.0",
 		"@types/node": "^14.11.7"

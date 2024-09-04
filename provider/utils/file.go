@@ -46,11 +46,17 @@ func WriteToFile(
 	return os.WriteFile(fullPath, data, 0644)
 }
 
-func CreateTemporaryFolder(name *string, shouldDeleteContents *bool) (string, error) {
+func CreateTemporaryFolder(name *string, shouldDeleteContents *bool, uniqueString *string) (string, error) {
 	tmpDir := os.TempDir()
 	// create a folder name variable with the pid at the end
 	// to avoid conflicts with other temporary folders
-	folderName := fmt.Sprintf("genezio-%d", os.Getpid())
+	// if we have a unique string, we use it at the end of the folder to avoid conflicts with other temporary folders created un parallel
+	var folderName string
+	if uniqueString != nil {
+		folderName = fmt.Sprintf("genezio-%d-%s", os.Getpid(), *uniqueString)
+	} else {
+		folderName = fmt.Sprintf("genezio-%d", os.Getpid())
+	}
 	tmpParentFolder := filepath.Join(tmpDir, folderName)
 	// if the folder doesn't exist, create it
 	if _, err := os.Stat(tmpParentFolder); os.IsNotExist(err) {
@@ -289,9 +295,17 @@ func DeleteFolder(folderPath string) error {
 	return os.RemoveAll(folderPath)
 }
 
-func DeleteTemporaryFolder() error {
+func DeleteTemporaryFolder(uniqueString *string) error {
 	tmpDir := os.TempDir()
-	folderName := fmt.Sprintf("genezio-%d", os.Getpid())
+	var folderName string
+	if uniqueString != nil {
+		folderName = fmt.Sprintf("genezio-%d-%s", os.Getpid(), *uniqueString)
+	} else {
+		folderName = fmt.Sprintf("genezio-%d", os.Getpid())
+	}
 	tmpParentFolder := filepath.Join(tmpDir, folderName)
+	if _, err := os.Stat(tmpParentFolder); os.IsNotExist(err) {
+		return nil
+	}
 	return DeleteFolder(tmpParentFolder)
 }

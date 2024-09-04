@@ -1,12 +1,9 @@
 import fetch from "node-fetch";
 
 export const handler = async (event) => {
-  console.log("Function was called");
-  const name = event.queryStringParameters?.name || "test";
+  const name = event.queryStringParameters?.name || "World";
 
-  const ipLocation = await fetch(
-    "http://ip-api.com/json/"
-  )
+  const ipLocation = await fetch("http://ip-api.com/json/")
     .then((res) => res.json())
     .catch(() => ({ status: "fail" }));
 

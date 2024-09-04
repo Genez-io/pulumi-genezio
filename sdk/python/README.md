@@ -7,21 +7,19 @@ This repository is a boilerplate showing how to create and locally test a native
 This boilerplate creates a working Pulumi-owned provider named `genezio`.
 It implements a random number generator that you can [build and test out for yourself](#test-against-the-example) and then replace the Random code with code specific to your provider.
 
-
 ### Prerequisites
 
 Prerequisites for this repository are already satisfied by the [Pulumi Devcontainer](https://github.com/pulumi/devcontainer) if you are using Github Codespaces, or VSCode.
 
 If you are not using VSCode, you will need to ensure the following tools are installed and present in your `$PATH`:
 
-* [`pulumictl`](https://github.com/pulumi/pulumictl#installation)
-* [Go 1.21](https://golang.org/dl/) or 1.latest
-* [NodeJS](https://nodejs.org/en/) 14.x.  We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage NodeJS installations.
-* [Yarn](https://yarnpkg.com/)
-* [TypeScript](https://www.typescriptlang.org/)
-* [Python](https://www.python.org/downloads/) (called as `python3`).  For recent versions of MacOS, the system-installed version is fine.
-* [.NET](https://dotnet.microsoft.com/download)
-
+- [`pulumictl`](https://github.com/pulumi/pulumictl#installation)
+- [Go 1.21](https://golang.org/dl/) or 1.latest
+- [NodeJS](https://nodejs.org/en/) 14.x. We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage NodeJS installations.
+- [Yarn](https://yarnpkg.com/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Python](https://www.python.org/downloads/) (called as `python3`). For recent versions of MacOS, the system-installed version is fine.
+- [.NET](https://dotnet.microsoft.com/download)
 
 ### Build & test the boilerplate XYZ provider
 
@@ -34,25 +32,26 @@ If you are not using VSCode, you will need to ensure the following tools are ins
 
 ### Creating a new provider repository
 
-Pulumi offers this repository as a [GitHub template repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) for convenience.  From this repository:
+Pulumi offers this repository as a [GitHub template repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) for convenience. From this repository:
 
 1. Click "Use this template".
 1. Set the following options:
-   * Owner: pulumi 
-   * Repository name: pulumi-genezio-native (replace "genezio" with the name of your provider)
-   * Description: Pulumi provider for genezio
-   * Repository type: Public
+   - Owner: pulumi
+   - Repository name: pulumi-genezio-native (replace "genezio" with the name of your provider)
+   - Description: Pulumi provider for genezio
+   - Repository type: Public
 1. Clone the generated repository.
 
 From the templated repository:
 
 1. Run the following command to update files to use the name of your provider (third-party: use your GitHub organization/username):
 
-    ```bash
-    make prepare NAME=foo REPOSITORY=github.com/pulumi/pulumi-foo ORG=myorg
-    ```
+   ```bash
+   make prepare NAME=foo REPOSITORY=github.com/pulumi/pulumi-foo ORG=myorg
+   ```
 
    This will do the following:
+
    - rename folders in `provider/cmd` to `pulumi-resource-{NAME}`
    - replace dependencies in `provider/go.mod` to reflect your repository name
    - find and replace all instances of the boilerplate `genezio` with the `NAME` of your provider.
@@ -61,10 +60,10 @@ From the templated repository:
 
 #### Build the provider and install the plugin
 
-   ```bash
-   $ make build install
-   ```
-   
+```bash
+$ make build install
+```
+
 This will:
 
 1. Create the SDK codegen binary and place it in a `./bin` folder (gitignored)
@@ -73,13 +72,14 @@ This will:
 4. Install the provider on your machine.
 
 #### Test against the example
-   
+
 ```bash
-$ cd examples/simple
-$ yarn link @pulumi/genezio
+$ cd examples/nodejs
 $ yarn install
+$ yarn link @pulumi/genezio
 $ pulumi stack init test
-$ pulumi up
+$ pulumi config set genezio:authToken --secret
+$ pulumi up -s test
 ```
 
 Now that you have completed all of the above steps, you have a working provider that generates a random string for you.
@@ -89,7 +89,7 @@ Now that you have completed all of the above steps, you have a working provider 
 You now have:
 
 1. A `provider/` folder containing the building and implementation logic
-    1. `cmd/pulumi-resource-genezio/main.go` - holds the provider's sample implementation logic.
+   1. `cmd/pulumi-resource-genezio/main.go` - holds the provider's sample implementation logic.
 2. `deployment-templates` - a set of files to help you around deployment and publication
 3. `sdk` - holds the generated code libraries created by `pulumi-gen-genezio/main.go`
 4. `examples` a folder of Pulumi programs to try locally and/or use in CI.
@@ -113,5 +113,6 @@ You can now repeat the steps for [build, install, and test](#test-against-the-ex
 ## References
 
 Other resources/examples for implementing providers:
-* [Pulumi Command provider](https://github.com/pulumi/pulumi-command/blob/master/provider/pkg/provider/provider.go)
-* [Pulumi Go Provider repository](https://github.com/pulumi/pulumi-go-provider)
+
+- [Pulumi Command provider](https://github.com/pulumi/pulumi-command/blob/master/provider/pkg/provider/provider.go)
+- [Pulumi Go Provider repository](https://github.com/pulumi/pulumi-go-provider)

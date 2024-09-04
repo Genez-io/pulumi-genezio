@@ -41,8 +41,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
     public readonly name!: pulumi.Output<string>;
     public readonly path!: pulumi.Output<pulumi.asset.Archive>;
     public readonly project!: pulumi.Output<outputs.domain.Project>;
-    public /*out*/ readonly projectEnvId!: pulumi.Output<string>;
-    public /*out*/ readonly projectId!: pulumi.Output<string>;
     public /*out*/ readonly url!: pulumi.Output<string>;
 
     /**
@@ -79,8 +77,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
             resourceInputs["path"] = args ? args.path : undefined;
             resourceInputs["project"] = args ? args.project : undefined;
             resourceInputs["functionId"] = undefined /*out*/;
-            resourceInputs["projectEnvId"] = undefined /*out*/;
-            resourceInputs["projectId"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         } else {
             resourceInputs["backendPath"] = undefined /*out*/;
@@ -91,8 +87,6 @@ export class ServerlessFunction extends pulumi.CustomResource {
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["path"] = undefined /*out*/;
             resourceInputs["project"] = undefined /*out*/;
-            resourceInputs["projectEnvId"] = undefined /*out*/;
-            resourceInputs["projectId"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);

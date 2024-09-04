@@ -52,10 +52,6 @@ func (*Authentication) Diff(ctx p.Context, id string, olds AuthenticationState, 
 		}
 	}
 
-	if olds.DatabaseType != news.DatabaseType {
-		diff["databaseType"] = p.PropertyDiff{Kind: p.DeleteReplace}
-	}
-
 	if olds.DatabaseUrl != news.DatabaseUrl {
 		diff["databaseUrl"] = p.PropertyDiff{Kind: p.DeleteReplace}
 	}
@@ -90,8 +86,16 @@ func (*Authentication) Read(ctx p.Context, id string, inputs AuthenticationArgs,
 		stage = *contextStage
 	}
 
+	if state.Project.Name == "" {
+		return id, inputs, state, nil
+	}
+
 	projectDetails, err := requests.GetProjectDetails(ctx, state.Project.Name)
 	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			state.Project.Name = ""
+			return id, inputs, state, nil
+		}
 		log.Println("Error getting project details: ", err)
 		return id, inputs, state, err
 	}
@@ -105,7 +109,8 @@ func (*Authentication) Read(ctx p.Context, id string, inputs AuthenticationArgs,
 	}
 
 	if currentProjectEnv == nil {
-		return id, inputs, state, fmt.Errorf("project environment not found")
+		state.Project.Name = ""
+		return id, inputs, state, nil
 	}
 
 	getAuthenticationResponse, err := requests.GetAuthentication(ctx, currentProjectEnv.Id)
@@ -379,6 +384,10 @@ func (*Authentication) Delete(ctx p.Context, id string, state AuthenticationStat
 	contextStage := infer.GetConfig[*domain.Config](ctx).Stage
 	if contextStage != nil {
 		stage = *contextStage
+	}
+
+	if state.Project.Name == "" {
+		return nil
 	}
 
 	projectDetails, err := requests.GetProjectDetails(ctx, state.Project.Name)

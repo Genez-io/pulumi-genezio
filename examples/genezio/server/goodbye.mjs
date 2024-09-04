@@ -1,6 +1,6 @@
 export const handler = async (event) => {
   console.log("Function was called");
-  const name = event.queryStringParameters?.name || "test";
+  const name = event.queryStringParameters?.name || "World";
 
   return {
     statusCode: 200,

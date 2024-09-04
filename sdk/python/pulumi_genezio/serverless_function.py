@@ -8,44 +8,32 @@ import pulumi
 import pulumi.runtime
 from typing import Any, Mapping, Optional, Sequence, Union, overload
 from . import _utilities
+from . import domain as _domain
 
 __all__ = ['ServerlessFunctionArgs', 'ServerlessFunction']
 
 @pulumi.input_type
 class ServerlessFunctionArgs:
     def __init__(__self__, *,
-                 auth_token: pulumi.Input[str],
                  entry: pulumi.Input[str],
                  handler: pulumi.Input[str],
                  name: pulumi.Input[str],
-                 path: pulumi.Input[str],
-                 project_name: pulumi.Input[str],
-                 region: pulumi.Input[str],
-                 environment_variables: Optional[pulumi.Input[Mapping[str, pulumi.Input[str]]]] = None,
-                 folder_hash: Optional[pulumi.Input[str]] = None):
+                 path: pulumi.Input[pulumi.Archive],
+                 project: pulumi.Input['_domain.ProjectArgs'],
+                 backend_path: Optional[pulumi.Input[str]] = None,
+                 language: Optional[pulumi.Input[str]] = None):
         """
         The set of arguments for constructing a ServerlessFunction resource.
         """
-        pulumi.set(__self__, "auth_token", auth_token)
         pulumi.set(__self__, "entry", entry)
         pulumi.set(__self__, "handler", handler)
         pulumi.set(__self__, "name", name)
         pulumi.set(__self__, "path", path)
-        pulumi.set(__self__, "project_name", project_name)
-        pulumi.set(__self__, "region", region)
-        if environment_variables is not None:
-            pulumi.set(__self__, "environment_variables", environment_variables)
-        if folder_hash is not None:
-            pulumi.set(__self__, "folder_hash", folder_hash)
-
-    @property
-    @pulumi.getter(name="authToken")
-    def auth_token(self) -> pulumi.Input[str]:
-        return pulumi.get(self, "auth_token")
-
-    @auth_token.setter
-    def auth_token(self, value: pulumi.Input[str]):
-        pulumi.set(self, "auth_token", value)
+        pulumi.set(__self__, "project", project)
+        if backend_path is not None:
+            pulumi.set(__self__, "backend_path", backend_path)
+        if language is not None:
+            pulumi.set(__self__, "language", language)
 
     @property
     @pulumi.getter
@@ -76,48 +64,39 @@ class ServerlessFunctionArgs:
 
     @property
     @pulumi.getter
-    def path(self) -> pulumi.Input[str]:
+    def path(self) -> pulumi.Input[pulumi.Archive]:
         return pulumi.get(self, "path")
 
     @path.setter
-    def path(self, value: pulumi.Input[str]):
+    def path(self, value: pulumi.Input[pulumi.Archive]):
         pulumi.set(self, "path", value)
 
     @property
-    @pulumi.getter(name="projectName")
-    def project_name(self) -> pulumi.Input[str]:
-        return pulumi.get(self, "project_name")
+    @pulumi.getter
+    def project(self) -> pulumi.Input['_domain.ProjectArgs']:
+        return pulumi.get(self, "project")
 
-    @project_name.setter
-    def project_name(self, value: pulumi.Input[str]):
-        pulumi.set(self, "project_name", value)
+    @project.setter
+    def project(self, value: pulumi.Input['_domain.ProjectArgs']):
+        pulumi.set(self, "project", value)
+
+    @property
+    @pulumi.getter(name="backendPath")
+    def backend_path(self) -> Optional[pulumi.Input[str]]:
+        return pulumi.get(self, "backend_path")
+
+    @backend_path.setter
+    def backend_path(self, value: Optional[pulumi.Input[str]]):
+        pulumi.set(self, "backend_path", value)
 
     @property
     @pulumi.getter
-    def region(self) -> pulumi.Input[str]:
-        return pulumi.get(self, "region")
+    def language(self) -> Optional[pulumi.Input[str]]:
+        return pulumi.get(self, "language")
 
-    @region.setter
-    def region(self, value: pulumi.Input[str]):
-        pulumi.set(self, "region", value)
-
-    @property
-    @pulumi.getter(name="environmentVariables")
-    def environment_variables(self) -> Optional[pulumi.Input[Mapping[str, pulumi.Input[str]]]]:
-        return pulumi.get(self, "environment_variables")
-
-    @environment_variables.setter
-    def environment_variables(self, value: Optional[pulumi.Input[Mapping[str, pulumi.Input[str]]]]):
-        pulumi.set(self, "environment_variables", value)
-
-    @property
-    @pulumi.getter(name="folderHash")
-    def folder_hash(self) -> Optional[pulumi.Input[str]]:
-        return pulumi.get(self, "folder_hash")
-
-    @folder_hash.setter
-    def folder_hash(self, value: Optional[pulumi.Input[str]]):
-        pulumi.set(self, "folder_hash", value)
+    @language.setter
+    def language(self, value: Optional[pulumi.Input[str]]):
+        pulumi.set(self, "language", value)
 
 
 class ServerlessFunction(pulumi.CustomResource):
@@ -125,15 +104,13 @@ class ServerlessFunction(pulumi.CustomResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 auth_token: Optional[pulumi.Input[str]] = None,
+                 backend_path: Optional[pulumi.Input[str]] = None,
                  entry: Optional[pulumi.Input[str]] = None,
-                 environment_variables: Optional[pulumi.Input[Mapping[str, pulumi.Input[str]]]] = None,
-                 folder_hash: Optional[pulumi.Input[str]] = None,
                  handler: Optional[pulumi.Input[str]] = None,
+                 language: Optional[pulumi.Input[str]] = None,
                  name: Optional[pulumi.Input[str]] = None,
-                 path: Optional[pulumi.Input[str]] = None,
-                 project_name: Optional[pulumi.Input[str]] = None,
-                 region: Optional[pulumi.Input[str]] = None,
+                 path: Optional[pulumi.Input[pulumi.Archive]] = None,
+                 project: Optional[pulumi.Input[pulumi.InputType['_domain.ProjectArgs']]] = None,
                  __props__=None):
         """
         Create a ServerlessFunction resource with the given unique name, props, and options.
@@ -163,15 +140,13 @@ class ServerlessFunction(pulumi.CustomResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 auth_token: Optional[pulumi.Input[str]] = None,
+                 backend_path: Optional[pulumi.Input[str]] = None,
                  entry: Optional[pulumi.Input[str]] = None,
-                 environment_variables: Optional[pulumi.Input[Mapping[str, pulumi.Input[str]]]] = None,
-                 folder_hash: Optional[pulumi.Input[str]] = None,
                  handler: Optional[pulumi.Input[str]] = None,
+                 language: Optional[pulumi.Input[str]] = None,
                  name: Optional[pulumi.Input[str]] = None,
-                 path: Optional[pulumi.Input[str]] = None,
-                 project_name: Optional[pulumi.Input[str]] = None,
-                 region: Optional[pulumi.Input[str]] = None,
+                 path: Optional[pulumi.Input[pulumi.Archive]] = None,
+                 project: Optional[pulumi.Input[pulumi.InputType['_domain.ProjectArgs']]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -181,32 +156,24 @@ class ServerlessFunction(pulumi.CustomResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = ServerlessFunctionArgs.__new__(ServerlessFunctionArgs)
 
-            if auth_token is None and not opts.urn:
-                raise TypeError("Missing required property 'auth_token'")
-            __props__.__dict__["auth_token"] = auth_token
+            __props__.__dict__["backend_path"] = backend_path
             if entry is None and not opts.urn:
                 raise TypeError("Missing required property 'entry'")
             __props__.__dict__["entry"] = entry
-            __props__.__dict__["environment_variables"] = environment_variables
-            __props__.__dict__["folder_hash"] = folder_hash
             if handler is None and not opts.urn:
                 raise TypeError("Missing required property 'handler'")
             __props__.__dict__["handler"] = handler
+            __props__.__dict__["language"] = language
             if name is None and not opts.urn:
                 raise TypeError("Missing required property 'name'")
             __props__.__dict__["name"] = name
             if path is None and not opts.urn:
                 raise TypeError("Missing required property 'path'")
             __props__.__dict__["path"] = path
-            if project_name is None and not opts.urn:
-                raise TypeError("Missing required property 'project_name'")
-            __props__.__dict__["project_name"] = project_name
-            if region is None and not opts.urn:
-                raise TypeError("Missing required property 'region'")
-            __props__.__dict__["region"] = region
+            if project is None and not opts.urn:
+                raise TypeError("Missing required property 'project'")
+            __props__.__dict__["project"] = project
             __props__.__dict__["function_id"] = None
-            __props__.__dict__["project_env_id"] = None
-            __props__.__dict__["project_id"] = None
             __props__.__dict__["url"] = None
         super(ServerlessFunction, __self__).__init__(
             'genezio:index:ServerlessFunction',
@@ -230,40 +197,26 @@ class ServerlessFunction(pulumi.CustomResource):
 
         __props__ = ServerlessFunctionArgs.__new__(ServerlessFunctionArgs)
 
-        __props__.__dict__["auth_token"] = None
+        __props__.__dict__["backend_path"] = None
         __props__.__dict__["entry"] = None
-        __props__.__dict__["environment_variables"] = None
-        __props__.__dict__["folder_hash"] = None
         __props__.__dict__["function_id"] = None
         __props__.__dict__["handler"] = None
+        __props__.__dict__["language"] = None
         __props__.__dict__["name"] = None
         __props__.__dict__["path"] = None
-        __props__.__dict__["project_env_id"] = None
-        __props__.__dict__["project_id"] = None
-        __props__.__dict__["project_name"] = None
-        __props__.__dict__["region"] = None
+        __props__.__dict__["project"] = None
         __props__.__dict__["url"] = None
         return ServerlessFunction(resource_name, opts=opts, __props__=__props__)
 
     @property
-    @pulumi.getter(name="authToken")
-    def auth_token(self) -> pulumi.Output[str]:
-        return pulumi.get(self, "auth_token")
+    @pulumi.getter(name="backendPath")
+    def backend_path(self) -> pulumi.Output[Optional[str]]:
+        return pulumi.get(self, "backend_path")
 
     @property
     @pulumi.getter
     def entry(self) -> pulumi.Output[str]:
         return pulumi.get(self, "entry")
-
-    @property
-    @pulumi.getter(name="environmentVariables")
-    def environment_variables(self) -> pulumi.Output[Optional[Mapping[str, str]]]:
-        return pulumi.get(self, "environment_variables")
-
-    @property
-    @pulumi.getter(name="folderHash")
-    def folder_hash(self) -> pulumi.Output[Optional[str]]:
-        return pulumi.get(self, "folder_hash")
 
     @property
     @pulumi.getter(name="functionId")
@@ -277,33 +230,23 @@ class ServerlessFunction(pulumi.CustomResource):
 
     @property
     @pulumi.getter
+    def language(self) -> pulumi.Output[Optional[str]]:
+        return pulumi.get(self, "language")
+
+    @property
+    @pulumi.getter
     def name(self) -> pulumi.Output[str]:
         return pulumi.get(self, "name")
 
     @property
     @pulumi.getter
-    def path(self) -> pulumi.Output[str]:
+    def path(self) -> pulumi.Output[pulumi.Archive]:
         return pulumi.get(self, "path")
 
     @property
-    @pulumi.getter(name="projectEnvId")
-    def project_env_id(self) -> pulumi.Output[str]:
-        return pulumi.get(self, "project_env_id")
-
-    @property
-    @pulumi.getter(name="projectId")
-    def project_id(self) -> pulumi.Output[str]:
-        return pulumi.get(self, "project_id")
-
-    @property
-    @pulumi.getter(name="projectName")
-    def project_name(self) -> pulumi.Output[str]:
-        return pulumi.get(self, "project_name")
-
-    @property
     @pulumi.getter
-    def region(self) -> pulumi.Output[str]:
-        return pulumi.get(self, "region")
+    def project(self) -> pulumi.Output['_domain.outputs.Project']:
+        return pulumi.get(self, "project")
 
     @property
     @pulumi.getter

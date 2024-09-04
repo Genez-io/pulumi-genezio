@@ -2,54 +2,63 @@ import * as genezio from "@pulumi/genezio";
 import * as pulumi from "@pulumi/pulumi";
 import path = require("path");
 
-const myDatabase = new genezio.Database("MyDatabase", {
-  name: "my-database-fullstack-pulumi-6",
-});
-
-const MyProject = new genezio.Project("MyProject", {
-  name: "test",
+const project = new genezio.Project("MyProject", {
+  name: "my-project",
   region: "us-east-1",
-  environmentVariables: [
+  environment: [
     {
-      name: "CUSTOM_DATABASE_URL",
-      value: myDatabase.url,
+      name: "CUSTOM_ENV_VAR",
+      value: "my-env-var",
     },
   ],
 });
 
+const database = new genezio.Database("MyDatabase", {
+  project: {
+    name: project.name,
+    region: project.region,
+  },
+  name: "my-database",
+});
+
 const functionPath = path.join(__dirname, "function");
 
-const myFunction = new genezio.ServerlessFunction("MyFunction", {
+const serverlessFunction = new genezio.ServerlessFunction("MyFunction", {
   path: new pulumi.asset.FileArchive(functionPath),
   project: {
-    name: MyProject.name,
-    region: MyProject.region,
+    name: project.name,
+    region: project.region,
   },
   entry: "app.mjs",
   handler: "handler",
   name: "my-function",
-  backendPath: ".",
 });
 
-const frontendPublishPath = path.join(__dirname, "client", "dist");
+const frontendPath = path.join(__dirname, "client");
 
-const myFrontend = new genezio.Frontend("MyFrontend", {
+const frontend = new genezio.Frontend("MyFrontend", {
   project: {
-    name: MyProject.name,
-    region: MyProject.region,
+    name: project.name,
+    region: project.region,
   },
-  path: "./client",
-  publish: new pulumi.asset.FileArchive(frontendPublishPath),
-  subdomain: "my-frontend-pulumi",
+  path: new pulumi.asset.FileArchive(frontendPath),
+  publish: "dist",
+  subdomain: "my-frontend",
+  buildCommands: ["npm install", "npm run build"],
+  environment: [
+    {
+      name: "VITE_HELLO_WORLD_FUNCTION_URL",
+      value: serverlessFunction.url,
+    },
+  ],
 });
 
-const myAuth = new genezio.Authentication("MyAuth", {
+const auth = new genezio.Authentication("MyAuth", {
   project: {
-    name: MyProject.name,
-    region: MyProject.region,
+    name: project.name,
+    region: project.region,
   },
-  databaseType: "postgresql",
-  databaseUrl: myDatabase.url,
+  databaseUrl: database.url,
   provider: {
     email: true,
   },

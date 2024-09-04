@@ -8,32 +8,27 @@ import pulumi
 import pulumi.runtime
 from typing import Any, Mapping, Optional, Sequence, Union, overload
 from . import _utilities
+from . import domain as _domain
 
 __all__ = ['DatabaseArgs', 'Database']
 
 @pulumi.input_type
 class DatabaseArgs:
     def __init__(__self__, *,
-                 auth_token: pulumi.Input[str],
                  name: pulumi.Input[str],
-                 region: pulumi.Input[str],
-                 type: pulumi.Input[str]):
+                 project: Optional[pulumi.Input['_domain.ProjectArgs']] = None,
+                 region: Optional[pulumi.Input[str]] = None,
+                 type: Optional[pulumi.Input[str]] = None):
         """
         The set of arguments for constructing a Database resource.
         """
-        pulumi.set(__self__, "auth_token", auth_token)
         pulumi.set(__self__, "name", name)
-        pulumi.set(__self__, "region", region)
-        pulumi.set(__self__, "type", type)
-
-    @property
-    @pulumi.getter(name="authToken")
-    def auth_token(self) -> pulumi.Input[str]:
-        return pulumi.get(self, "auth_token")
-
-    @auth_token.setter
-    def auth_token(self, value: pulumi.Input[str]):
-        pulumi.set(self, "auth_token", value)
+        if project is not None:
+            pulumi.set(__self__, "project", project)
+        if region is not None:
+            pulumi.set(__self__, "region", region)
+        if type is not None:
+            pulumi.set(__self__, "type", type)
 
     @property
     @pulumi.getter
@@ -46,20 +41,29 @@ class DatabaseArgs:
 
     @property
     @pulumi.getter
-    def region(self) -> pulumi.Input[str]:
+    def project(self) -> Optional[pulumi.Input['_domain.ProjectArgs']]:
+        return pulumi.get(self, "project")
+
+    @project.setter
+    def project(self, value: Optional[pulumi.Input['_domain.ProjectArgs']]):
+        pulumi.set(self, "project", value)
+
+    @property
+    @pulumi.getter
+    def region(self) -> Optional[pulumi.Input[str]]:
         return pulumi.get(self, "region")
 
     @region.setter
-    def region(self, value: pulumi.Input[str]):
+    def region(self, value: Optional[pulumi.Input[str]]):
         pulumi.set(self, "region", value)
 
     @property
     @pulumi.getter
-    def type(self) -> pulumi.Input[str]:
+    def type(self) -> Optional[pulumi.Input[str]]:
         return pulumi.get(self, "type")
 
     @type.setter
-    def type(self, value: pulumi.Input[str]):
+    def type(self, value: Optional[pulumi.Input[str]]):
         pulumi.set(self, "type", value)
 
 
@@ -68,8 +72,8 @@ class Database(pulumi.CustomResource):
     def __init__(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 auth_token: Optional[pulumi.Input[str]] = None,
                  name: Optional[pulumi.Input[str]] = None,
+                 project: Optional[pulumi.Input[pulumi.InputType['_domain.ProjectArgs']]] = None,
                  region: Optional[pulumi.Input[str]] = None,
                  type: Optional[pulumi.Input[str]] = None,
                  __props__=None):
@@ -101,8 +105,8 @@ class Database(pulumi.CustomResource):
     def _internal_init(__self__,
                  resource_name: str,
                  opts: Optional[pulumi.ResourceOptions] = None,
-                 auth_token: Optional[pulumi.Input[str]] = None,
                  name: Optional[pulumi.Input[str]] = None,
+                 project: Optional[pulumi.Input[pulumi.InputType['_domain.ProjectArgs']]] = None,
                  region: Optional[pulumi.Input[str]] = None,
                  type: Optional[pulumi.Input[str]] = None,
                  __props__=None):
@@ -114,20 +118,16 @@ class Database(pulumi.CustomResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = DatabaseArgs.__new__(DatabaseArgs)
 
-            if auth_token is None and not opts.urn:
-                raise TypeError("Missing required property 'auth_token'")
-            __props__.__dict__["auth_token"] = auth_token
             if name is None and not opts.urn:
                 raise TypeError("Missing required property 'name'")
             __props__.__dict__["name"] = name
-            if region is None and not opts.urn:
-                raise TypeError("Missing required property 'region'")
+            __props__.__dict__["project"] = project
             __props__.__dict__["region"] = region
-            if type is None and not opts.urn:
-                raise TypeError("Missing required property 'type'")
             __props__.__dict__["type"] = type
             __props__.__dict__["database_id"] = None
             __props__.__dict__["url"] = None
+        secret_opts = pulumi.ResourceOptions(additional_secret_outputs=["url"])
+        opts = pulumi.ResourceOptions.merge(opts, secret_opts)
         super(Database, __self__).__init__(
             'genezio:index:Database',
             resource_name,
@@ -150,18 +150,13 @@ class Database(pulumi.CustomResource):
 
         __props__ = DatabaseArgs.__new__(DatabaseArgs)
 
-        __props__.__dict__["auth_token"] = None
         __props__.__dict__["database_id"] = None
         __props__.__dict__["name"] = None
+        __props__.__dict__["project"] = None
         __props__.__dict__["region"] = None
         __props__.__dict__["type"] = None
         __props__.__dict__["url"] = None
         return Database(resource_name, opts=opts, __props__=__props__)
-
-    @property
-    @pulumi.getter(name="authToken")
-    def auth_token(self) -> pulumi.Output[str]:
-        return pulumi.get(self, "auth_token")
 
     @property
     @pulumi.getter(name="databaseId")
@@ -175,12 +170,17 @@ class Database(pulumi.CustomResource):
 
     @property
     @pulumi.getter
-    def region(self) -> pulumi.Output[str]:
+    def project(self) -> pulumi.Output[Optional['_domain.outputs.Project']]:
+        return pulumi.get(self, "project")
+
+    @property
+    @pulumi.getter
+    def region(self) -> pulumi.Output[Optional[str]]:
         return pulumi.get(self, "region")
 
     @property
     @pulumi.getter
-    def type(self) -> pulumi.Output[str]:
+    def type(self) -> pulumi.Output[Optional[str]]:
         return pulumi.get(self, "type")
 
     @property

@@ -81,7 +81,7 @@ export class Project extends pulumi.CustomResource {
      * 	This variable will allow you to set environment variables for the project. These environment variables will be available to all the functions and classes in the project.
      * 	
      */
-    public readonly environmentVariables!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
+    public readonly environment!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
     /**
      * The name of the project to be deployed. This is a required field.
      * 	If you already have a project deployed with this name, then it will be updated with the new values. 
@@ -129,14 +129,14 @@ export class Project extends pulumi.CustomResource {
                 throw new Error("Missing required property 'region'");
             }
             resourceInputs["cloudProvider"] = args ? args.cloudProvider : undefined;
-            resourceInputs["environmentVariables"] = args ? args.environmentVariables : undefined;
+            resourceInputs["environment"] = args ? args.environment : undefined;
             resourceInputs["name"] = args ? args.name : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
             resourceInputs["projectEnvId"] = undefined /*out*/;
             resourceInputs["projectId"] = undefined /*out*/;
         } else {
             resourceInputs["cloudProvider"] = undefined /*out*/;
-            resourceInputs["environmentVariables"] = undefined /*out*/;
+            resourceInputs["environment"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["projectEnvId"] = undefined /*out*/;
             resourceInputs["projectId"] = undefined /*out*/;
@@ -164,7 +164,7 @@ export interface ProjectArgs {
      * 	This variable will allow you to set environment variables for the project. These environment variables will be available to all the functions and classes in the project.
      * 	
      */
-    environmentVariables?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
+    environment?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
     /**
      * The name of the project to be deployed. This is a required field.
      * 	If you already have a project deployed with this name, then it will be updated with the new values. 

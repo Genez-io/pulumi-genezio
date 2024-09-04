@@ -174,7 +174,7 @@ install_dotnet_sdk::
 	find . -name '*.nupkg' -print -exec cp -p {} ${WORKING_DIR}/nuget \;
 
 install_python_sdk::
-	#target intentionally blank
+	cd $(WORKING_DIR)/sdk/python && pip install ./bin
 
 install_go_sdk::
 	#target intentionally blank
