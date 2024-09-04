@@ -6,6 +6,58 @@ import * as inputs from "./types/input";
 import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
+/**
+ * A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+ *
+ * The project resource will deploy an empty project on the Genezio platform.
+ *
+ * It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+ *
+ * ## Example Usage
+ *
+ * ### Basic Usage
+ *
+ * ```typescript
+ * import * as genezio from "@pulumi/genezio";
+ *
+ * const project = new genezio.Project("project", {
+ *   name: "my-project",
+ *   region: "us-east-1",
+ * });
+ * ```
+ *
+ * ### Environment Variables
+ *
+ * ```typescript
+ * import * as genezio from "@pulumi/genezio";
+ *
+ * const project = new genezio.Project("MyProject", {
+ *   name: "my-project",
+ *   region: "us-east-1",
+ *   environmentVariables: [
+ *     {
+ *       name: "MY_ENV_VAR",
+ *       value: "my-value",
+ *     },
+ *   ],
+ * });
+ * ```
+ *
+ * ## Pulumi Output Reference
+ *
+ * Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+ *
+ * ```typescript
+ *
+ * const project = new genezio.Project("MyProject", {
+ *   name: "my-project",
+ *   region: "us-east-1",
+ * });
+ *
+ * export const projectId = project.projectId;
+ * export const projectUrl = project.projectUrl;
+ * ```
+ */
 export class Database extends pulumi.CustomResource {
     /**
      * Get an existing Database resource's state with the given name, ID, and optional extra
@@ -33,11 +85,29 @@ export class Database extends pulumi.CustomResource {
         return obj['__pulumiType'] === Database.__pulumiType;
     }
 
+    /**
+     * The database ID.
+     */
     public /*out*/ readonly databaseId!: pulumi.Output<string>;
+    /**
+     * The name of the database to be deployed.
+     */
     public readonly name!: pulumi.Output<string>;
+    /**
+     * The project to which the database will be linked.
+     */
     public readonly project!: pulumi.Output<outputs.domain.Project | undefined>;
+    /**
+     * The region in which the database will be deployed.
+     */
     public readonly region!: pulumi.Output<string | undefined>;
+    /**
+     * The type of the database to be deployed.
+     */
     public readonly type!: pulumi.Output<string | undefined>;
+    /**
+     * The URL of the database.
+     */
     public /*out*/ readonly url!: pulumi.Output<string>;
 
     /**
@@ -56,8 +126,8 @@ export class Database extends pulumi.CustomResource {
             }
             resourceInputs["name"] = args ? args.name : undefined;
             resourceInputs["project"] = args ? args.project : undefined;
-            resourceInputs["region"] = args ? args.region : undefined;
-            resourceInputs["type"] = args ? args.type : undefined;
+            resourceInputs["region"] = (args ? args.region : undefined) ?? "us-east-1";
+            resourceInputs["type"] = (args ? args.type : undefined) ?? "postgres-neon";
             resourceInputs["databaseId"] = undefined /*out*/;
             resourceInputs["url"] = undefined /*out*/;
         } else {
@@ -79,8 +149,20 @@ export class Database extends pulumi.CustomResource {
  * The set of arguments for constructing a Database resource.
  */
 export interface DatabaseArgs {
+    /**
+     * The name of the database to be deployed.
+     */
     name: pulumi.Input<string>;
+    /**
+     * The project to which the database will be linked.
+     */
     project?: pulumi.Input<inputs.domain.ProjectArgs>;
+    /**
+     * The region in which the database will be deployed.
+     */
     region?: pulumi.Input<string>;
+    /**
+     * The type of the database to be deployed.
+     */
     type?: pulumi.Input<string>;
 }

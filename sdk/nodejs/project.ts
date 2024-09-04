@@ -7,9 +7,11 @@ import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 /**
- * A project resource that will be deployed on the Genezio platform.
+ * A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
  *
- * The project resource is used to group resources together and manage them as a single unit. This resource should be used as the base resource for all other resources. The project resource will deploy an empty project on the Genezio platform. The project can then be used to deploy other resources. It is good practce to create a project resource first and then use the output of the project resource to deploy other resources.
+ * The project resource will deploy an empty project on the Genezio platform.
+ *
+ * It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
  *
  * ## Example Usage
  *
@@ -40,6 +42,21 @@ import * as utilities from "./utilities";
  *   ],
  * });
  * ```
+ *
+ * ## Pulumi Output Reference
+ *
+ * Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+ *
+ * ```typescript
+ *
+ * const project = new genezio.Project("MyProject", {
+ *   name: "my-project",
+ *   region: "us-east-1",
+ * });
+ *
+ * export const projectId = project.projectId;
+ * export const projectUrl = project.projectUrl;
+ * ```
  */
 export class Project extends pulumi.CustomResource {
     /**
@@ -69,42 +86,29 @@ export class Project extends pulumi.CustomResource {
     }
 
     /**
-     * The cloud provider on which the project will be deployed. This is an optional field. The default value is "genezio-cloud".
-     * 	Currenly the only supported cloud providers are:
-     * 	- genezio-cloud
-     *
-     * 	More cloud providers will be supported in the future.
+     * The cloud provider on which the project will be deployed.
      */
     public readonly cloudProvider!: pulumi.Output<string | undefined>;
     /**
-     * The environment variables that will be set for the project. This is an optional field.
-     * 	This variable will allow you to set environment variables for the project. These environment variables will be available to all the functions and classes in the project.
-     * 	
+     * The backend environment variables that will be set for the project.
      */
     public readonly environment!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
     /**
-     * The name of the project to be deployed. This is a required field.
-     * 	If you already have a project deployed with this name, then it will be updated with the new values. 
-     * 	Changing the name will result in a new project being created. 
-     * 	All the projects you deploy have a unique name. 
-     * 	If you try to deploy a project with the same name as an existing project but with a different region, 
-     * 	it will throw an error as you can't have two projects with the same name and different regions.
+     * The name of the project to be deployed.
      */
     public readonly name!: pulumi.Output<string>;
     /**
-     * The ID of the environment that was created. 
-     * 	Each project in the genezio platform can have environments such as prod, dev and staging. This is a unique identifier for the environment.
+     * The environment ID.
      */
     public /*out*/ readonly projectEnvId!: pulumi.Output<string>;
     /**
-     * The ID of the project that was created. This is a unique identifier for the project.
+     * The project ID.
      */
     public /*out*/ readonly projectId!: pulumi.Output<string>;
     /**
-     * The region in which the project will be deployed.This is a required field. 
-     * 	You can only deploy a project in one region and you can't have two projects with the same name and different regions.
+     * The region in which the project will be deployed.
      *
-     * 	Right now the only supported regions are:
+     * 	Supported regions are:
      * 	- us-east-1
      * 	- eu-central-1
      * 	
@@ -128,7 +132,7 @@ export class Project extends pulumi.CustomResource {
             if ((!args || args.region === undefined) && !opts.urn) {
                 throw new Error("Missing required property 'region'");
             }
-            resourceInputs["cloudProvider"] = args ? args.cloudProvider : undefined;
+            resourceInputs["cloudProvider"] = (args ? args.cloudProvider : undefined) ?? "genezio-cloud";
             resourceInputs["environment"] = args ? args.environment : undefined;
             resourceInputs["name"] = args ? args.name : undefined;
             resourceInputs["region"] = args ? args.region : undefined;
@@ -152,33 +156,21 @@ export class Project extends pulumi.CustomResource {
  */
 export interface ProjectArgs {
     /**
-     * The cloud provider on which the project will be deployed. This is an optional field. The default value is "genezio-cloud".
-     * 	Currenly the only supported cloud providers are:
-     * 	- genezio-cloud
-     *
-     * 	More cloud providers will be supported in the future.
+     * The cloud provider on which the project will be deployed.
      */
     cloudProvider?: pulumi.Input<string>;
     /**
-     * The environment variables that will be set for the project. This is an optional field.
-     * 	This variable will allow you to set environment variables for the project. These environment variables will be available to all the functions and classes in the project.
-     * 	
+     * The backend environment variables that will be set for the project.
      */
     environment?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
     /**
-     * The name of the project to be deployed. This is a required field.
-     * 	If you already have a project deployed with this name, then it will be updated with the new values. 
-     * 	Changing the name will result in a new project being created. 
-     * 	All the projects you deploy have a unique name. 
-     * 	If you try to deploy a project with the same name as an existing project but with a different region, 
-     * 	it will throw an error as you can't have two projects with the same name and different regions.
+     * The name of the project to be deployed.
      */
     name: pulumi.Input<string>;
     /**
-     * The region in which the project will be deployed.This is a required field. 
-     * 	You can only deploy a project in one region and you can't have two projects with the same name and different regions.
+     * The region in which the project will be deployed.
      *
-     * 	Right now the only supported regions are:
+     * 	Supported regions are:
      * 	- us-east-1
      * 	- eu-central-1
      * 	

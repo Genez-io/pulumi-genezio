@@ -6,6 +6,58 @@ import * as inputs from "./types/input";
 import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
+/**
+ * A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+ *
+ * The project resource will deploy an empty project on the Genezio platform.
+ *
+ * It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+ *
+ * ## Example Usage
+ *
+ * ### Basic Usage
+ *
+ * ```typescript
+ * import * as genezio from "@pulumi/genezio";
+ *
+ * const project = new genezio.Project("project", {
+ *   name: "my-project",
+ *   region: "us-east-1",
+ * });
+ * ```
+ *
+ * ### Environment Variables
+ *
+ * ```typescript
+ * import * as genezio from "@pulumi/genezio";
+ *
+ * const project = new genezio.Project("MyProject", {
+ *   name: "my-project",
+ *   region: "us-east-1",
+ *   environmentVariables: [
+ *     {
+ *       name: "MY_ENV_VAR",
+ *       value: "my-value",
+ *     },
+ *   ],
+ * });
+ * ```
+ *
+ * ## Pulumi Output Reference
+ *
+ * Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+ *
+ * ```typescript
+ *
+ * const project = new genezio.Project("MyProject", {
+ *   name: "my-project",
+ *   region: "us-east-1",
+ * });
+ *
+ * export const projectId = project.projectId;
+ * export const projectUrl = project.projectUrl;
+ * ```
+ */
 export class ServerlessFunction extends pulumi.CustomResource {
     /**
      * Get an existing ServerlessFunction resource's state with the given name, ID, and optional extra
@@ -33,14 +85,41 @@ export class ServerlessFunction extends pulumi.CustomResource {
         return obj['__pulumiType'] === ServerlessFunction.__pulumiType;
     }
 
+    /**
+     * The path to the backend folder where the function is located.
+     */
     public readonly backendPath!: pulumi.Output<string | undefined>;
+    /**
+     * The entry file of the function.
+     */
     public readonly entry!: pulumi.Output<string>;
+    /**
+     * The function ID.
+     */
     public /*out*/ readonly functionId!: pulumi.Output<string>;
+    /**
+     * The handler of the function.
+     */
     public readonly handler!: pulumi.Output<string>;
+    /**
+     * The language in which the function is written.
+     */
     public readonly language!: pulumi.Output<string | undefined>;
+    /**
+     * The name of the function to be deployed.
+     */
     public readonly name!: pulumi.Output<string>;
+    /**
+     * The path to the function code.
+     */
     public readonly path!: pulumi.Output<pulumi.asset.Archive>;
+    /**
+     * The project to which the function will be deployed.
+     */
     public readonly project!: pulumi.Output<outputs.domain.Project>;
+    /**
+     * The URL of the function.
+     */
     public /*out*/ readonly url!: pulumi.Output<string>;
 
     /**
@@ -72,7 +151,7 @@ export class ServerlessFunction extends pulumi.CustomResource {
             resourceInputs["backendPath"] = args ? args.backendPath : undefined;
             resourceInputs["entry"] = args ? args.entry : undefined;
             resourceInputs["handler"] = args ? args.handler : undefined;
-            resourceInputs["language"] = args ? args.language : undefined;
+            resourceInputs["language"] = (args ? args.language : undefined) ?? "js";
             resourceInputs["name"] = args ? args.name : undefined;
             resourceInputs["path"] = args ? args.path : undefined;
             resourceInputs["project"] = args ? args.project : undefined;
@@ -98,11 +177,32 @@ export class ServerlessFunction extends pulumi.CustomResource {
  * The set of arguments for constructing a ServerlessFunction resource.
  */
 export interface ServerlessFunctionArgs {
+    /**
+     * The path to the backend folder where the function is located.
+     */
     backendPath?: pulumi.Input<string>;
+    /**
+     * The entry file of the function.
+     */
     entry: pulumi.Input<string>;
+    /**
+     * The handler of the function.
+     */
     handler: pulumi.Input<string>;
+    /**
+     * The language in which the function is written.
+     */
     language?: pulumi.Input<string>;
+    /**
+     * The name of the function to be deployed.
+     */
     name: pulumi.Input<string>;
+    /**
+     * The path to the function code.
+     */
     path: pulumi.Input<pulumi.asset.Archive>;
+    /**
+     * The project to which the function will be deployed.
+     */
     project: pulumi.Input<inputs.domain.ProjectArgs>;
 }
