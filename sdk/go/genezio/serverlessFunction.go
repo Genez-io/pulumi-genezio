@@ -7,27 +7,48 @@ import (
 	"context"
 	"reflect"
 
+	"domain"
 	"errors"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"internal"
 )
 
+// A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+//
+// The project resource will deploy an empty project on the Genezio platform.
+//
+// It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+//
+// ## Example Usage
+//
+// ### Basic Usage
+//
+// ### Environment Variables
+//
+// ## Pulumi Output Reference
+//
+// Once the project is created, the `projectId` and `projectUrl` are available as outputs.
 type ServerlessFunction struct {
 	pulumi.CustomResourceState
 
-	AuthToken            pulumi.StringOutput    `pulumi:"authToken"`
-	Entry                pulumi.StringOutput    `pulumi:"entry"`
-	EnvironmentVariables pulumi.StringMapOutput `pulumi:"environmentVariables"`
-	FolderHash           pulumi.StringPtrOutput `pulumi:"folderHash"`
-	FunctionId           pulumi.StringOutput    `pulumi:"functionId"`
-	Handler              pulumi.StringOutput    `pulumi:"handler"`
-	Name                 pulumi.StringOutput    `pulumi:"name"`
-	Path                 pulumi.StringOutput    `pulumi:"path"`
-	ProjectEnvId         pulumi.StringOutput    `pulumi:"projectEnvId"`
-	ProjectId            pulumi.StringOutput    `pulumi:"projectId"`
-	ProjectName          pulumi.StringOutput    `pulumi:"projectName"`
-	Region               pulumi.StringOutput    `pulumi:"region"`
-	Url                  pulumi.StringOutput    `pulumi:"url"`
+	// The path to the backend folder where the function is located.
+	BackendPath pulumi.StringPtrOutput `pulumi:"backendPath"`
+	// The entry file of the function.
+	Entry pulumi.StringOutput `pulumi:"entry"`
+	// The function ID.
+	FunctionId pulumi.StringOutput `pulumi:"functionId"`
+	// The handler of the function.
+	Handler pulumi.StringOutput `pulumi:"handler"`
+	// The language in which the function is written.
+	Language pulumi.StringPtrOutput `pulumi:"language"`
+	// The name of the function to be deployed.
+	Name pulumi.StringOutput `pulumi:"name"`
+	// The path to the function code.
+	Path pulumi.ArchiveOutput `pulumi:"path"`
+	// The project to which the function will be deployed.
+	Project domain.ProjectOutput `pulumi:"project"`
+	// The URL of the function.
+	Url pulumi.StringOutput `pulumi:"url"`
 }
 
 // NewServerlessFunction registers a new resource with the given unique name, arguments, and options.
@@ -37,9 +58,6 @@ func NewServerlessFunction(ctx *pulumi.Context,
 		return nil, errors.New("missing one or more required arguments")
 	}
 
-	if args.AuthToken == nil {
-		return nil, errors.New("invalid value for required argument 'AuthToken'")
-	}
 	if args.Entry == nil {
 		return nil, errors.New("invalid value for required argument 'Entry'")
 	}
@@ -52,11 +70,11 @@ func NewServerlessFunction(ctx *pulumi.Context,
 	if args.Path == nil {
 		return nil, errors.New("invalid value for required argument 'Path'")
 	}
-	if args.ProjectName == nil {
-		return nil, errors.New("invalid value for required argument 'ProjectName'")
+	if args.Project == nil {
+		return nil, errors.New("invalid value for required argument 'Project'")
 	}
-	if args.Region == nil {
-		return nil, errors.New("invalid value for required argument 'Region'")
+	if args.Language == nil {
+		args.Language = pulumi.StringPtr("js")
 	}
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource ServerlessFunction
@@ -91,28 +109,38 @@ func (ServerlessFunctionState) ElementType() reflect.Type {
 }
 
 type serverlessFunctionArgs struct {
-	AuthToken            string            `pulumi:"authToken"`
-	Entry                string            `pulumi:"entry"`
-	EnvironmentVariables map[string]string `pulumi:"environmentVariables"`
-	FolderHash           *string           `pulumi:"folderHash"`
-	Handler              string            `pulumi:"handler"`
-	Name                 string            `pulumi:"name"`
-	Path                 string            `pulumi:"path"`
-	ProjectName          string            `pulumi:"projectName"`
-	Region               string            `pulumi:"region"`
+	// The path to the backend folder where the function is located.
+	BackendPath *string `pulumi:"backendPath"`
+	// The entry file of the function.
+	Entry string `pulumi:"entry"`
+	// The handler of the function.
+	Handler string `pulumi:"handler"`
+	// The language in which the function is written.
+	Language *string `pulumi:"language"`
+	// The name of the function to be deployed.
+	Name string `pulumi:"name"`
+	// The path to the function code.
+	Path pulumi.Archive `pulumi:"path"`
+	// The project to which the function will be deployed.
+	Project domain.Project `pulumi:"project"`
 }
 
 // The set of arguments for constructing a ServerlessFunction resource.
 type ServerlessFunctionArgs struct {
-	AuthToken            pulumi.StringInput
-	Entry                pulumi.StringInput
-	EnvironmentVariables pulumi.StringMapInput
-	FolderHash           pulumi.StringPtrInput
-	Handler              pulumi.StringInput
-	Name                 pulumi.StringInput
-	Path                 pulumi.StringInput
-	ProjectName          pulumi.StringInput
-	Region               pulumi.StringInput
+	// The path to the backend folder where the function is located.
+	BackendPath pulumi.StringPtrInput
+	// The entry file of the function.
+	Entry pulumi.StringInput
+	// The handler of the function.
+	Handler pulumi.StringInput
+	// The language in which the function is written.
+	Language pulumi.StringPtrInput
+	// The name of the function to be deployed.
+	Name pulumi.StringInput
+	// The path to the function code.
+	Path pulumi.ArchiveInput
+	// The project to which the function will be deployed.
+	Project domain.ProjectInput
 }
 
 func (ServerlessFunctionArgs) ElementType() reflect.Type {
@@ -152,54 +180,47 @@ func (o ServerlessFunctionOutput) ToServerlessFunctionOutputWithContext(ctx cont
 	return o
 }
 
-func (o ServerlessFunctionOutput) AuthToken() pulumi.StringOutput {
-	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.AuthToken }).(pulumi.StringOutput)
+// The path to the backend folder where the function is located.
+func (o ServerlessFunctionOutput) BackendPath() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringPtrOutput { return v.BackendPath }).(pulumi.StringPtrOutput)
 }
 
+// The entry file of the function.
 func (o ServerlessFunctionOutput) Entry() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Entry }).(pulumi.StringOutput)
 }
 
-func (o ServerlessFunctionOutput) EnvironmentVariables() pulumi.StringMapOutput {
-	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringMapOutput { return v.EnvironmentVariables }).(pulumi.StringMapOutput)
-}
-
-func (o ServerlessFunctionOutput) FolderHash() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringPtrOutput { return v.FolderHash }).(pulumi.StringPtrOutput)
-}
-
+// The function ID.
 func (o ServerlessFunctionOutput) FunctionId() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.FunctionId }).(pulumi.StringOutput)
 }
 
+// The handler of the function.
 func (o ServerlessFunctionOutput) Handler() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Handler }).(pulumi.StringOutput)
 }
 
+// The language in which the function is written.
+func (o ServerlessFunctionOutput) Language() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringPtrOutput { return v.Language }).(pulumi.StringPtrOutput)
+}
+
+// The name of the function to be deployed.
 func (o ServerlessFunctionOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
-func (o ServerlessFunctionOutput) Path() pulumi.StringOutput {
-	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Path }).(pulumi.StringOutput)
+// The path to the function code.
+func (o ServerlessFunctionOutput) Path() pulumi.ArchiveOutput {
+	return o.ApplyT(func(v *ServerlessFunction) pulumi.ArchiveOutput { return v.Path }).(pulumi.ArchiveOutput)
 }
 
-func (o ServerlessFunctionOutput) ProjectEnvId() pulumi.StringOutput {
-	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.ProjectEnvId }).(pulumi.StringOutput)
+// The project to which the function will be deployed.
+func (o ServerlessFunctionOutput) Project() domain.ProjectOutput {
+	return o.ApplyT(func(v *ServerlessFunction) domain.ProjectOutput { return v.Project }).(domain.ProjectOutput)
 }
 
-func (o ServerlessFunctionOutput) ProjectId() pulumi.StringOutput {
-	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.ProjectId }).(pulumi.StringOutput)
-}
-
-func (o ServerlessFunctionOutput) ProjectName() pulumi.StringOutput {
-	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.ProjectName }).(pulumi.StringOutput)
-}
-
-func (o ServerlessFunctionOutput) Region() pulumi.StringOutput {
-	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Region }).(pulumi.StringOutput)
-}
-
+// The URL of the function.
 func (o ServerlessFunctionOutput) Url() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Url }).(pulumi.StringOutput)
 }
