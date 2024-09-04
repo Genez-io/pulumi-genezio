@@ -1,5 +1,6 @@
 name: genezio-fullstack-project
 runtime: nodejs
+description: A Pulumi project that uses the Genezio provider
 plugins:
   providers:
     - name: genezio

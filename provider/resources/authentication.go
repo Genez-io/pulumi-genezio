@@ -1,6 +1,7 @@
 package resources
 
 import (
+	_ "embed"
 	"fmt"
 	"log"
 	"strings"
@@ -26,6 +27,38 @@ type AuthenticationState struct {
 
 	Token  string `pulumi:"token"`
 	Region string `pulumi:"region"`
+}
+
+//go:embed documentation/project.md
+var authenticationDocumentation string
+
+func (r *Authentication) Annotate(a infer.Annotator) {
+	a.Describe(&r, authenticationDocumentation)
+}
+
+func (r *AuthenticationArgs) Annotate(a infer.Annotator) {
+	a.Describe(&r.Project, `The project to which the authentication will be added.`)
+
+	a.Describe(&r.DatabaseType, `The type of database to be used for authentication.
+
+	Supported database types are:
+	- postgresql
+	- mongodb`)
+	a.SetDefault(&r.DatabaseType, "postgresql")
+
+	a.Describe(&r.DatabaseUrl, `The URL of the database to be used for authentication.`)
+
+	a.Describe(&r.Provider, `The authentication providers to be enabled for the project.
+
+	You can enable the following providers:
+	- email
+	- web3
+	- google`)
+}
+
+func (r *AuthenticationState) Annotate(a infer.Annotator) {
+	a.Describe(&r.Token, `The token for the authentication. This token is used on the client side.`)
+	a.Describe(&r.Region, `The region in which the authentication is deployed.`)
 }
 
 func (*Authentication) Diff(ctx p.Context, id string, olds AuthenticationState, news AuthenticationArgs) (p.DiffResponse, error) {

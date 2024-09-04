@@ -1,4 +1,4 @@
-PROJECT_NAME := Pulumi genezio Resource Provider
+PROJECT_NAME := Pulumi Genezio Resource Provider
 
 PACK             := genezio
 PACKDIR          := sdk
@@ -9,9 +9,9 @@ NUGET_PKG_NAME   := Genez-io.genezio
 SHELL := /bin/bash
 
 PROVIDER        := pulumi-resource-${PACK}
-VERSION         ?= $(shell pulumictl get version)
+VERSION         ?= $(shell pulumictl get version --omit-commit-hash)
 PROVIDER_PATH   := provider
-VERSION_PATH    := ${PROVIDER_PATH}.Version
+VERSION_PATH    := ${PROVIDER_PATH}/provider.Version
 
 GOPATH			:= $(shell go env GOPATH)
 

@@ -1,6 +1,7 @@
 package resources
 
 import (
+	_ "embed"
 	"fmt"
 	"log"
 	"os"
@@ -32,6 +33,26 @@ type FrontendState struct {
 	FrontendArgs
 
 	URL string `pulumi:"url"`
+}
+
+//go:embed documentation/project.md
+var frontendDocumentation string
+
+func (r *Frontend) Annotate(a infer.Annotator) {
+	a.Describe(&r, frontendDocumentation)
+}
+
+func (r *FrontendArgs) Annotate(a infer.Annotator) {
+	a.Describe(&r.Project, `The project to which the frontend will be deployed.`)
+	a.Describe(&r.Path, `The path to the frontend files.`)
+	a.Describe(&r.Subdomain, `The subdomain of the frontend.`)
+	a.Describe(&r.Publish, `The folder in the path that contains the files to be published.`)
+	a.Describe(&r.BuildCommands, `The commands to run before deploying the frontend.`)
+	a.Describe(&r.Environment, `The environment variables that will be set for the frontend.`)
+}
+
+func (r *FrontendState) Annotate(a infer.Annotator) {
+	a.Describe(&r.URL, `The URL of the frontend.`)
 }
 
 func (*Frontend) Diff(ctx p.Context, id string, olds FrontendState, news FrontendArgs) (p.DiffResponse, error) {

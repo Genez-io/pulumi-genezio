@@ -1,0 +1,488 @@
+{
+ "description": "A Pulumi package for creating and managing Genezio cloud resources.",
+ "keywords": [
+     "pulumi",
+     "genezio",
+     "serverless",
+     "faas"
+ ],
+ "homepage": "https://genezio.com",
+ "license": "Apache-2.0",
+ "attribution": "This Pulumi package is based on the Genezio API.",
+ "repository": "https://github.com/pulumi/pulumi-genezio",
+ "publisher": "genezio",
+  "meta": {
+    "moduleFormat": "(.*)"
+  },
+  "config": {
+    "variables": {
+      "authToken": {
+        "type": "string"
+      },
+      "stage": {
+        "type": "string"
+      },
+      "version": {
+        "type": "string"
+      }
+    },
+    "defaults": [
+      "authToken"
+    ]
+  },
+  "types": {
+    "genezio:domain:AuthenticationProviders": {
+      "properties": {
+        "email": {
+          "type": "boolean"
+        },
+        "google": {
+          "$ref": "#/types/genezio:domain:GoogleProvider"
+        },
+        "web3": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "genezio:domain:EnvironmentVariable": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "secret": true
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ]
+    },
+    "genezio:domain:GoogleProvider": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "secret": {
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "required": [
+        "id",
+        "secret"
+      ]
+    },
+    "genezio:domain:Project": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "region"
+      ]
+    }
+  },
+  "provider": {
+    "properties": {
+      "authToken": {
+        "type": "string"
+      },
+      "stage": {
+        "type": "string"
+      },
+      "version": {
+        "type": "string"
+      }
+    },
+    "type": "object",
+    "required": [
+      "authToken"
+    ],
+    "inputProperties": {
+      "authToken": {
+        "type": "string"
+      },
+      "stage": {
+        "type": "string"
+      },
+      "version": {
+        "type": "string"
+      }
+    },
+    "requiredInputs": [
+      "authToken"
+    ]
+  },
+  "resources": {
+    "genezio:index:Authentication": {
+      "description": "A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.\n\nThe project resource will deploy an empty project on the Genezio platform.\n\nIt is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.\n\n## Example Usage\n\n### Basic Usage\n\n```typescript\nimport * as genezio from \"@pulumi/genezio\";\n\nconst project = new genezio.Project(\"project\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n});\n```\n\n### Environment Variables\n\n```typescript\nimport * as genezio from \"@pulumi/genezio\";\n\nconst project = new genezio.Project(\"MyProject\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n  environmentVariables: [\n    {\n      name: \"MY_ENV_VAR\",\n      value: \"my-value\",\n    },\n  ],\n});\n```\n\n## Pulumi Output Reference\n\nOnce the project is created, the `projectId` and `projectUrl` are available as outputs.\n\n```typescript\n\nconst project = new genezio.Project(\"MyProject\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n});\n\nexport const projectId = project.projectId;\nexport const projectUrl = project.projectUrl;\n```\n",
+      "properties": {
+        "databaseType": {
+          "type": "string",
+          "description": "The type of database to be used for authentication.\n\n\tSupported database types are:\n\t- postgresql\n\t- mongodb",
+          "default": "postgresql"
+        },
+        "databaseUrl": {
+          "type": "string",
+          "description": "The URL of the database to be used for authentication."
+        },
+        "project": {
+          "$ref": "#/types/genezio:domain:Project",
+          "description": "The project to which the authentication will be added."
+        },
+        "provider": {
+          "$ref": "#/types/genezio:domain:AuthenticationProviders",
+          "description": "The authentication providers to be enabled for the project.\n\n\tYou can enable the following providers:\n\t- email\n\t- web3\n\t- google"
+        },
+        "region": {
+          "type": "string",
+          "description": "The region in which the authentication is deployed."
+        },
+        "token": {
+          "type": "string",
+          "description": "The token for the authentication. This token is used on the client side."
+        }
+      },
+      "type": "object",
+      "required": [
+        "databaseUrl",
+        "project",
+        "region",
+        "token"
+      ],
+      "inputProperties": {
+        "databaseType": {
+          "type": "string",
+          "description": "The type of database to be used for authentication.\n\n\tSupported database types are:\n\t- postgresql\n\t- mongodb",
+          "default": "postgresql"
+        },
+        "databaseUrl": {
+          "type": "string",
+          "description": "The URL of the database to be used for authentication."
+        },
+        "project": {
+          "$ref": "#/types/genezio:domain:Project",
+          "description": "The project to which the authentication will be added."
+        },
+        "provider": {
+          "$ref": "#/types/genezio:domain:AuthenticationProviders",
+          "description": "The authentication providers to be enabled for the project.\n\n\tYou can enable the following providers:\n\t- email\n\t- web3\n\t- google"
+        }
+      },
+      "requiredInputs": [
+        "databaseUrl",
+        "project"
+      ]
+    },
+    "genezio:index:Database": {
+      "description": "A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.\n\nThe project resource will deploy an empty project on the Genezio platform.\n\nIt is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.\n\n## Example Usage\n\n### Basic Usage\n\n```typescript\nimport * as genezio from \"@pulumi/genezio\";\n\nconst project = new genezio.Project(\"project\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n});\n```\n\n### Environment Variables\n\n```typescript\nimport * as genezio from \"@pulumi/genezio\";\n\nconst project = new genezio.Project(\"MyProject\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n  environmentVariables: [\n    {\n      name: \"MY_ENV_VAR\",\n      value: \"my-value\",\n    },\n  ],\n});\n```\n\n## Pulumi Output Reference\n\nOnce the project is created, the `projectId` and `projectUrl` are available as outputs.\n\n```typescript\n\nconst project = new genezio.Project(\"MyProject\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n});\n\nexport const projectId = project.projectId;\nexport const projectUrl = project.projectUrl;\n```\n",
+      "properties": {
+        "databaseId": {
+          "type": "string",
+          "description": "The database ID."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the database to be deployed."
+        },
+        "project": {
+          "$ref": "#/types/genezio:domain:Project",
+          "description": "The project to which the database will be linked."
+        },
+        "region": {
+          "type": "string",
+          "description": "The region in which the database will be deployed.",
+          "default": "us-east-1"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the database to be deployed.",
+          "default": "postgres-neon"
+        },
+        "url": {
+          "type": "string",
+          "description": "The URL of the database.",
+          "secret": true
+        }
+      },
+      "type": "object",
+      "required": [
+        "databaseId",
+        "name",
+        "url"
+      ],
+      "inputProperties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the database to be deployed."
+        },
+        "project": {
+          "$ref": "#/types/genezio:domain:Project",
+          "description": "The project to which the database will be linked."
+        },
+        "region": {
+          "type": "string",
+          "description": "The region in which the database will be deployed.",
+          "default": "us-east-1"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the database to be deployed.",
+          "default": "postgres-neon"
+        }
+      },
+      "requiredInputs": [
+        "name"
+      ]
+    },
+    "genezio:index:Frontend": {
+      "description": "A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.\n\nThe project resource will deploy an empty project on the Genezio platform.\n\nIt is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.\n\n## Example Usage\n\n### Basic Usage\n\n```typescript\nimport * as genezio from \"@pulumi/genezio\";\n\nconst project = new genezio.Project(\"project\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n});\n```\n\n### Environment Variables\n\n```typescript\nimport * as genezio from \"@pulumi/genezio\";\n\nconst project = new genezio.Project(\"MyProject\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n  environmentVariables: [\n    {\n      name: \"MY_ENV_VAR\",\n      value: \"my-value\",\n    },\n  ],\n});\n```\n\n## Pulumi Output Reference\n\nOnce the project is created, the `projectId` and `projectUrl` are available as outputs.\n\n```typescript\n\nconst project = new genezio.Project(\"MyProject\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n});\n\nexport const projectId = project.projectId;\nexport const projectUrl = project.projectUrl;\n```\n",
+      "properties": {
+        "buildCommands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The commands to run before deploying the frontend."
+        },
+        "environment": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/genezio:domain:EnvironmentVariable"
+          },
+          "description": "The environment variables that will be set for the frontend."
+        },
+        "path": {
+          "$ref": "pulumi.json#/Archive",
+          "description": "The path to the frontend files."
+        },
+        "project": {
+          "$ref": "#/types/genezio:domain:Project",
+          "description": "The project to which the frontend will be deployed."
+        },
+        "publish": {
+          "type": "string",
+          "description": "The folder in the path that contains the files to be published."
+        },
+        "subdomain": {
+          "type": "string",
+          "description": "The subdomain of the frontend."
+        },
+        "url": {
+          "type": "string",
+          "description": "The URL of the frontend."
+        }
+      },
+      "type": "object",
+      "required": [
+        "path",
+        "project",
+        "publish",
+        "url"
+      ],
+      "inputProperties": {
+        "buildCommands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The commands to run before deploying the frontend."
+        },
+        "environment": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/genezio:domain:EnvironmentVariable"
+          },
+          "description": "The environment variables that will be set for the frontend."
+        },
+        "path": {
+          "$ref": "pulumi.json#/Archive",
+          "description": "The path to the frontend files."
+        },
+        "project": {
+          "$ref": "#/types/genezio:domain:Project",
+          "description": "The project to which the frontend will be deployed."
+        },
+        "publish": {
+          "type": "string",
+          "description": "The folder in the path that contains the files to be published."
+        },
+        "subdomain": {
+          "type": "string",
+          "description": "The subdomain of the frontend."
+        }
+      },
+      "requiredInputs": [
+        "path",
+        "project",
+        "publish"
+      ]
+    },
+    "genezio:index:Project": {
+      "description": "A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.\n\nThe project resource will deploy an empty project on the Genezio platform.\n\nIt is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.\n\n## Example Usage\n\n### Basic Usage\n\n```typescript\nimport * as genezio from \"@pulumi/genezio\";\n\nconst project = new genezio.Project(\"project\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n});\n```\n\n### Environment Variables\n\n```typescript\nimport * as genezio from \"@pulumi/genezio\";\n\nconst project = new genezio.Project(\"MyProject\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n  environmentVariables: [\n    {\n      name: \"MY_ENV_VAR\",\n      value: \"my-value\",\n    },\n  ],\n});\n```\n\n## Pulumi Output Reference\n\nOnce the project is created, the `projectId` and `projectUrl` are available as outputs.\n\n```typescript\n\nconst project = new genezio.Project(\"MyProject\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n});\n\nexport const projectId = project.projectId;\nexport const projectUrl = project.projectUrl;\n```\n",
+      "properties": {
+        "cloudProvider": {
+          "type": "string",
+          "description": "The cloud provider on which the project will be deployed.",
+          "default": "genezio-cloud"
+        },
+        "environment": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/genezio:domain:EnvironmentVariable"
+          },
+          "description": "The backend environment variables that will be set for the project."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the project to be deployed."
+        },
+        "projectEnvId": {
+          "type": "string",
+          "description": "The environment ID."
+        },
+        "projectId": {
+          "type": "string",
+          "description": "The project ID."
+        },
+        "region": {
+          "type": "string",
+          "description": "The region in which the project will be deployed.\n\n\tSupported regions are:\n\t- us-east-1\n\t- eu-central-1\n\t"
+        }
+      },
+      "type": "object",
+      "required": [
+        "name",
+        "projectEnvId",
+        "projectId",
+        "region"
+      ],
+      "inputProperties": {
+        "cloudProvider": {
+          "type": "string",
+          "description": "The cloud provider on which the project will be deployed.",
+          "default": "genezio-cloud"
+        },
+        "environment": {
+          "type": "array",
+          "items": {
+            "$ref": "#/types/genezio:domain:EnvironmentVariable"
+          },
+          "description": "The backend environment variables that will be set for the project."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the project to be deployed."
+        },
+        "region": {
+          "type": "string",
+          "description": "The region in which the project will be deployed.\n\n\tSupported regions are:\n\t- us-east-1\n\t- eu-central-1\n\t"
+        }
+      },
+      "requiredInputs": [
+        "name",
+        "region"
+      ]
+    },
+    "genezio:index:ServerlessFunction": {
+      "description": "A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.\n\nThe project resource will deploy an empty project on the Genezio platform.\n\nIt is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.\n\n## Example Usage\n\n### Basic Usage\n\n```typescript\nimport * as genezio from \"@pulumi/genezio\";\n\nconst project = new genezio.Project(\"project\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n});\n```\n\n### Environment Variables\n\n```typescript\nimport * as genezio from \"@pulumi/genezio\";\n\nconst project = new genezio.Project(\"MyProject\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n  environmentVariables: [\n    {\n      name: \"MY_ENV_VAR\",\n      value: \"my-value\",\n    },\n  ],\n});\n```\n\n## Pulumi Output Reference\n\nOnce the project is created, the `projectId` and `projectUrl` are available as outputs.\n\n```typescript\n\nconst project = new genezio.Project(\"MyProject\", {\n  name: \"my-project\",\n  region: \"us-east-1\",\n});\n\nexport const projectId = project.projectId;\nexport const projectUrl = project.projectUrl;\n```\n",
+      "properties": {
+        "backendPath": {
+          "type": "string",
+          "description": "The path to the backend folder where the function is located."
+        },
+        "entry": {
+          "type": "string",
+          "description": "The entry file of the function."
+        },
+        "functionId": {
+          "type": "string",
+          "description": "The function ID."
+        },
+        "handler": {
+          "type": "string",
+          "description": "The handler of the function."
+        },
+        "language": {
+          "type": "string",
+          "description": "The language in which the function is written.",
+          "default": "js"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the function to be deployed."
+        },
+        "path": {
+          "$ref": "pulumi.json#/Archive",
+          "description": "The path to the function code."
+        },
+        "project": {
+          "$ref": "#/types/genezio:domain:Project",
+          "description": "The project to which the function will be deployed."
+        },
+        "url": {
+          "type": "string",
+          "description": "The URL of the function."
+        }
+      },
+      "type": "object",
+      "required": [
+        "entry",
+        "functionId",
+        "handler",
+        "name",
+        "path",
+        "project",
+        "url"
+      ],
+      "inputProperties": {
+        "backendPath": {
+          "type": "string",
+          "description": "The path to the backend folder where the function is located."
+        },
+        "entry": {
+          "type": "string",
+          "description": "The entry file of the function."
+        },
+        "handler": {
+          "type": "string",
+          "description": "The handler of the function."
+        },
+        "language": {
+          "type": "string",
+          "description": "The language in which the function is written.",
+          "default": "js"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the function to be deployed."
+        },
+        "path": {
+          "$ref": "pulumi.json#/Archive",
+          "description": "The path to the function code."
+        },
+        "project": {
+          "$ref": "#/types/genezio:domain:Project",
+          "description": "The project to which the function will be deployed."
+        }
+      },
+      "requiredInputs": [
+        "entry",
+        "handler",
+        "name",
+        "path",
+        "project"
+      ]
+    }
+  }
+}

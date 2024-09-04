@@ -1,13 +1,13 @@
 import * as genezio from "@pulumi/genezio";
 import * as pulumi from "@pulumi/pulumi";
-import path = require("path");
+import * as path from "path";
 
 const project = new genezio.Project("MyProject", {
   name: "my-project",
   region: "us-east-1",
   environment: [
     {
-      name: "CUSTOM_ENV_VAR",
+      name: "ENV_VAR",
       value: "my-env-var",
     },
   ],
@@ -19,6 +19,7 @@ const database = new genezio.Database("MyDatabase", {
     region: project.region,
   },
   name: "my-database",
+  region: "us-east-1",
 });
 
 const functionPath = path.join(__dirname, "function");
@@ -61,5 +62,10 @@ const auth = new genezio.Authentication("MyAuth", {
   databaseUrl: database.url,
   provider: {
     email: true,
+    web3: true,
+    google: {
+      id: "my-client-id",
+      secret: "my-client",
+    }
   },
 });
