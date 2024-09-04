@@ -20,18 +20,10 @@ The Pulumi Genezio Provider needs to be configured with a Genezio [`Personal Acc
 
 > If you don't have an `Personal Access Token`, you can create one [here](https://app.genez.io/settings/tokens).
 
-Once you generated the `Personal Access Token` there are two ways to communicate your authorization tokens to Pulumi:
+Once you generated the `Personal Access Token` you can configure the Genezio provider using `pulumi config` command:
 
-1. Set the environment variables `GENEZIO_API_KEY`:
-
-    ```bash
-    $ export GENEZIO_API_KEY=<token>
-    ```
-
-2. Set them using `pulumi config` command, if you prefer that they be stored alongside your Pulumi stack for easy multi-user access:
-
-    ```bash
-    $ pulumi config set genezio:authToken <token> --secret
-    ```
+```bash
+$ pulumi config set --secret genezio:authToken <token>
+```
 
 > Remember to pass `--secret` when setting `genezio:authToken` so it is properly encrypted.

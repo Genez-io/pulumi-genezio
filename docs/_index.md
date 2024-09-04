@@ -17,37 +17,32 @@ Check out the code snippets below to see how to create a Genezio project featuri
 {{< chooser language "typescript,python,go,csharp,java,yaml" >}}
 {{% choosable language typescript %}}
 ```typescript
-## TODO
-```
 
-{{% /choosable %}}
-{{% choosable language python %}}
-```python
-## TODO
-```
+const project = new genezio.Project("MyProject", {
+  name: "my-fullstack-project",
+  region: "us-east-1",
+});
 
-{{% /choosable %}}
-{{% choosable language csharp %}}
-```csharp
-## TODO
-```
+const database = new genezio.Database("MyDatabase", {
+  project: {
+    name: project.name,
+    region: project.region,
+  },
+  name: "core-database",
+});
 
-{{% /choosable %}}
-{{% choosable language go %}}
-```go
-## TODO
-```
+const serverPath = path.join(__dirname, "server");
 
-{{% /choosable %}}
-{{% choosable language yaml %}}
-```yaml
-## TODO
-```
-
-{{% /choosable %}}
-{{% choosable language java %}}
-```java
-## TODO
+const helloWorldFunction = new genezio.ServerlessFunction("MyFunction", {
+  path: new pulumi.asset.FileArchive(serverPath),
+  project: {
+    name: project.name,
+    region: project.region,
+  },
+  entry: "hello.mjs",
+  handler: "handler",
+  name: "hello-world",
+});
 ```
 
 {{% /choosable %}}
