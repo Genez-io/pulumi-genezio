@@ -32,8 +32,11 @@ type Project struct {
 	pulumi.CustomResourceState
 
 	// The cloud provider on which the project will be deployed.
+	//
+	//     Supported cloud providers are:
+	//     - genezio-cloud
 	CloudProvider pulumi.StringPtrOutput `pulumi:"cloudProvider"`
-	// The backend environment variables that will be set for the project.
+	// The backend environment variables that will be securely stored for the project.
 	Environment domain.EnvironmentVariableArrayOutput `pulumi:"environment"`
 	// The name of the project to be deployed.
 	Name pulumi.StringOutput `pulumi:"name"`
@@ -99,8 +102,11 @@ func (ProjectState) ElementType() reflect.Type {
 
 type projectArgs struct {
 	// The cloud provider on which the project will be deployed.
+	//
+	//     Supported cloud providers are:
+	//     - genezio-cloud
 	CloudProvider *string `pulumi:"cloudProvider"`
-	// The backend environment variables that will be set for the project.
+	// The backend environment variables that will be securely stored for the project.
 	Environment []domain.EnvironmentVariable `pulumi:"environment"`
 	// The name of the project to be deployed.
 	Name string `pulumi:"name"`
@@ -115,8 +121,11 @@ type projectArgs struct {
 // The set of arguments for constructing a Project resource.
 type ProjectArgs struct {
 	// The cloud provider on which the project will be deployed.
+	//
+	//     Supported cloud providers are:
+	//     - genezio-cloud
 	CloudProvider pulumi.StringPtrInput
-	// The backend environment variables that will be set for the project.
+	// The backend environment variables that will be securely stored for the project.
 	Environment domain.EnvironmentVariableArrayInput
 	// The name of the project to be deployed.
 	Name pulumi.StringInput
@@ -166,11 +175,14 @@ func (o ProjectOutput) ToProjectOutputWithContext(ctx context.Context) ProjectOu
 }
 
 // The cloud provider on which the project will be deployed.
+//
+//	Supported cloud providers are:
+//	- genezio-cloud
 func (o ProjectOutput) CloudProvider() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Project) pulumi.StringPtrOutput { return v.CloudProvider }).(pulumi.StringPtrOutput)
 }
 
-// The backend environment variables that will be set for the project.
+// The backend environment variables that will be securely stored for the project.
 func (o ProjectOutput) Environment() domain.EnvironmentVariableArrayOutput {
 	return o.ApplyT(func(v *Project) domain.EnvironmentVariableArrayOutput { return v.Environment }).(domain.EnvironmentVariableArrayOutput)
 }

@@ -94,7 +94,9 @@ export class Database extends pulumi.CustomResource {
      */
     public readonly name!: pulumi.Output<string>;
     /**
-     * The project to which the database will be linked.
+     * A database can be used in a project by linking it.
+     * 	Linking the database will expose a connection URL as an environment variable for convenience.
+     * 	The same database can be linked to multiple projects.
      */
     public readonly project!: pulumi.Output<outputs.domain.Project | undefined>;
     /**
@@ -103,6 +105,9 @@ export class Database extends pulumi.CustomResource {
     public readonly region!: pulumi.Output<string | undefined>;
     /**
      * The type of the database to be deployed.
+     *
+     * 	Supported types are:
+     * 	- postgres-neon
      */
     public readonly type!: pulumi.Output<string | undefined>;
     /**
@@ -154,7 +159,9 @@ export interface DatabaseArgs {
      */
     name: pulumi.Input<string>;
     /**
-     * The project to which the database will be linked.
+     * A database can be used in a project by linking it.
+     * 	Linking the database will expose a connection URL as an environment variable for convenience.
+     * 	The same database can be linked to multiple projects.
      */
     project?: pulumi.Input<inputs.domain.ProjectArgs>;
     /**
@@ -163,6 +170,9 @@ export interface DatabaseArgs {
     region?: pulumi.Input<string>;
     /**
      * The type of the database to be deployed.
+     *
+     * 	Supported types are:
+     * 	- postgres-neon
      */
     type?: pulumi.Input<string>;
 }

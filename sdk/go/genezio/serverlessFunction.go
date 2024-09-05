@@ -31,19 +31,22 @@ import (
 type ServerlessFunction struct {
 	pulumi.CustomResourceState
 
-	// The path to the backend folder where the function is located.
+	// The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
 	BackendPath pulumi.StringPtrOutput `pulumi:"backendPath"`
-	// The entry file of the function.
+	// The entry file of the function. E.G. "index.mjs"
 	Entry pulumi.StringOutput `pulumi:"entry"`
 	// The function ID.
 	FunctionId pulumi.StringOutput `pulumi:"functionId"`
-	// The handler of the function.
+	// The exported handler's name. E.G. "handler"
 	Handler pulumi.StringOutput `pulumi:"handler"`
 	// The language in which the function is written.
+	//
+	//     Supported languages are:
+	//     - js
 	Language pulumi.StringPtrOutput `pulumi:"language"`
-	// The name of the function to be deployed.
+	// The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
 	Name pulumi.StringOutput `pulumi:"name"`
-	// The path to the function code.
+	// The path to the function's code. This is relative to the backend path.
 	Path pulumi.ArchiveOutput `pulumi:"path"`
 	// The project to which the function will be deployed.
 	Project domain.ProjectOutput `pulumi:"project"`
@@ -109,17 +112,20 @@ func (ServerlessFunctionState) ElementType() reflect.Type {
 }
 
 type serverlessFunctionArgs struct {
-	// The path to the backend folder where the function is located.
+	// The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
 	BackendPath *string `pulumi:"backendPath"`
-	// The entry file of the function.
+	// The entry file of the function. E.G. "index.mjs"
 	Entry string `pulumi:"entry"`
-	// The handler of the function.
+	// The exported handler's name. E.G. "handler"
 	Handler string `pulumi:"handler"`
 	// The language in which the function is written.
+	//
+	//     Supported languages are:
+	//     - js
 	Language *string `pulumi:"language"`
-	// The name of the function to be deployed.
+	// The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
 	Name string `pulumi:"name"`
-	// The path to the function code.
+	// The path to the function's code. This is relative to the backend path.
 	Path pulumi.Archive `pulumi:"path"`
 	// The project to which the function will be deployed.
 	Project domain.Project `pulumi:"project"`
@@ -127,17 +133,20 @@ type serverlessFunctionArgs struct {
 
 // The set of arguments for constructing a ServerlessFunction resource.
 type ServerlessFunctionArgs struct {
-	// The path to the backend folder where the function is located.
+	// The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
 	BackendPath pulumi.StringPtrInput
-	// The entry file of the function.
+	// The entry file of the function. E.G. "index.mjs"
 	Entry pulumi.StringInput
-	// The handler of the function.
+	// The exported handler's name. E.G. "handler"
 	Handler pulumi.StringInput
 	// The language in which the function is written.
+	//
+	//     Supported languages are:
+	//     - js
 	Language pulumi.StringPtrInput
-	// The name of the function to be deployed.
+	// The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
 	Name pulumi.StringInput
-	// The path to the function code.
+	// The path to the function's code. This is relative to the backend path.
 	Path pulumi.ArchiveInput
 	// The project to which the function will be deployed.
 	Project domain.ProjectInput
@@ -180,12 +189,12 @@ func (o ServerlessFunctionOutput) ToServerlessFunctionOutputWithContext(ctx cont
 	return o
 }
 
-// The path to the backend folder where the function is located.
+// The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
 func (o ServerlessFunctionOutput) BackendPath() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringPtrOutput { return v.BackendPath }).(pulumi.StringPtrOutput)
 }
 
-// The entry file of the function.
+// The entry file of the function. E.G. "index.mjs"
 func (o ServerlessFunctionOutput) Entry() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Entry }).(pulumi.StringOutput)
 }
@@ -195,22 +204,25 @@ func (o ServerlessFunctionOutput) FunctionId() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.FunctionId }).(pulumi.StringOutput)
 }
 
-// The handler of the function.
+// The exported handler's name. E.G. "handler"
 func (o ServerlessFunctionOutput) Handler() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Handler }).(pulumi.StringOutput)
 }
 
 // The language in which the function is written.
+//
+//	Supported languages are:
+//	- js
 func (o ServerlessFunctionOutput) Language() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringPtrOutput { return v.Language }).(pulumi.StringPtrOutput)
 }
 
-// The name of the function to be deployed.
+// The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
 func (o ServerlessFunctionOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
-// The path to the function code.
+// The path to the function's code. This is relative to the backend path.
 func (o ServerlessFunctionOutput) Path() pulumi.ArchiveOutput {
 	return o.ApplyT(func(v *ServerlessFunction) pulumi.ArchiveOutput { return v.Path }).(pulumi.ArchiveOutput)
 }

@@ -17,6 +17,9 @@ Check out the code snippets below to see how to create a Genezio project featuri
 {{< chooser language "typescript,python,go,csharp,java,yaml" >}}
 {{% choosable language typescript %}}
 ```typescript
+import * as genezio from "@pulumi/genezio";
+import * as pulumi from "@pulumi/pulumi";
+import * as path from "path";
 
 const project = new genezio.Project("MyProject", {
   name: "my-fullstack-project",
@@ -42,6 +45,25 @@ const helloWorldFunction = new genezio.ServerlessFunction("MyFunction", {
   entry: "hello.mjs",
   handler: "handler",
   name: "hello-world",
+});
+
+const frontendPath = path.join(__dirname, "client");
+
+const frontend = new genezio.Frontend("MyFrontend", {
+  project: {
+    name: project.name,
+    region: project.region,
+  },
+  path: new pulumi.asset.FileArchive(frontendPath),
+  publish: "dist",
+  subdomain: "my-frontend",
+  buildCommands: ["npm install", "npm run build"],
+  environment: [
+    {
+      name: "VITE_HELLO_WORLD_FUNCTION_URL",
+      value: helloWorldFunction.url,
+    },
+  ],
 });
 ```
 

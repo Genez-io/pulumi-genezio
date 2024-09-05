@@ -87,10 +87,13 @@ export class Project extends pulumi.CustomResource {
 
     /**
      * The cloud provider on which the project will be deployed.
+     *
+     * 	Supported cloud providers are:
+     * 	- genezio-cloud
      */
     public readonly cloudProvider!: pulumi.Output<string | undefined>;
     /**
-     * The backend environment variables that will be set for the project.
+     * The backend environment variables that will be securely stored for the project.
      */
     public readonly environment!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
     /**
@@ -157,10 +160,13 @@ export class Project extends pulumi.CustomResource {
 export interface ProjectArgs {
     /**
      * The cloud provider on which the project will be deployed.
+     *
+     * 	Supported cloud providers are:
+     * 	- genezio-cloud
      */
     cloudProvider?: pulumi.Input<string>;
     /**
-     * The backend environment variables that will be set for the project.
+     * The backend environment variables that will be securely stored for the project.
      */
     environment?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
     /**

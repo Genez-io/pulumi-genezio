@@ -45,10 +45,13 @@ func (r *ProjectArgs) Annotate(a infer.Annotator) {
 	- eu-central-1
 	`)
 
-	a.Describe(&r.CloudProvider, `The cloud provider on which the project will be deployed.`)
+	a.Describe(&r.CloudProvider, `The cloud provider on which the project will be deployed.
+
+	Supported cloud providers are:
+	- genezio-cloud`)
 	a.SetDefault(&r.CloudProvider, "genezio-cloud")
 
-	a.Describe(&r.Environment, `The backend environment variables that will be set for the project.`)
+	a.Describe(&r.Environment, `The backend environment variables that will be securely stored for the project.`)
 }
 
 func (r *ProjectState) Annotate(a infer.Annotator) {

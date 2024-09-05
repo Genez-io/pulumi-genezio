@@ -38,9 +38,14 @@ func (r *Database) Annotate(a infer.Annotator) {
 func (r *DatabaseArgs) Annotate(a infer.Annotator) {
 	a.Describe(&r.Name, `The name of the database to be deployed.`)
 
-	a.Describe(&r.Project, `The project to which the database will be linked.`)
+	a.Describe(&r.Project, `A database can be used in a project by linking it.
+	Linking the database will expose a connection URL as an environment variable for convenience.
+	The same database can be linked to multiple projects.`)
 
-	a.Describe(&r.Type, `The type of the database to be deployed.`)
+	a.Describe(&r.Type, `The type of the database to be deployed.
+
+	Supported types are:
+	- postgres-neon`)
 	a.SetDefault(&r.Type, "postgres-neon")
 
 	a.Describe(&r.Region, `The region in which the database will be deployed.`)

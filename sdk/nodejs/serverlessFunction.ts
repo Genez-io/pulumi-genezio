@@ -86,11 +86,11 @@ export class ServerlessFunction extends pulumi.CustomResource {
     }
 
     /**
-     * The path to the backend folder where the function is located.
+     * The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
      */
     public readonly backendPath!: pulumi.Output<string | undefined>;
     /**
-     * The entry file of the function.
+     * The entry file of the function. E.G. "index.mjs"
      */
     public readonly entry!: pulumi.Output<string>;
     /**
@@ -98,19 +98,22 @@ export class ServerlessFunction extends pulumi.CustomResource {
      */
     public /*out*/ readonly functionId!: pulumi.Output<string>;
     /**
-     * The handler of the function.
+     * The exported handler's name. E.G. "handler"
      */
     public readonly handler!: pulumi.Output<string>;
     /**
      * The language in which the function is written.
+     *
+     * 	Supported languages are:
+     * 	- js
      */
     public readonly language!: pulumi.Output<string | undefined>;
     /**
-     * The name of the function to be deployed.
+     * The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
      */
     public readonly name!: pulumi.Output<string>;
     /**
-     * The path to the function code.
+     * The path to the function's code. This is relative to the backend path.
      */
     public readonly path!: pulumi.Output<pulumi.asset.Archive>;
     /**
@@ -178,27 +181,30 @@ export class ServerlessFunction extends pulumi.CustomResource {
  */
 export interface ServerlessFunctionArgs {
     /**
-     * The path to the backend folder where the function is located.
+     * The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
      */
     backendPath?: pulumi.Input<string>;
     /**
-     * The entry file of the function.
+     * The entry file of the function. E.G. "index.mjs"
      */
     entry: pulumi.Input<string>;
     /**
-     * The handler of the function.
+     * The exported handler's name. E.G. "handler"
      */
     handler: pulumi.Input<string>;
     /**
      * The language in which the function is written.
+     *
+     * 	Supported languages are:
+     * 	- js
      */
     language?: pulumi.Input<string>;
     /**
-     * The name of the function to be deployed.
+     * The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
      */
     name: pulumi.Input<string>;
     /**
-     * The path to the function code.
+     * The path to the function's code. This is relative to the backend path.
      */
     path: pulumi.Input<pulumi.asset.Archive>;
     /**

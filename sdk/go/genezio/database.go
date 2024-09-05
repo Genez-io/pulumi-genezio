@@ -35,11 +35,16 @@ type Database struct {
 	DatabaseId pulumi.StringOutput `pulumi:"databaseId"`
 	// The name of the database to be deployed.
 	Name pulumi.StringOutput `pulumi:"name"`
-	// The project to which the database will be linked.
+	// A database can be used in a project by linking it.
+	// 	Linking the database will expose a connection URL as an environment variable for convenience.
+	// 	The same database can be linked to multiple projects.
 	Project domain.ProjectPtrOutput `pulumi:"project"`
 	// The region in which the database will be deployed.
 	Region pulumi.StringPtrOutput `pulumi:"region"`
 	// The type of the database to be deployed.
+	//
+	//     Supported types are:
+	//     - postgres-neon
 	Type pulumi.StringPtrOutput `pulumi:"type"`
 	// The URL of the database.
 	Url pulumi.StringOutput `pulumi:"url"`
@@ -100,11 +105,16 @@ func (DatabaseState) ElementType() reflect.Type {
 type databaseArgs struct {
 	// The name of the database to be deployed.
 	Name string `pulumi:"name"`
-	// The project to which the database will be linked.
+	// A database can be used in a project by linking it.
+	// 	Linking the database will expose a connection URL as an environment variable for convenience.
+	// 	The same database can be linked to multiple projects.
 	Project *domain.Project `pulumi:"project"`
 	// The region in which the database will be deployed.
 	Region *string `pulumi:"region"`
 	// The type of the database to be deployed.
+	//
+	//     Supported types are:
+	//     - postgres-neon
 	Type *string `pulumi:"type"`
 }
 
@@ -112,11 +122,16 @@ type databaseArgs struct {
 type DatabaseArgs struct {
 	// The name of the database to be deployed.
 	Name pulumi.StringInput
-	// The project to which the database will be linked.
+	// A database can be used in a project by linking it.
+	// 	Linking the database will expose a connection URL as an environment variable for convenience.
+	// 	The same database can be linked to multiple projects.
 	Project domain.ProjectPtrInput
 	// The region in which the database will be deployed.
 	Region pulumi.StringPtrInput
 	// The type of the database to be deployed.
+	//
+	//     Supported types are:
+	//     - postgres-neon
 	Type pulumi.StringPtrInput
 }
 
@@ -167,7 +182,10 @@ func (o DatabaseOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
-// The project to which the database will be linked.
+// A database can be used in a project by linking it.
+//
+//	Linking the database will expose a connection URL as an environment variable for convenience.
+//	The same database can be linked to multiple projects.
 func (o DatabaseOutput) Project() domain.ProjectPtrOutput {
 	return o.ApplyT(func(v *Database) domain.ProjectPtrOutput { return v.Project }).(domain.ProjectPtrOutput)
 }
@@ -178,6 +196,9 @@ func (o DatabaseOutput) Region() pulumi.StringPtrOutput {
 }
 
 // The type of the database to be deployed.
+//
+//	Supported types are:
+//	- postgres-neon
 func (o DatabaseOutput) Type() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringPtrOutput { return v.Type }).(pulumi.StringPtrOutput)
 }
