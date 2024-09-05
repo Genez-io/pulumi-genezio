@@ -1,6 +1,7 @@
 package resources
 
 import (
+	_ "embed"
 	"fmt"
 	"log"
 	"os"
@@ -33,6 +34,34 @@ type ServerlessFunctionState struct {
 
 	ID  string `pulumi:"functionId"`
 	URL string `pulumi:"url"`
+}
+
+//go:embed documentation/project.md
+var functionDocumentation string
+
+func (r *ServerlessFunction) Annotate(a infer.Annotator) {
+	a.Describe(&r, functionDocumentation)
+}
+
+func (r *ServerlessFunctionArgs) Annotate(a infer.Annotator) {
+	a.Describe(&r.Project, `The project to which the function will be deployed.`)
+	a.Describe(&r.BackendPath, `The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).`)
+
+	a.Describe(&r.Language, `The language in which the function is written.
+
+	Supported languages are:
+	- js`)
+	a.SetDefault(&r.Language, "js")
+
+	a.Describe(&r.Path, `The path to the function's code. This is relative to the backend path.`)
+	a.Describe(&r.Name, `The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"`)
+	a.Describe(&r.Entry, `The entry file of the function. E.G. "index.mjs"`)
+	a.Describe(&r.Handler, `The exported handler's name. E.G. "handler"`)
+}
+
+func (r *ServerlessFunctionState) Annotate(a infer.Annotator) {
+	a.Describe(&r.ID, `The function ID.`)
+	a.Describe(&r.URL, `The URL of the function.`)
 }
 
 func (*ServerlessFunction) Diff(ctx p.Context, id string, olds ServerlessFunctionState, news ServerlessFunctionArgs) (p.DiffResponse, error) {

@@ -7,21 +7,49 @@ import (
 	"context"
 	"reflect"
 
+	"domain"
 	"errors"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"internal"
 )
 
+// A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+//
+// The project resource will deploy an empty project on the Genezio platform.
+//
+// It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+//
+// ## Example Usage
+//
+// ### Basic Usage
+//
+// ### Environment Variables
+//
+// ## Pulumi Output Reference
+//
+// Once the project is created, the `projectId` and `projectUrl` are available as outputs.
 type Project struct {
 	pulumi.CustomResourceState
 
-	AuthToken     pulumi.StringOutput `pulumi:"authToken"`
-	CloudProvider pulumi.StringOutput `pulumi:"cloudProvider"`
-	Name          pulumi.StringOutput `pulumi:"name"`
-	ProjectEnvId  pulumi.StringOutput `pulumi:"projectEnvId"`
-	ProjectId     pulumi.StringOutput `pulumi:"projectId"`
-	Region        pulumi.StringOutput `pulumi:"region"`
-	Stage         pulumi.StringOutput `pulumi:"stage"`
+	// The cloud provider on which the project will be deployed.
+	//
+	//     Supported cloud providers are:
+	//     - genezio-cloud
+	CloudProvider pulumi.StringPtrOutput `pulumi:"cloudProvider"`
+	// The backend environment variables that will be securely stored for the project.
+	Environment domain.EnvironmentVariableArrayOutput `pulumi:"environment"`
+	// The name of the project to be deployed.
+	Name pulumi.StringOutput `pulumi:"name"`
+	// The environment ID.
+	ProjectEnvId pulumi.StringOutput `pulumi:"projectEnvId"`
+	// The project ID.
+	ProjectId pulumi.StringOutput `pulumi:"projectId"`
+	// The region in which the project will be deployed.
+	//
+	//     Supported regions are:
+	//     - us-east-1
+	//     - eu-central-1
+	Region pulumi.StringOutput `pulumi:"region"`
 }
 
 // NewProject registers a new resource with the given unique name, arguments, and options.
@@ -31,20 +59,14 @@ func NewProject(ctx *pulumi.Context,
 		return nil, errors.New("missing one or more required arguments")
 	}
 
-	if args.AuthToken == nil {
-		return nil, errors.New("invalid value for required argument 'AuthToken'")
-	}
-	if args.CloudProvider == nil {
-		return nil, errors.New("invalid value for required argument 'CloudProvider'")
-	}
 	if args.Name == nil {
 		return nil, errors.New("invalid value for required argument 'Name'")
 	}
 	if args.Region == nil {
 		return nil, errors.New("invalid value for required argument 'Region'")
 	}
-	if args.Stage == nil {
-		return nil, errors.New("invalid value for required argument 'Stage'")
+	if args.CloudProvider == nil {
+		args.CloudProvider = pulumi.StringPtr("genezio-cloud")
 	}
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource Project
@@ -79,20 +101,40 @@ func (ProjectState) ElementType() reflect.Type {
 }
 
 type projectArgs struct {
-	AuthToken     string `pulumi:"authToken"`
-	CloudProvider string `pulumi:"cloudProvider"`
-	Name          string `pulumi:"name"`
-	Region        string `pulumi:"region"`
-	Stage         string `pulumi:"stage"`
+	// The cloud provider on which the project will be deployed.
+	//
+	//     Supported cloud providers are:
+	//     - genezio-cloud
+	CloudProvider *string `pulumi:"cloudProvider"`
+	// The backend environment variables that will be securely stored for the project.
+	Environment []domain.EnvironmentVariable `pulumi:"environment"`
+	// The name of the project to be deployed.
+	Name string `pulumi:"name"`
+	// The region in which the project will be deployed.
+	//
+	//     Supported regions are:
+	//     - us-east-1
+	//     - eu-central-1
+	Region string `pulumi:"region"`
 }
 
 // The set of arguments for constructing a Project resource.
 type ProjectArgs struct {
-	AuthToken     pulumi.StringInput
-	CloudProvider pulumi.StringInput
-	Name          pulumi.StringInput
-	Region        pulumi.StringInput
-	Stage         pulumi.StringInput
+	// The cloud provider on which the project will be deployed.
+	//
+	//     Supported cloud providers are:
+	//     - genezio-cloud
+	CloudProvider pulumi.StringPtrInput
+	// The backend environment variables that will be securely stored for the project.
+	Environment domain.EnvironmentVariableArrayInput
+	// The name of the project to be deployed.
+	Name pulumi.StringInput
+	// The region in which the project will be deployed.
+	//
+	//     Supported regions are:
+	//     - us-east-1
+	//     - eu-central-1
+	Region pulumi.StringInput
 }
 
 func (ProjectArgs) ElementType() reflect.Type {
@@ -132,32 +174,41 @@ func (o ProjectOutput) ToProjectOutputWithContext(ctx context.Context) ProjectOu
 	return o
 }
 
-func (o ProjectOutput) AuthToken() pulumi.StringOutput {
-	return o.ApplyT(func(v *Project) pulumi.StringOutput { return v.AuthToken }).(pulumi.StringOutput)
+// The cloud provider on which the project will be deployed.
+//
+//	Supported cloud providers are:
+//	- genezio-cloud
+func (o ProjectOutput) CloudProvider() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Project) pulumi.StringPtrOutput { return v.CloudProvider }).(pulumi.StringPtrOutput)
 }
 
-func (o ProjectOutput) CloudProvider() pulumi.StringOutput {
-	return o.ApplyT(func(v *Project) pulumi.StringOutput { return v.CloudProvider }).(pulumi.StringOutput)
+// The backend environment variables that will be securely stored for the project.
+func (o ProjectOutput) Environment() domain.EnvironmentVariableArrayOutput {
+	return o.ApplyT(func(v *Project) domain.EnvironmentVariableArrayOutput { return v.Environment }).(domain.EnvironmentVariableArrayOutput)
 }
 
+// The name of the project to be deployed.
 func (o ProjectOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *Project) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
+// The environment ID.
 func (o ProjectOutput) ProjectEnvId() pulumi.StringOutput {
 	return o.ApplyT(func(v *Project) pulumi.StringOutput { return v.ProjectEnvId }).(pulumi.StringOutput)
 }
 
+// The project ID.
 func (o ProjectOutput) ProjectId() pulumi.StringOutput {
 	return o.ApplyT(func(v *Project) pulumi.StringOutput { return v.ProjectId }).(pulumi.StringOutput)
 }
 
+// The region in which the project will be deployed.
+//
+//	Supported regions are:
+//	- us-east-1
+//	- eu-central-1
 func (o ProjectOutput) Region() pulumi.StringOutput {
 	return o.ApplyT(func(v *Project) pulumi.StringOutput { return v.Region }).(pulumi.StringOutput)
-}
-
-func (o ProjectOutput) Stage() pulumi.StringOutput {
-	return o.ApplyT(func(v *Project) pulumi.StringOutput { return v.Stage }).(pulumi.StringOutput)
 }
 
 func init() {

@@ -1,6 +1,7 @@
 package resources
 
 import (
+	_ "embed"
 	"log"
 	"strings"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	"github.com/Genez-io/pulumi-genezio/provider/utils"
 	p "github.com/pulumi/pulumi-go-provider"
+	"github.com/pulumi/pulumi-go-provider/infer"
 )
 
 type Database struct{}
@@ -24,6 +26,36 @@ type DatabaseState struct {
 
 	URL        string `pulumi:"url" provider:"secret"`
 	DatabaseId string `pulumi:"databaseId"`
+}
+
+//go:embed documentation/project.md
+var databaseDocumentation string
+
+func (r *Database) Annotate(a infer.Annotator) {
+	a.Describe(&r, databaseDocumentation)
+}
+
+func (r *DatabaseArgs) Annotate(a infer.Annotator) {
+	a.Describe(&r.Name, `The name of the database to be deployed.`)
+
+	a.Describe(&r.Project, `A database can be used in a project by linking it.
+	Linking the database will expose a connection URL as an environment variable for convenience.
+	The same database can be linked to multiple projects.`)
+
+	a.Describe(&r.Type, `The type of the database to be deployed.
+
+	Supported types are:
+	- postgres-neon`)
+	a.SetDefault(&r.Type, "postgres-neon")
+
+	a.Describe(&r.Region, `The region in which the database will be deployed.`)
+	a.SetDefault(&r.Region, "us-east-1")
+}
+
+func (r *DatabaseState) Annotate(a infer.Annotator) {
+	a.Describe(&r.URL, `The URL of the database.`)
+
+	a.Describe(&r.DatabaseId, `The database ID.`)
 }
 
 func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news DatabaseArgs) (p.DiffResponse, error) {

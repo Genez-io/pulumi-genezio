@@ -1,6 +1,8 @@
 {
-	"name": "pulumi_genezio",
+	"name": "genezio-example",
 	"main": "program.ts",
+	"version": "1.0.0",
+	"license": "MIT",
 	"dependencies": {
 		"@pulumi/pulumi": "^3.0.0",
 		"@types/node": "^14.11.7"

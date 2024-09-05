@@ -6,6 +6,58 @@ import * as inputs from "./types/input";
 import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
+/**
+ * A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+ *
+ * The project resource will deploy an empty project on the Genezio platform.
+ *
+ * It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+ *
+ * ## Example Usage
+ *
+ * ### Basic Usage
+ *
+ * ```typescript
+ * import * as genezio from "@pulumi/genezio";
+ *
+ * const project = new genezio.Project("project", {
+ *   name: "my-project",
+ *   region: "us-east-1",
+ * });
+ * ```
+ *
+ * ### Environment Variables
+ *
+ * ```typescript
+ * import * as genezio from "@pulumi/genezio";
+ *
+ * const project = new genezio.Project("MyProject", {
+ *   name: "my-project",
+ *   region: "us-east-1",
+ *   environmentVariables: [
+ *     {
+ *       name: "MY_ENV_VAR",
+ *       value: "my-value",
+ *     },
+ *   ],
+ * });
+ * ```
+ *
+ * ## Pulumi Output Reference
+ *
+ * Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+ *
+ * ```typescript
+ *
+ * const project = new genezio.Project("MyProject", {
+ *   name: "my-project",
+ *   region: "us-east-1",
+ * });
+ *
+ * export const projectId = project.projectId;
+ * export const projectUrl = project.projectUrl;
+ * ```
+ */
 export class Frontend extends pulumi.CustomResource {
     /**
      * Get an existing Frontend resource's state with the given name, ID, and optional extra
@@ -33,12 +85,33 @@ export class Frontend extends pulumi.CustomResource {
         return obj['__pulumiType'] === Frontend.__pulumiType;
     }
 
+    /**
+     * The commands to run before deploying the frontend.
+     */
     public readonly buildCommands!: pulumi.Output<string[] | undefined>;
+    /**
+     * The environment variables that will be set for the frontend.
+     */
     public readonly environment!: pulumi.Output<outputs.domain.EnvironmentVariable[] | undefined>;
+    /**
+     * The path to the frontend files.
+     */
     public readonly path!: pulumi.Output<pulumi.asset.Archive>;
+    /**
+     * The project to which the frontend will be deployed.
+     */
     public readonly project!: pulumi.Output<outputs.domain.Project>;
+    /**
+     * The folder in the path that contains the files to be published.
+     */
     public readonly publish!: pulumi.Output<string>;
+    /**
+     * The subdomain of the frontend.
+     */
     public readonly subdomain!: pulumi.Output<string | undefined>;
+    /**
+     * The URL of the frontend.
+     */
     public /*out*/ readonly url!: pulumi.Output<string>;
 
     /**
@@ -86,10 +159,28 @@ export class Frontend extends pulumi.CustomResource {
  * The set of arguments for constructing a Frontend resource.
  */
 export interface FrontendArgs {
+    /**
+     * The commands to run before deploying the frontend.
+     */
     buildCommands?: pulumi.Input<pulumi.Input<string>[]>;
+    /**
+     * The environment variables that will be set for the frontend.
+     */
     environment?: pulumi.Input<pulumi.Input<inputs.domain.EnvironmentVariableArgs>[]>;
+    /**
+     * The path to the frontend files.
+     */
     path: pulumi.Input<pulumi.asset.Archive>;
+    /**
+     * The project to which the frontend will be deployed.
+     */
     project: pulumi.Input<inputs.domain.ProjectArgs>;
+    /**
+     * The folder in the path that contains the files to be published.
+     */
     publish: pulumi.Input<string>;
+    /**
+     * The subdomain of the frontend.
+     */
     subdomain?: pulumi.Input<string>;
 }

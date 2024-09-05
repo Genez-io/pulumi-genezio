@@ -7,20 +7,47 @@ import (
 	"context"
 	"reflect"
 
+	"domain"
 	"errors"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"internal"
 )
 
+// A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+//
+// The project resource will deploy an empty project on the Genezio platform.
+//
+// It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+//
+// ## Example Usage
+//
+// ### Basic Usage
+//
+// ### Environment Variables
+//
+// ## Pulumi Output Reference
+//
+// Once the project is created, the `projectId` and `projectUrl` are available as outputs.
 type Database struct {
 	pulumi.CustomResourceState
 
-	AuthToken  pulumi.StringOutput `pulumi:"authToken"`
+	// The database ID.
 	DatabaseId pulumi.StringOutput `pulumi:"databaseId"`
-	Name       pulumi.StringOutput `pulumi:"name"`
-	Region     pulumi.StringOutput `pulumi:"region"`
-	Type       pulumi.StringOutput `pulumi:"type"`
-	Url        pulumi.StringOutput `pulumi:"url"`
+	// The name of the database to be deployed.
+	Name pulumi.StringOutput `pulumi:"name"`
+	// A database can be used in a project by linking it.
+	// 	Linking the database will expose a connection URL as an environment variable for convenience.
+	// 	The same database can be linked to multiple projects.
+	Project domain.ProjectPtrOutput `pulumi:"project"`
+	// The region in which the database will be deployed.
+	Region pulumi.StringPtrOutput `pulumi:"region"`
+	// The type of the database to be deployed.
+	//
+	//     Supported types are:
+	//     - postgres-neon
+	Type pulumi.StringPtrOutput `pulumi:"type"`
+	// The URL of the database.
+	Url pulumi.StringOutput `pulumi:"url"`
 }
 
 // NewDatabase registers a new resource with the given unique name, arguments, and options.
@@ -30,18 +57,19 @@ func NewDatabase(ctx *pulumi.Context,
 		return nil, errors.New("missing one or more required arguments")
 	}
 
-	if args.AuthToken == nil {
-		return nil, errors.New("invalid value for required argument 'AuthToken'")
-	}
 	if args.Name == nil {
 		return nil, errors.New("invalid value for required argument 'Name'")
 	}
 	if args.Region == nil {
-		return nil, errors.New("invalid value for required argument 'Region'")
+		args.Region = pulumi.StringPtr("us-east-1")
 	}
 	if args.Type == nil {
-		return nil, errors.New("invalid value for required argument 'Type'")
+		args.Type = pulumi.StringPtr("postgres-neon")
 	}
+	secrets := pulumi.AdditionalSecretOutputs([]string{
+		"url",
+	})
+	opts = append(opts, secrets)
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource Database
 	err := ctx.RegisterResource("genezio:index:Database", name, args, &resource, opts...)
@@ -75,18 +103,36 @@ func (DatabaseState) ElementType() reflect.Type {
 }
 
 type databaseArgs struct {
-	AuthToken string `pulumi:"authToken"`
-	Name      string `pulumi:"name"`
-	Region    string `pulumi:"region"`
-	Type      string `pulumi:"type"`
+	// The name of the database to be deployed.
+	Name string `pulumi:"name"`
+	// A database can be used in a project by linking it.
+	// 	Linking the database will expose a connection URL as an environment variable for convenience.
+	// 	The same database can be linked to multiple projects.
+	Project *domain.Project `pulumi:"project"`
+	// The region in which the database will be deployed.
+	Region *string `pulumi:"region"`
+	// The type of the database to be deployed.
+	//
+	//     Supported types are:
+	//     - postgres-neon
+	Type *string `pulumi:"type"`
 }
 
 // The set of arguments for constructing a Database resource.
 type DatabaseArgs struct {
-	AuthToken pulumi.StringInput
-	Name      pulumi.StringInput
-	Region    pulumi.StringInput
-	Type      pulumi.StringInput
+	// The name of the database to be deployed.
+	Name pulumi.StringInput
+	// A database can be used in a project by linking it.
+	// 	Linking the database will expose a connection URL as an environment variable for convenience.
+	// 	The same database can be linked to multiple projects.
+	Project domain.ProjectPtrInput
+	// The region in which the database will be deployed.
+	Region pulumi.StringPtrInput
+	// The type of the database to be deployed.
+	//
+	//     Supported types are:
+	//     - postgres-neon
+	Type pulumi.StringPtrInput
 }
 
 func (DatabaseArgs) ElementType() reflect.Type {
@@ -126,26 +172,38 @@ func (o DatabaseOutput) ToDatabaseOutputWithContext(ctx context.Context) Databas
 	return o
 }
 
-func (o DatabaseOutput) AuthToken() pulumi.StringOutput {
-	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.AuthToken }).(pulumi.StringOutput)
-}
-
+// The database ID.
 func (o DatabaseOutput) DatabaseId() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.DatabaseId }).(pulumi.StringOutput)
 }
 
+// The name of the database to be deployed.
 func (o DatabaseOutput) Name() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Name }).(pulumi.StringOutput)
 }
 
-func (o DatabaseOutput) Region() pulumi.StringOutput {
-	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Region }).(pulumi.StringOutput)
+// A database can be used in a project by linking it.
+//
+//	Linking the database will expose a connection URL as an environment variable for convenience.
+//	The same database can be linked to multiple projects.
+func (o DatabaseOutput) Project() domain.ProjectPtrOutput {
+	return o.ApplyT(func(v *Database) domain.ProjectPtrOutput { return v.Project }).(domain.ProjectPtrOutput)
 }
 
-func (o DatabaseOutput) Type() pulumi.StringOutput {
-	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Type }).(pulumi.StringOutput)
+// The region in which the database will be deployed.
+func (o DatabaseOutput) Region() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Database) pulumi.StringPtrOutput { return v.Region }).(pulumi.StringPtrOutput)
 }
 
+// The type of the database to be deployed.
+//
+//	Supported types are:
+//	- postgres-neon
+func (o DatabaseOutput) Type() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Database) pulumi.StringPtrOutput { return v.Type }).(pulumi.StringPtrOutput)
+}
+
+// The URL of the database.
 func (o DatabaseOutput) Url() pulumi.StringOutput {
 	return o.ApplyT(func(v *Database) pulumi.StringOutput { return v.Url }).(pulumi.StringOutput)
 }

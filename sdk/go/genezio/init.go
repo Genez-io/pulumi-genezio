@@ -21,8 +21,12 @@ func (m *module) Version() semver.Version {
 
 func (m *module) Construct(ctx *pulumi.Context, name, typ, urn string) (r pulumi.Resource, err error) {
 	switch typ {
+	case "genezio:index:Authentication":
+		r = &Authentication{}
 	case "genezio:index:Database":
 		r = &Database{}
+	case "genezio:index:Frontend":
+		r = &Frontend{}
 	case "genezio:index:Project":
 		r = &Project{}
 	case "genezio:index:ServerlessFunction":

@@ -28,6 +28,37 @@ type ProjectState struct {
 	ProjectEnvId string `pulumi:"projectEnvId"`
 }
 
+//go:embed documentation/project.md
+var projectDocumentation string
+
+func (r *Project) Annotate(a infer.Annotator) {
+	a.Describe(&r, projectDocumentation)
+}
+
+func (r *ProjectArgs) Annotate(a infer.Annotator) {
+	a.Describe(&r.Name, `The name of the project to be deployed.`)
+
+	a.Describe(&r.Region, `The region in which the project will be deployed.
+
+	Supported regions are:
+	- us-east-1
+	- eu-central-1
+	`)
+
+	a.Describe(&r.CloudProvider, `The cloud provider on which the project will be deployed.
+
+	Supported cloud providers are:
+	- genezio-cloud`)
+	a.SetDefault(&r.CloudProvider, "genezio-cloud")
+
+	a.Describe(&r.Environment, `The backend environment variables that will be securely stored for the project.`)
+}
+
+func (r *ProjectState) Annotate(a infer.Annotator) {
+	a.Describe(&r.ProjectId, `The project ID.`)
+	a.Describe(&r.ProjectEnvId, `The environment ID.`)
+}
+
 func (*Project) Diff(ctx p.Context, id string, olds ProjectState, news ProjectArgs) (p.DiffResponse, error) {
 	diff := map[string]p.PropertyDiff{}
 
@@ -238,42 +269,4 @@ func (*Project) Delete(ctx p.Context, id string, state ProjectState) error {
 	}
 
 	return nil
-}
-
-//go:embed documentation/project.md
-var resourceDoc string
-
-func (p *Project) Annotate(a infer.Annotator) {
-	a.Describe(&p, resourceDoc)
-}
-
-func (p *ProjectArgs) Annotate(a infer.Annotator) {
-	a.Describe(&p.Name, `The name of the project to be deployed. This is a required field.
-	If you already have a project deployed with this name, then it will be updated with the new values. 
-	Changing the name will result in a new project being created. 
-	All the projects you deploy have a unique name. 
-	If you try to deploy a project with the same name as an existing project but with a different region, 
-	it will throw an error as you can't have two projects with the same name and different regions.`)
-	a.Describe(&p.Region, `The region in which the project will be deployed.This is a required field. 
-	You can only deploy a project in one region and you can't have two projects with the same name and different regions.
-
-	Right now the only supported regions are:
-	- us-east-1
-	- eu-central-1
-	`)
-	a.Describe(&p.CloudProvider, `The cloud provider on which the project will be deployed. This is an optional field. The default value is "genezio-cloud".
-	Currenly the only supported cloud providers are:
-	- genezio-cloud
-
-	More cloud providers will be supported in the future.`)
-
-	a.Describe(&p.EnvironmentVariables, `The environment variables that will be set for the project. This is an optional field.
-	This variable will allow you to set environment variables for the project. These environment variables will be available to all the functions and classes in the project.
-	`)
-}
-
-func (p *ProjectState) Annotate(a infer.Annotator) {
-	a.Describe(&p.ProjectId, `The ID of the project that was created. This is a unique identifier for the project.`)
-	a.Describe(&p.ProjectEnvId, `The ID of the environment that was created. 
-	Each project in the genezio platform can have environments such as prod, dev and staging. This is a unique identifier for the environment.`)
 }
