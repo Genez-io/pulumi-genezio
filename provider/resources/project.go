@@ -86,10 +86,6 @@ func (*Project) Diff(ctx p.Context, id string, olds ProjectState, news ProjectAr
 		}
 	}
 
-	if olds.CloudProvider != news.CloudProvider {
-		diff["cloudProvider"] = p.PropertyDiff{Kind: p.DeleteReplace}
-	}
-
 	if olds.Environment == nil {
 		if news.Environment != nil {
 			diff["environment"] = p.PropertyDiff{Kind: p.Update}
@@ -131,7 +127,6 @@ func (*Project) Read(ctx p.Context, id string, inputs ProjectArgs, state Project
 	}
 
 	stage := "prod"
-
 	contextStage := infer.GetConfig[*domain.Config](ctx).Stage
 	if contextStage != nil {
 		stage = *contextStage
