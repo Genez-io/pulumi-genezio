@@ -21,9 +21,24 @@ class AuthenticationArgs:
                  provider: Optional[pulumi.Input['_domain.AuthenticationProvidersArgs']] = None):
         """
         The set of arguments for constructing a Authentication resource.
+        :param pulumi.Input[str] database_url: The URL of the database to be used for authentication.
+        :param pulumi.Input['_domain.ProjectArgs'] project: The project to which the authentication will be added.
+        :param pulumi.Input[str] database_type: The type of database to be used for authentication.
+               
+               	Supported database types are:
+               	- postgresql
+               	- mongodb
+        :param pulumi.Input['_domain.AuthenticationProvidersArgs'] provider: The authentication providers to be enabled for the project.
+               
+               	You can enable the following providers:
+               	- email
+               	- web3
+               	- google
         """
         pulumi.set(__self__, "database_url", database_url)
         pulumi.set(__self__, "project", project)
+        if database_type is None:
+            database_type = 'postgresql'
         if database_type is not None:
             pulumi.set(__self__, "database_type", database_type)
         if provider is not None:
@@ -32,6 +47,9 @@ class AuthenticationArgs:
     @property
     @pulumi.getter(name="databaseUrl")
     def database_url(self) -> pulumi.Input[str]:
+        """
+        The URL of the database to be used for authentication.
+        """
         return pulumi.get(self, "database_url")
 
     @database_url.setter
@@ -41,6 +59,9 @@ class AuthenticationArgs:
     @property
     @pulumi.getter
     def project(self) -> pulumi.Input['_domain.ProjectArgs']:
+        """
+        The project to which the authentication will be added.
+        """
         return pulumi.get(self, "project")
 
     @project.setter
@@ -50,6 +71,13 @@ class AuthenticationArgs:
     @property
     @pulumi.getter(name="databaseType")
     def database_type(self) -> Optional[pulumi.Input[str]]:
+        """
+        The type of database to be used for authentication.
+
+        	Supported database types are:
+        	- postgresql
+        	- mongodb
+        """
         return pulumi.get(self, "database_type")
 
     @database_type.setter
@@ -59,6 +87,14 @@ class AuthenticationArgs:
     @property
     @pulumi.getter
     def provider(self) -> Optional[pulumi.Input['_domain.AuthenticationProvidersArgs']]:
+        """
+        The authentication providers to be enabled for the project.
+
+        	You can enable the following providers:
+        	- email
+        	- web3
+        	- google
+        """
         return pulumi.get(self, "provider")
 
     @provider.setter
@@ -77,9 +113,37 @@ class Authentication(pulumi.CustomResource):
                  provider: Optional[pulumi.Input[pulumi.InputType['_domain.AuthenticationProvidersArgs']]] = None,
                  __props__=None):
         """
-        Create a Authentication resource with the given unique name, props, and options.
+        A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+
+        The project resource will deploy an empty project on the Genezio platform.
+
+        It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+
+        ## Example Usage
+
+        ### Basic Usage
+
+        ### Environment Variables
+
+        ## Pulumi Output Reference
+
+        Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
+        :param pulumi.Input[str] database_type: The type of database to be used for authentication.
+               
+               	Supported database types are:
+               	- postgresql
+               	- mongodb
+        :param pulumi.Input[str] database_url: The URL of the database to be used for authentication.
+        :param pulumi.Input[pulumi.InputType['_domain.ProjectArgs']] project: The project to which the authentication will be added.
+        :param pulumi.Input[pulumi.InputType['_domain.AuthenticationProvidersArgs']] provider: The authentication providers to be enabled for the project.
+               
+               	You can enable the following providers:
+               	- email
+               	- web3
+               	- google
         """
         ...
     @overload
@@ -88,7 +152,22 @@ class Authentication(pulumi.CustomResource):
                  args: AuthenticationArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Create a Authentication resource with the given unique name, props, and options.
+        A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+
+        The project resource will deploy an empty project on the Genezio platform.
+
+        It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+
+        ## Example Usage
+
+        ### Basic Usage
+
+        ### Environment Variables
+
+        ## Pulumi Output Reference
+
+        Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+
         :param str resource_name: The name of the resource.
         :param AuthenticationArgs args: The arguments to use to populate this resource's properties.
         :param pulumi.ResourceOptions opts: Options for the resource.
@@ -117,6 +196,8 @@ class Authentication(pulumi.CustomResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = AuthenticationArgs.__new__(AuthenticationArgs)
 
+            if database_type is None:
+                database_type = 'postgresql'
             __props__.__dict__["database_type"] = database_type
             if database_url is None and not opts.urn:
                 raise TypeError("Missing required property 'database_url'")
@@ -160,30 +241,57 @@ class Authentication(pulumi.CustomResource):
     @property
     @pulumi.getter(name="databaseType")
     def database_type(self) -> pulumi.Output[Optional[str]]:
+        """
+        The type of database to be used for authentication.
+
+        	Supported database types are:
+        	- postgresql
+        	- mongodb
+        """
         return pulumi.get(self, "database_type")
 
     @property
     @pulumi.getter(name="databaseUrl")
     def database_url(self) -> pulumi.Output[str]:
+        """
+        The URL of the database to be used for authentication.
+        """
         return pulumi.get(self, "database_url")
 
     @property
     @pulumi.getter
     def project(self) -> pulumi.Output['_domain.outputs.Project']:
+        """
+        The project to which the authentication will be added.
+        """
         return pulumi.get(self, "project")
 
     @property
     @pulumi.getter
     def provider(self) -> pulumi.Output[Optional['_domain.outputs.AuthenticationProviders']]:
+        """
+        The authentication providers to be enabled for the project.
+
+        	You can enable the following providers:
+        	- email
+        	- web3
+        	- google
+        """
         return pulumi.get(self, "provider")
 
     @property
     @pulumi.getter
     def region(self) -> pulumi.Output[str]:
+        """
+        The region in which the authentication is deployed.
+        """
         return pulumi.get(self, "region")
 
     @property
     @pulumi.getter
     def token(self) -> pulumi.Output[str]:
+        """
+        The token for the authentication. This token is used on the client side.
+        """
         return pulumi.get(self, "token")
 

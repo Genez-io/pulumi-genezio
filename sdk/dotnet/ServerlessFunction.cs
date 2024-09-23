@@ -9,45 +9,80 @@ using Pulumi.Serialization;
 
 namespace Pulumi.Genezio
 {
+    /// <summary>
+    /// A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+    /// 
+    /// The project resource will deploy an empty project on the Genezio platform.
+    /// 
+    /// It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+    /// 
+    /// ## Example Usage
+    /// 
+    /// ### Basic Usage
+    /// 
+    /// ### Environment Variables
+    /// 
+    /// ## Pulumi Output Reference
+    /// 
+    /// Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+    /// </summary>
     [GenezioResourceType("genezio:index:ServerlessFunction")]
     public partial class ServerlessFunction : global::Pulumi.CustomResource
     {
-        [Output("authToken")]
-        public Output<string> AuthToken { get; private set; } = null!;
+        /// <summary>
+        /// The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
+        /// </summary>
+        [Output("backendPath")]
+        public Output<string?> BackendPath { get; private set; } = null!;
 
+        /// <summary>
+        /// The entry file of the function. E.G. "index.mjs"
+        /// </summary>
         [Output("entry")]
         public Output<string> Entry { get; private set; } = null!;
 
-        [Output("environmentVariables")]
-        public Output<ImmutableDictionary<string, string>?> EnvironmentVariables { get; private set; } = null!;
-
-        [Output("folderHash")]
-        public Output<string?> FolderHash { get; private set; } = null!;
-
+        /// <summary>
+        /// The function ID.
+        /// </summary>
         [Output("functionId")]
         public Output<string> FunctionId { get; private set; } = null!;
 
+        /// <summary>
+        /// The exported handler's name. E.G. "handler"
+        /// </summary>
         [Output("handler")]
         public Output<string> Handler { get; private set; } = null!;
 
+        /// <summary>
+        /// The language in which the function is written.
+        /// 
+        /// 	Supported languages are:
+        /// 	- js
+        /// </summary>
+        [Output("language")]
+        public Output<string?> Language { get; private set; } = null!;
+
+        /// <summary>
+        /// The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
+        /// </summary>
         [Output("name")]
         public Output<string> Name { get; private set; } = null!;
 
+        /// <summary>
+        /// The path to the function's code. This is relative to the backend path.
+        /// </summary>
         [Output("path")]
-        public Output<string> Path { get; private set; } = null!;
+        public Output<Archive> Path { get; private set; } = null!;
 
-        [Output("projectEnvId")]
-        public Output<string> ProjectEnvId { get; private set; } = null!;
+        /// <summary>
+        /// The project to which the function will be deployed.
+        /// </summary>
+        [Output("project")]
+        public Output<Pulumi.Genezio.Domain.Outputs.Project> Project { get; private set; } = null!;
 
-        [Output("projectId")]
-        public Output<string> ProjectId { get; private set; } = null!;
-
-        [Output("projectName")]
-        public Output<string> ProjectName { get; private set; } = null!;
-
-        [Output("region")]
-        public Output<string> Region { get; private set; } = null!;
-
+        /// <summary>
+        /// The URL of the function.
+        /// </summary>
         [Output("url")]
         public Output<string> Url { get; private set; } = null!;
 
@@ -96,40 +131,54 @@ namespace Pulumi.Genezio
 
     public sealed class ServerlessFunctionArgs : global::Pulumi.ResourceArgs
     {
-        [Input("authToken", required: true)]
-        public Input<string> AuthToken { get; set; } = null!;
+        /// <summary>
+        /// The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
+        /// </summary>
+        [Input("backendPath")]
+        public Input<string>? BackendPath { get; set; }
 
+        /// <summary>
+        /// The entry file of the function. E.G. "index.mjs"
+        /// </summary>
         [Input("entry", required: true)]
         public Input<string> Entry { get; set; } = null!;
 
-        [Input("environmentVariables")]
-        private InputMap<string>? _environmentVariables;
-        public InputMap<string> EnvironmentVariables
-        {
-            get => _environmentVariables ?? (_environmentVariables = new InputMap<string>());
-            set => _environmentVariables = value;
-        }
-
-        [Input("folderHash")]
-        public Input<string>? FolderHash { get; set; }
-
+        /// <summary>
+        /// The exported handler's name. E.G. "handler"
+        /// </summary>
         [Input("handler", required: true)]
         public Input<string> Handler { get; set; } = null!;
 
+        /// <summary>
+        /// The language in which the function is written.
+        /// 
+        /// 	Supported languages are:
+        /// 	- js
+        /// </summary>
+        [Input("language")]
+        public Input<string>? Language { get; set; }
+
+        /// <summary>
+        /// The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
+        /// </summary>
         [Input("name", required: true)]
         public Input<string> Name { get; set; } = null!;
 
+        /// <summary>
+        /// The path to the function's code. This is relative to the backend path.
+        /// </summary>
         [Input("path", required: true)]
-        public Input<string> Path { get; set; } = null!;
+        public Input<Archive> Path { get; set; } = null!;
 
-        [Input("projectName", required: true)]
-        public Input<string> ProjectName { get; set; } = null!;
-
-        [Input("region", required: true)]
-        public Input<string> Region { get; set; } = null!;
+        /// <summary>
+        /// The project to which the function will be deployed.
+        /// </summary>
+        [Input("project", required: true)]
+        public Input<Pulumi.Genezio.Domain.Inputs.ProjectArgs> Project { get; set; } = null!;
 
         public ServerlessFunctionArgs()
         {
+            Language = "js";
         }
         public static new ServerlessFunctionArgs Empty => new ServerlessFunctionArgs();
     }

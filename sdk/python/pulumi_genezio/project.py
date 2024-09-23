@@ -21,9 +21,23 @@ class ProjectArgs:
                  environment: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]] = None):
         """
         The set of arguments for constructing a Project resource.
+        :param pulumi.Input[str] name: The name of the project to be deployed.
+        :param pulumi.Input[str] region: The region in which the project will be deployed.
+               
+               	Supported regions are:
+               	- us-east-1
+               	- eu-central-1
+               	
+        :param pulumi.Input[str] cloud_provider: The cloud provider on which the project will be deployed.
+               
+               	Supported cloud providers are:
+               	- genezio-cloud
+        :param pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]] environment: The backend environment variables that will be securely stored for the project.
         """
         pulumi.set(__self__, "name", name)
         pulumi.set(__self__, "region", region)
+        if cloud_provider is None:
+            cloud_provider = 'genezio-cloud'
         if cloud_provider is not None:
             pulumi.set(__self__, "cloud_provider", cloud_provider)
         if environment is not None:
@@ -32,6 +46,9 @@ class ProjectArgs:
     @property
     @pulumi.getter
     def name(self) -> pulumi.Input[str]:
+        """
+        The name of the project to be deployed.
+        """
         return pulumi.get(self, "name")
 
     @name.setter
@@ -41,6 +58,14 @@ class ProjectArgs:
     @property
     @pulumi.getter
     def region(self) -> pulumi.Input[str]:
+        """
+        The region in which the project will be deployed.
+
+        	Supported regions are:
+        	- us-east-1
+        	- eu-central-1
+        	
+        """
         return pulumi.get(self, "region")
 
     @region.setter
@@ -50,6 +75,12 @@ class ProjectArgs:
     @property
     @pulumi.getter(name="cloudProvider")
     def cloud_provider(self) -> Optional[pulumi.Input[str]]:
+        """
+        The cloud provider on which the project will be deployed.
+
+        	Supported cloud providers are:
+        	- genezio-cloud
+        """
         return pulumi.get(self, "cloud_provider")
 
     @cloud_provider.setter
@@ -59,6 +90,9 @@ class ProjectArgs:
     @property
     @pulumi.getter
     def environment(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]:
+        """
+        The backend environment variables that will be securely stored for the project.
+        """
         return pulumi.get(self, "environment")
 
     @environment.setter
@@ -77,9 +111,36 @@ class Project(pulumi.CustomResource):
                  region: Optional[pulumi.Input[str]] = None,
                  __props__=None):
         """
-        Create a Project resource with the given unique name, props, and options.
+        A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+
+        The project resource will deploy an empty project on the Genezio platform.
+
+        It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+
+        ## Example Usage
+
+        ### Basic Usage
+
+        ### Environment Variables
+
+        ## Pulumi Output Reference
+
+        Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
+        :param pulumi.Input[str] cloud_provider: The cloud provider on which the project will be deployed.
+               
+               	Supported cloud providers are:
+               	- genezio-cloud
+        :param pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]] environment: The backend environment variables that will be securely stored for the project.
+        :param pulumi.Input[str] name: The name of the project to be deployed.
+        :param pulumi.Input[str] region: The region in which the project will be deployed.
+               
+               	Supported regions are:
+               	- us-east-1
+               	- eu-central-1
+               	
         """
         ...
     @overload
@@ -88,7 +149,22 @@ class Project(pulumi.CustomResource):
                  args: ProjectArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Create a Project resource with the given unique name, props, and options.
+        A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+
+        The project resource will deploy an empty project on the Genezio platform.
+
+        It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+
+        ## Example Usage
+
+        ### Basic Usage
+
+        ### Environment Variables
+
+        ## Pulumi Output Reference
+
+        Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+
         :param str resource_name: The name of the resource.
         :param ProjectArgs args: The arguments to use to populate this resource's properties.
         :param pulumi.ResourceOptions opts: Options for the resource.
@@ -117,6 +193,8 @@ class Project(pulumi.CustomResource):
                 raise TypeError('__props__ is only valid when passed in combination with a valid opts.id to get an existing resource')
             __props__ = ProjectArgs.__new__(ProjectArgs)
 
+            if cloud_provider is None:
+                cloud_provider = 'genezio-cloud'
             __props__.__dict__["cloud_provider"] = cloud_provider
             __props__.__dict__["environment"] = environment
             if name is None and not opts.urn:
@@ -160,30 +238,56 @@ class Project(pulumi.CustomResource):
     @property
     @pulumi.getter(name="cloudProvider")
     def cloud_provider(self) -> pulumi.Output[Optional[str]]:
+        """
+        The cloud provider on which the project will be deployed.
+
+        	Supported cloud providers are:
+        	- genezio-cloud
+        """
         return pulumi.get(self, "cloud_provider")
 
     @property
     @pulumi.getter
     def environment(self) -> pulumi.Output[Optional[Sequence['_domain.outputs.EnvironmentVariable']]]:
+        """
+        The backend environment variables that will be securely stored for the project.
+        """
         return pulumi.get(self, "environment")
 
     @property
     @pulumi.getter
     def name(self) -> pulumi.Output[str]:
+        """
+        The name of the project to be deployed.
+        """
         return pulumi.get(self, "name")
 
     @property
     @pulumi.getter(name="projectEnvId")
     def project_env_id(self) -> pulumi.Output[str]:
+        """
+        The environment ID.
+        """
         return pulumi.get(self, "project_env_id")
 
     @property
     @pulumi.getter(name="projectId")
     def project_id(self) -> pulumi.Output[str]:
+        """
+        The project ID.
+        """
         return pulumi.get(self, "project_id")
 
     @property
     @pulumi.getter
     def region(self) -> pulumi.Output[str]:
+        """
+        The region in which the project will be deployed.
+
+        	Supported regions are:
+        	- us-east-1
+        	- eu-central-1
+        	
+        """
         return pulumi.get(self, "region")
 

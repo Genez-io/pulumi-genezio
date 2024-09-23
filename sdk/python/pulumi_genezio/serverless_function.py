@@ -24,6 +24,16 @@ class ServerlessFunctionArgs:
                  language: Optional[pulumi.Input[str]] = None):
         """
         The set of arguments for constructing a ServerlessFunction resource.
+        :param pulumi.Input[str] entry: The entry file of the function. E.G. "index.mjs"
+        :param pulumi.Input[str] handler: The exported handler's name. E.G. "handler"
+        :param pulumi.Input[str] name: The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
+        :param pulumi.Input[pulumi.Archive] path: The path to the function's code. This is relative to the backend path.
+        :param pulumi.Input['_domain.ProjectArgs'] project: The project to which the function will be deployed.
+        :param pulumi.Input[str] backend_path: The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
+        :param pulumi.Input[str] language: The language in which the function is written.
+               
+               	Supported languages are:
+               	- js
         """
         pulumi.set(__self__, "entry", entry)
         pulumi.set(__self__, "handler", handler)
@@ -32,12 +42,17 @@ class ServerlessFunctionArgs:
         pulumi.set(__self__, "project", project)
         if backend_path is not None:
             pulumi.set(__self__, "backend_path", backend_path)
+        if language is None:
+            language = 'js'
         if language is not None:
             pulumi.set(__self__, "language", language)
 
     @property
     @pulumi.getter
     def entry(self) -> pulumi.Input[str]:
+        """
+        The entry file of the function. E.G. "index.mjs"
+        """
         return pulumi.get(self, "entry")
 
     @entry.setter
@@ -47,6 +62,9 @@ class ServerlessFunctionArgs:
     @property
     @pulumi.getter
     def handler(self) -> pulumi.Input[str]:
+        """
+        The exported handler's name. E.G. "handler"
+        """
         return pulumi.get(self, "handler")
 
     @handler.setter
@@ -56,6 +74,9 @@ class ServerlessFunctionArgs:
     @property
     @pulumi.getter
     def name(self) -> pulumi.Input[str]:
+        """
+        The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
+        """
         return pulumi.get(self, "name")
 
     @name.setter
@@ -65,6 +86,9 @@ class ServerlessFunctionArgs:
     @property
     @pulumi.getter
     def path(self) -> pulumi.Input[pulumi.Archive]:
+        """
+        The path to the function's code. This is relative to the backend path.
+        """
         return pulumi.get(self, "path")
 
     @path.setter
@@ -74,6 +98,9 @@ class ServerlessFunctionArgs:
     @property
     @pulumi.getter
     def project(self) -> pulumi.Input['_domain.ProjectArgs']:
+        """
+        The project to which the function will be deployed.
+        """
         return pulumi.get(self, "project")
 
     @project.setter
@@ -83,6 +110,9 @@ class ServerlessFunctionArgs:
     @property
     @pulumi.getter(name="backendPath")
     def backend_path(self) -> Optional[pulumi.Input[str]]:
+        """
+        The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
+        """
         return pulumi.get(self, "backend_path")
 
     @backend_path.setter
@@ -92,6 +122,12 @@ class ServerlessFunctionArgs:
     @property
     @pulumi.getter
     def language(self) -> Optional[pulumi.Input[str]]:
+        """
+        The language in which the function is written.
+
+        	Supported languages are:
+        	- js
+        """
         return pulumi.get(self, "language")
 
     @language.setter
@@ -113,9 +149,34 @@ class ServerlessFunction(pulumi.CustomResource):
                  project: Optional[pulumi.Input[pulumi.InputType['_domain.ProjectArgs']]] = None,
                  __props__=None):
         """
-        Create a ServerlessFunction resource with the given unique name, props, and options.
+        A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+
+        The project resource will deploy an empty project on the Genezio platform.
+
+        It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+
+        ## Example Usage
+
+        ### Basic Usage
+
+        ### Environment Variables
+
+        ## Pulumi Output Reference
+
+        Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
+        :param pulumi.Input[str] backend_path: The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
+        :param pulumi.Input[str] entry: The entry file of the function. E.G. "index.mjs"
+        :param pulumi.Input[str] handler: The exported handler's name. E.G. "handler"
+        :param pulumi.Input[str] language: The language in which the function is written.
+               
+               	Supported languages are:
+               	- js
+        :param pulumi.Input[str] name: The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
+        :param pulumi.Input[pulumi.Archive] path: The path to the function's code. This is relative to the backend path.
+        :param pulumi.Input[pulumi.InputType['_domain.ProjectArgs']] project: The project to which the function will be deployed.
         """
         ...
     @overload
@@ -124,7 +185,22 @@ class ServerlessFunction(pulumi.CustomResource):
                  args: ServerlessFunctionArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Create a ServerlessFunction resource with the given unique name, props, and options.
+        A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+
+        The project resource will deploy an empty project on the Genezio platform.
+
+        It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+
+        ## Example Usage
+
+        ### Basic Usage
+
+        ### Environment Variables
+
+        ## Pulumi Output Reference
+
+        Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+
         :param str resource_name: The name of the resource.
         :param ServerlessFunctionArgs args: The arguments to use to populate this resource's properties.
         :param pulumi.ResourceOptions opts: Options for the resource.
@@ -163,6 +239,8 @@ class ServerlessFunction(pulumi.CustomResource):
             if handler is None and not opts.urn:
                 raise TypeError("Missing required property 'handler'")
             __props__.__dict__["handler"] = handler
+            if language is None:
+                language = 'js'
             __props__.__dict__["language"] = language
             if name is None and not opts.urn:
                 raise TypeError("Missing required property 'name'")
@@ -211,45 +289,75 @@ class ServerlessFunction(pulumi.CustomResource):
     @property
     @pulumi.getter(name="backendPath")
     def backend_path(self) -> pulumi.Output[Optional[str]]:
+        """
+        The path where the backend code is located. This is the root directory for all the backend resources (functions, classes, other packages).
+        """
         return pulumi.get(self, "backend_path")
 
     @property
     @pulumi.getter
     def entry(self) -> pulumi.Output[str]:
+        """
+        The entry file of the function. E.G. "index.mjs"
+        """
         return pulumi.get(self, "entry")
 
     @property
     @pulumi.getter(name="functionId")
     def function_id(self) -> pulumi.Output[str]:
+        """
+        The function ID.
+        """
         return pulumi.get(self, "function_id")
 
     @property
     @pulumi.getter
     def handler(self) -> pulumi.Output[str]:
+        """
+        The exported handler's name. E.G. "handler"
+        """
         return pulumi.get(self, "handler")
 
     @property
     @pulumi.getter
     def language(self) -> pulumi.Output[Optional[str]]:
+        """
+        The language in which the function is written.
+
+        	Supported languages are:
+        	- js
+        """
         return pulumi.get(self, "language")
 
     @property
     @pulumi.getter
     def name(self) -> pulumi.Output[str]:
+        """
+        The name of the function - this is used as an human readable tag in the dashboard. E.G. "my-hello-world-function"
+        """
         return pulumi.get(self, "name")
 
     @property
     @pulumi.getter
     def path(self) -> pulumi.Output[pulumi.Archive]:
+        """
+        The path to the function's code. This is relative to the backend path.
+        """
         return pulumi.get(self, "path")
 
     @property
     @pulumi.getter
     def project(self) -> pulumi.Output['_domain.outputs.Project']:
+        """
+        The project to which the function will be deployed.
+        """
         return pulumi.get(self, "project")
 
     @property
     @pulumi.getter
     def url(self) -> pulumi.Output[str]:
+        """
+        The URL of the function.
+        """
         return pulumi.get(self, "url")
 

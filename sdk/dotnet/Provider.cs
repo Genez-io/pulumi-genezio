@@ -12,6 +12,16 @@ namespace Pulumi.Genezio
     [GenezioResourceType("pulumi:providers:genezio")]
     public partial class Provider : global::Pulumi.ProviderResource
     {
+        [Output("authToken")]
+        public Output<string> AuthToken { get; private set; } = null!;
+
+        [Output("stage")]
+        public Output<string?> Stage { get; private set; } = null!;
+
+        [Output("version")]
+        public Output<string?> Version { get; private set; } = null!;
+
+
         /// <summary>
         /// Create a Provider resource with the given unique name, arguments, and options.
         /// </summary>
@@ -19,7 +29,7 @@ namespace Pulumi.Genezio
         /// <param name="name">The unique name of the resource</param>
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
-        public Provider(string name, ProviderArgs? args = null, CustomResourceOptions? options = null)
+        public Provider(string name, ProviderArgs args, CustomResourceOptions? options = null)
             : base("genezio", name, args ?? new ProviderArgs(), MakeResourceOptions(options, ""))
         {
         }
@@ -39,6 +49,15 @@ namespace Pulumi.Genezio
 
     public sealed class ProviderArgs : global::Pulumi.ResourceArgs
     {
+        [Input("authToken", required: true)]
+        public Input<string> AuthToken { get; set; } = null!;
+
+        [Input("stage")]
+        public Input<string>? Stage { get; set; }
+
+        [Input("version")]
+        public Input<string>? Version { get; set; }
+
         public ProviderArgs()
         {
         }

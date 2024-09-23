@@ -26,68 +26,66 @@ namespace Pulumi.Genezio
     /// 
     /// Once the project is created, the `projectId` and `projectUrl` are available as outputs.
     /// </summary>
-    [GenezioResourceType("genezio:index:Project")]
-    public partial class Project : global::Pulumi.CustomResource
+    [GenezioResourceType("genezio:index:Frontend")]
+    public partial class Frontend : global::Pulumi.CustomResource
     {
         /// <summary>
-        /// The cloud provider on which the project will be deployed.
-        /// 
-        /// 	Supported cloud providers are:
-        /// 	- genezio-cloud
+        /// The commands to run before deploying the frontend.
         /// </summary>
-        [Output("cloudProvider")]
-        public Output<string?> CloudProvider { get; private set; } = null!;
+        [Output("buildCommands")]
+        public Output<ImmutableArray<string>> BuildCommands { get; private set; } = null!;
 
         /// <summary>
-        /// The backend environment variables that will be securely stored for the project.
+        /// The environment variables that will be set for the frontend.
         /// </summary>
         [Output("environment")]
         public Output<ImmutableArray<Pulumi.Genezio.Domain.Outputs.EnvironmentVariable>> Environment { get; private set; } = null!;
 
         /// <summary>
-        /// The name of the project to be deployed.
+        /// The path to the frontend files.
         /// </summary>
-        [Output("name")]
-        public Output<string> Name { get; private set; } = null!;
+        [Output("path")]
+        public Output<Archive> Path { get; private set; } = null!;
 
         /// <summary>
-        /// The environment ID.
+        /// The project to which the frontend will be deployed.
         /// </summary>
-        [Output("projectEnvId")]
-        public Output<string> ProjectEnvId { get; private set; } = null!;
+        [Output("project")]
+        public Output<Pulumi.Genezio.Domain.Outputs.Project> Project { get; private set; } = null!;
 
         /// <summary>
-        /// The project ID.
+        /// The folder in the path that contains the files to be published.
         /// </summary>
-        [Output("projectId")]
-        public Output<string> ProjectId { get; private set; } = null!;
+        [Output("publish")]
+        public Output<string> Publish { get; private set; } = null!;
 
         /// <summary>
-        /// The region in which the project will be deployed.
-        /// 
-        /// 	Supported regions are:
-        /// 	- us-east-1
-        /// 	- eu-central-1
-        /// 	
+        /// The subdomain of the frontend.
         /// </summary>
-        [Output("region")]
-        public Output<string> Region { get; private set; } = null!;
+        [Output("subdomain")]
+        public Output<string?> Subdomain { get; private set; } = null!;
+
+        /// <summary>
+        /// The URL of the frontend.
+        /// </summary>
+        [Output("url")]
+        public Output<string> Url { get; private set; } = null!;
 
 
         /// <summary>
-        /// Create a Project resource with the given unique name, arguments, and options.
+        /// Create a Frontend resource with the given unique name, arguments, and options.
         /// </summary>
         ///
         /// <param name="name">The unique name of the resource</param>
         /// <param name="args">The arguments used to populate this resource's properties</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
-        public Project(string name, ProjectArgs args, CustomResourceOptions? options = null)
-            : base("genezio:index:Project", name, args ?? new ProjectArgs(), MakeResourceOptions(options, ""))
+        public Frontend(string name, FrontendArgs args, CustomResourceOptions? options = null)
+            : base("genezio:index:Frontend", name, args ?? new FrontendArgs(), MakeResourceOptions(options, ""))
         {
         }
 
-        private Project(string name, Input<string> id, CustomResourceOptions? options = null)
-            : base("genezio:index:Project", name, null, MakeResourceOptions(options, id))
+        private Frontend(string name, Input<string> id, CustomResourceOptions? options = null)
+            : base("genezio:index:Frontend", name, null, MakeResourceOptions(options, id))
         {
         }
 
@@ -103,35 +101,38 @@ namespace Pulumi.Genezio
             return merged;
         }
         /// <summary>
-        /// Get an existing Project resource's state with the given name, ID, and optional extra
+        /// Get an existing Frontend resource's state with the given name, ID, and optional extra
         /// properties used to qualify the lookup.
         /// </summary>
         ///
         /// <param name="name">The unique name of the resulting resource.</param>
         /// <param name="id">The unique provider ID of the resource to lookup.</param>
         /// <param name="options">A bag of options that control this resource's behavior</param>
-        public static Project Get(string name, Input<string> id, CustomResourceOptions? options = null)
+        public static Frontend Get(string name, Input<string> id, CustomResourceOptions? options = null)
         {
-            return new Project(name, id, options);
+            return new Frontend(name, id, options);
         }
     }
 
-    public sealed class ProjectArgs : global::Pulumi.ResourceArgs
+    public sealed class FrontendArgs : global::Pulumi.ResourceArgs
     {
+        [Input("buildCommands")]
+        private InputList<string>? _buildCommands;
+
         /// <summary>
-        /// The cloud provider on which the project will be deployed.
-        /// 
-        /// 	Supported cloud providers are:
-        /// 	- genezio-cloud
+        /// The commands to run before deploying the frontend.
         /// </summary>
-        [Input("cloudProvider")]
-        public Input<string>? CloudProvider { get; set; }
+        public InputList<string> BuildCommands
+        {
+            get => _buildCommands ?? (_buildCommands = new InputList<string>());
+            set => _buildCommands = value;
+        }
 
         [Input("environment")]
         private InputList<Pulumi.Genezio.Domain.Inputs.EnvironmentVariableArgs>? _environment;
 
         /// <summary>
-        /// The backend environment variables that will be securely stored for the project.
+        /// The environment variables that will be set for the frontend.
         /// </summary>
         public InputList<Pulumi.Genezio.Domain.Inputs.EnvironmentVariableArgs> Environment
         {
@@ -140,26 +141,32 @@ namespace Pulumi.Genezio
         }
 
         /// <summary>
-        /// The name of the project to be deployed.
+        /// The path to the frontend files.
         /// </summary>
-        [Input("name", required: true)]
-        public Input<string> Name { get; set; } = null!;
+        [Input("path", required: true)]
+        public Input<Archive> Path { get; set; } = null!;
 
         /// <summary>
-        /// The region in which the project will be deployed.
-        /// 
-        /// 	Supported regions are:
-        /// 	- us-east-1
-        /// 	- eu-central-1
-        /// 	
+        /// The project to which the frontend will be deployed.
         /// </summary>
-        [Input("region", required: true)]
-        public Input<string> Region { get; set; } = null!;
+        [Input("project", required: true)]
+        public Input<Pulumi.Genezio.Domain.Inputs.ProjectArgs> Project { get; set; } = null!;
 
-        public ProjectArgs()
+        /// <summary>
+        /// The folder in the path that contains the files to be published.
+        /// </summary>
+        [Input("publish", required: true)]
+        public Input<string> Publish { get; set; } = null!;
+
+        /// <summary>
+        /// The subdomain of the frontend.
+        /// </summary>
+        [Input("subdomain")]
+        public Input<string>? Subdomain { get; set; }
+
+        public FrontendArgs()
         {
-            CloudProvider = "genezio-cloud";
         }
-        public static new ProjectArgs Empty => new ProjectArgs();
+        public static new FrontendArgs Empty => new FrontendArgs();
     }
 }

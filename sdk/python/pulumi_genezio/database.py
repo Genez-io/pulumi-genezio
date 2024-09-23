@@ -21,18 +21,34 @@ class DatabaseArgs:
                  type: Optional[pulumi.Input[str]] = None):
         """
         The set of arguments for constructing a Database resource.
+        :param pulumi.Input[str] name: The name of the database to be deployed.
+        :param pulumi.Input['_domain.ProjectArgs'] project: A database can be used in a project by linking it.
+               	Linking the database will expose a connection URL as an environment variable for convenience.
+               	The same database can be linked to multiple projects.
+        :param pulumi.Input[str] region: The region in which the database will be deployed.
+        :param pulumi.Input[str] type: The type of the database to be deployed.
+               
+               	Supported types are:
+               	- postgres-neon
         """
         pulumi.set(__self__, "name", name)
         if project is not None:
             pulumi.set(__self__, "project", project)
+        if region is None:
+            region = 'us-east-1'
         if region is not None:
             pulumi.set(__self__, "region", region)
+        if type is None:
+            type = 'postgres-neon'
         if type is not None:
             pulumi.set(__self__, "type", type)
 
     @property
     @pulumi.getter
     def name(self) -> pulumi.Input[str]:
+        """
+        The name of the database to be deployed.
+        """
         return pulumi.get(self, "name")
 
     @name.setter
@@ -42,6 +58,11 @@ class DatabaseArgs:
     @property
     @pulumi.getter
     def project(self) -> Optional[pulumi.Input['_domain.ProjectArgs']]:
+        """
+        A database can be used in a project by linking it.
+        	Linking the database will expose a connection URL as an environment variable for convenience.
+        	The same database can be linked to multiple projects.
+        """
         return pulumi.get(self, "project")
 
     @project.setter
@@ -51,6 +72,9 @@ class DatabaseArgs:
     @property
     @pulumi.getter
     def region(self) -> Optional[pulumi.Input[str]]:
+        """
+        The region in which the database will be deployed.
+        """
         return pulumi.get(self, "region")
 
     @region.setter
@@ -60,6 +84,12 @@ class DatabaseArgs:
     @property
     @pulumi.getter
     def type(self) -> Optional[pulumi.Input[str]]:
+        """
+        The type of the database to be deployed.
+
+        	Supported types are:
+        	- postgres-neon
+        """
         return pulumi.get(self, "type")
 
     @type.setter
@@ -78,9 +108,33 @@ class Database(pulumi.CustomResource):
                  type: Optional[pulumi.Input[str]] = None,
                  __props__=None):
         """
-        Create a Database resource with the given unique name, props, and options.
+        A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+
+        The project resource will deploy an empty project on the Genezio platform.
+
+        It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+
+        ## Example Usage
+
+        ### Basic Usage
+
+        ### Environment Variables
+
+        ## Pulumi Output Reference
+
+        Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
+        :param pulumi.Input[str] name: The name of the database to be deployed.
+        :param pulumi.Input[pulumi.InputType['_domain.ProjectArgs']] project: A database can be used in a project by linking it.
+               	Linking the database will expose a connection URL as an environment variable for convenience.
+               	The same database can be linked to multiple projects.
+        :param pulumi.Input[str] region: The region in which the database will be deployed.
+        :param pulumi.Input[str] type: The type of the database to be deployed.
+               
+               	Supported types are:
+               	- postgres-neon
         """
         ...
     @overload
@@ -89,7 +143,22 @@ class Database(pulumi.CustomResource):
                  args: DatabaseArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Create a Database resource with the given unique name, props, and options.
+        A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+
+        The project resource will deploy an empty project on the Genezio platform.
+
+        It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+
+        ## Example Usage
+
+        ### Basic Usage
+
+        ### Environment Variables
+
+        ## Pulumi Output Reference
+
+        Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+
         :param str resource_name: The name of the resource.
         :param DatabaseArgs args: The arguments to use to populate this resource's properties.
         :param pulumi.ResourceOptions opts: Options for the resource.
@@ -122,7 +191,11 @@ class Database(pulumi.CustomResource):
                 raise TypeError("Missing required property 'name'")
             __props__.__dict__["name"] = name
             __props__.__dict__["project"] = project
+            if region is None:
+                region = 'us-east-1'
             __props__.__dict__["region"] = region
+            if type is None:
+                type = 'postgres-neon'
             __props__.__dict__["type"] = type
             __props__.__dict__["database_id"] = None
             __props__.__dict__["url"] = None
@@ -161,30 +234,53 @@ class Database(pulumi.CustomResource):
     @property
     @pulumi.getter(name="databaseId")
     def database_id(self) -> pulumi.Output[str]:
+        """
+        The database ID.
+        """
         return pulumi.get(self, "database_id")
 
     @property
     @pulumi.getter
     def name(self) -> pulumi.Output[str]:
+        """
+        The name of the database to be deployed.
+        """
         return pulumi.get(self, "name")
 
     @property
     @pulumi.getter
     def project(self) -> pulumi.Output[Optional['_domain.outputs.Project']]:
+        """
+        A database can be used in a project by linking it.
+        	Linking the database will expose a connection URL as an environment variable for convenience.
+        	The same database can be linked to multiple projects.
+        """
         return pulumi.get(self, "project")
 
     @property
     @pulumi.getter
     def region(self) -> pulumi.Output[Optional[str]]:
+        """
+        The region in which the database will be deployed.
+        """
         return pulumi.get(self, "region")
 
     @property
     @pulumi.getter
     def type(self) -> pulumi.Output[Optional[str]]:
+        """
+        The type of the database to be deployed.
+
+        	Supported types are:
+        	- postgres-neon
+        """
         return pulumi.get(self, "type")
 
     @property
     @pulumi.getter
     def url(self) -> pulumi.Output[str]:
+        """
+        The URL of the database.
+        """
         return pulumi.get(self, "url")
 

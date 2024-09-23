@@ -15,14 +15,20 @@ __all__ = ['FrontendArgs', 'Frontend']
 @pulumi.input_type
 class FrontendArgs:
     def __init__(__self__, *,
-                 path: pulumi.Input[str],
+                 path: pulumi.Input[pulumi.Archive],
                  project: pulumi.Input['_domain.ProjectArgs'],
-                 publish: pulumi.Input[pulumi.Archive],
+                 publish: pulumi.Input[str],
                  build_commands: Optional[pulumi.Input[Sequence[pulumi.Input[str]]]] = None,
                  environment: Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]] = None,
                  subdomain: Optional[pulumi.Input[str]] = None):
         """
         The set of arguments for constructing a Frontend resource.
+        :param pulumi.Input[pulumi.Archive] path: The path to the frontend files.
+        :param pulumi.Input['_domain.ProjectArgs'] project: The project to which the frontend will be deployed.
+        :param pulumi.Input[str] publish: The folder in the path that contains the files to be published.
+        :param pulumi.Input[Sequence[pulumi.Input[str]]] build_commands: The commands to run before deploying the frontend.
+        :param pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]] environment: The environment variables that will be set for the frontend.
+        :param pulumi.Input[str] subdomain: The subdomain of the frontend.
         """
         pulumi.set(__self__, "path", path)
         pulumi.set(__self__, "project", project)
@@ -36,16 +42,22 @@ class FrontendArgs:
 
     @property
     @pulumi.getter
-    def path(self) -> pulumi.Input[str]:
+    def path(self) -> pulumi.Input[pulumi.Archive]:
+        """
+        The path to the frontend files.
+        """
         return pulumi.get(self, "path")
 
     @path.setter
-    def path(self, value: pulumi.Input[str]):
+    def path(self, value: pulumi.Input[pulumi.Archive]):
         pulumi.set(self, "path", value)
 
     @property
     @pulumi.getter
     def project(self) -> pulumi.Input['_domain.ProjectArgs']:
+        """
+        The project to which the frontend will be deployed.
+        """
         return pulumi.get(self, "project")
 
     @project.setter
@@ -54,16 +66,22 @@ class FrontendArgs:
 
     @property
     @pulumi.getter
-    def publish(self) -> pulumi.Input[pulumi.Archive]:
+    def publish(self) -> pulumi.Input[str]:
+        """
+        The folder in the path that contains the files to be published.
+        """
         return pulumi.get(self, "publish")
 
     @publish.setter
-    def publish(self, value: pulumi.Input[pulumi.Archive]):
+    def publish(self, value: pulumi.Input[str]):
         pulumi.set(self, "publish", value)
 
     @property
     @pulumi.getter(name="buildCommands")
     def build_commands(self) -> Optional[pulumi.Input[Sequence[pulumi.Input[str]]]]:
+        """
+        The commands to run before deploying the frontend.
+        """
         return pulumi.get(self, "build_commands")
 
     @build_commands.setter
@@ -73,6 +91,9 @@ class FrontendArgs:
     @property
     @pulumi.getter
     def environment(self) -> Optional[pulumi.Input[Sequence[pulumi.Input['_domain.EnvironmentVariableArgs']]]]:
+        """
+        The environment variables that will be set for the frontend.
+        """
         return pulumi.get(self, "environment")
 
     @environment.setter
@@ -82,6 +103,9 @@ class FrontendArgs:
     @property
     @pulumi.getter
     def subdomain(self) -> Optional[pulumi.Input[str]]:
+        """
+        The subdomain of the frontend.
+        """
         return pulumi.get(self, "subdomain")
 
     @subdomain.setter
@@ -96,15 +120,36 @@ class Frontend(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  build_commands: Optional[pulumi.Input[Sequence[pulumi.Input[str]]]] = None,
                  environment: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
-                 path: Optional[pulumi.Input[str]] = None,
+                 path: Optional[pulumi.Input[pulumi.Archive]] = None,
                  project: Optional[pulumi.Input[pulumi.InputType['_domain.ProjectArgs']]] = None,
-                 publish: Optional[pulumi.Input[pulumi.Archive]] = None,
+                 publish: Optional[pulumi.Input[str]] = None,
                  subdomain: Optional[pulumi.Input[str]] = None,
                  __props__=None):
         """
-        Create a Frontend resource with the given unique name, props, and options.
+        A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+
+        The project resource will deploy an empty project on the Genezio platform.
+
+        It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+
+        ## Example Usage
+
+        ### Basic Usage
+
+        ### Environment Variables
+
+        ## Pulumi Output Reference
+
+        Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+
         :param str resource_name: The name of the resource.
         :param pulumi.ResourceOptions opts: Options for the resource.
+        :param pulumi.Input[Sequence[pulumi.Input[str]]] build_commands: The commands to run before deploying the frontend.
+        :param pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]] environment: The environment variables that will be set for the frontend.
+        :param pulumi.Input[pulumi.Archive] path: The path to the frontend files.
+        :param pulumi.Input[pulumi.InputType['_domain.ProjectArgs']] project: The project to which the frontend will be deployed.
+        :param pulumi.Input[str] publish: The folder in the path that contains the files to be published.
+        :param pulumi.Input[str] subdomain: The subdomain of the frontend.
         """
         ...
     @overload
@@ -113,7 +158,22 @@ class Frontend(pulumi.CustomResource):
                  args: FrontendArgs,
                  opts: Optional[pulumi.ResourceOptions] = None):
         """
-        Create a Frontend resource with the given unique name, props, and options.
+        A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.
+
+        The project resource will deploy an empty project on the Genezio platform.
+
+        It is recommended to create a Project Resource as the first step in your deployment workflow. The output from this resource can then be utilized to provision and configure other resources within the project, ensuring they are properly associated and managed under a unified project.
+
+        ## Example Usage
+
+        ### Basic Usage
+
+        ### Environment Variables
+
+        ## Pulumi Output Reference
+
+        Once the project is created, the `projectId` and `projectUrl` are available as outputs.
+
         :param str resource_name: The name of the resource.
         :param FrontendArgs args: The arguments to use to populate this resource's properties.
         :param pulumi.ResourceOptions opts: Options for the resource.
@@ -131,9 +191,9 @@ class Frontend(pulumi.CustomResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  build_commands: Optional[pulumi.Input[Sequence[pulumi.Input[str]]]] = None,
                  environment: Optional[pulumi.Input[Sequence[pulumi.Input[pulumi.InputType['_domain.EnvironmentVariableArgs']]]]] = None,
-                 path: Optional[pulumi.Input[str]] = None,
+                 path: Optional[pulumi.Input[pulumi.Archive]] = None,
                  project: Optional[pulumi.Input[pulumi.InputType['_domain.ProjectArgs']]] = None,
-                 publish: Optional[pulumi.Input[pulumi.Archive]] = None,
+                 publish: Optional[pulumi.Input[str]] = None,
                  subdomain: Optional[pulumi.Input[str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
@@ -191,35 +251,56 @@ class Frontend(pulumi.CustomResource):
     @property
     @pulumi.getter(name="buildCommands")
     def build_commands(self) -> pulumi.Output[Optional[Sequence[str]]]:
+        """
+        The commands to run before deploying the frontend.
+        """
         return pulumi.get(self, "build_commands")
 
     @property
     @pulumi.getter
     def environment(self) -> pulumi.Output[Optional[Sequence['_domain.outputs.EnvironmentVariable']]]:
+        """
+        The environment variables that will be set for the frontend.
+        """
         return pulumi.get(self, "environment")
 
     @property
     @pulumi.getter
-    def path(self) -> pulumi.Output[str]:
+    def path(self) -> pulumi.Output[pulumi.Archive]:
+        """
+        The path to the frontend files.
+        """
         return pulumi.get(self, "path")
 
     @property
     @pulumi.getter
     def project(self) -> pulumi.Output['_domain.outputs.Project']:
+        """
+        The project to which the frontend will be deployed.
+        """
         return pulumi.get(self, "project")
 
     @property
     @pulumi.getter
-    def publish(self) -> pulumi.Output[pulumi.Archive]:
+    def publish(self) -> pulumi.Output[str]:
+        """
+        The folder in the path that contains the files to be published.
+        """
         return pulumi.get(self, "publish")
 
     @property
     @pulumi.getter
     def subdomain(self) -> pulumi.Output[Optional[str]]:
+        """
+        The subdomain of the frontend.
+        """
         return pulumi.get(self, "subdomain")
 
     @property
     @pulumi.getter
     def url(self) -> pulumi.Output[str]:
+        """
+        The URL of the frontend.
+        """
         return pulumi.get(self, "url")
 
