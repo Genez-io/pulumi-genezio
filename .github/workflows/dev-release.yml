@@ -32,6 +32,9 @@ jobs:
         uses: actions/setup-dotnet@v4
       - name: Install Java
         uses: actions/setup-java@v4
+        with: 
+          distribution: 'temurin'
+          java-version: '21'
       - name: Install Graddle
         uses: gradle/actions/setup-gradle@v3
       - name : Publish NodeJs sdk
