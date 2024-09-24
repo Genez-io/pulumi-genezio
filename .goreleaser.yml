@@ -21,7 +21,7 @@ builds:
       - -X github.com/Genez-io/pulumi-genezio/provider/Version={{.Tag }}
     main: ./cmd/pulumi-resource-genezio/
 changelog:
-  skip: true
+  disable: true
 release:
   disable: false
   prerelease: auto
