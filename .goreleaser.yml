@@ -2,6 +2,9 @@ version: 2
 archives:
   - id: archive
     name_template: '{{ .Binary }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}'
+before:
+  hooks:
+    - make build
 builds:
   - binary: pulumi-resource-genezio
     dir: provider
