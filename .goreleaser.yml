@@ -1,9 +1,7 @@
+version: 2
 archives:
   - id: archive
     name_template: '{{ .Binary }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}'
-before:
-  hooks:
-    - make gen
 builds:
   - binary: pulumi-resource-genezio
     dir: provider
@@ -26,4 +24,4 @@ release:
   disable: false
   prerelease: auto
 snapshot:
-  name_template: '{{ .Tag }}-SNAPSHOT'
+  version_template: '{{ .Tag }}-SNAPSHOT'
