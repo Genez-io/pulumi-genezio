@@ -1,14 +1,14 @@
 package requests
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
-	p "github.com/pulumi/pulumi-go-provider"
 )
 
-func CreateProject(ctx p.Context, request domain.CreateProjectRequest) (domain.CreateProjectResponse, error) {
+func CreateProject(ctx context.Context, request domain.CreateProjectRequest) (domain.CreateProjectResponse, error) {
 
 	var response domain.DeployCodeResponse
 	err := MakeRequest(ctx, http.MethodPut, "core/deployment", request, &response)
@@ -20,7 +20,7 @@ func CreateProject(ctx p.Context, request domain.CreateProjectRequest) (domain.C
 
 }
 
-func DeployRequest(ctx p.Context, request domain.DeployRequest) (domain.DeployCodeResponse, error) {
+func DeployRequest(ctx context.Context, request domain.DeployRequest) (domain.DeployCodeResponse, error) {
 	var response domain.DeployCodeResponse
 	err := MakeRequest(ctx, http.MethodPut, "core/deployment", request, &response)
 
@@ -28,7 +28,7 @@ func DeployRequest(ctx p.Context, request domain.DeployRequest) (domain.DeployCo
 }
 
 func GetPresignedUrl(
-	ctx p.Context,
+	ctx context.Context,
 	request domain.GetPresignedUrlRequest,
 ) (domain.GetPresignedUrlResponse, error) {
 

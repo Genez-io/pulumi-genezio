@@ -17,6 +17,3 @@ func GetAuthToken(ctx *pulumi.Context) string {
 func GetStage(ctx *pulumi.Context) string {
 	return config.Get(ctx, "genezio:stage")
 }
-func GetVersion(ctx *pulumi.Context) string {
-	return config.Get(ctx, "genezio:version")
-}

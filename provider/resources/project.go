@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"context"
 	_ "embed"
 	"fmt"
 	"log"
@@ -59,7 +60,7 @@ func (r *ProjectState) Annotate(a infer.Annotator) {
 	a.Describe(&r.ProjectEnvId, `The environment ID.`)
 }
 
-func (*Project) Diff(ctx p.Context, id string, olds ProjectState, news ProjectArgs) (p.DiffResponse, error) {
+func (*Project) Diff(ctx context.Context, id string, olds ProjectState, news ProjectArgs) (p.DiffResponse, error) {
 	diff := map[string]p.PropertyDiff{}
 
 	if olds.Name != news.Name {
@@ -112,7 +113,7 @@ func (*Project) Diff(ctx p.Context, id string, olds ProjectState, news ProjectAr
 	}, nil
 }
 
-func (*Project) Read(ctx p.Context, id string, inputs ProjectArgs, state ProjectState) (string, ProjectArgs, ProjectState, error) {
+func (*Project) Read(ctx context.Context, id string, inputs ProjectArgs, state ProjectState) (string, ProjectArgs, ProjectState, error) {
 
 	if state.Name == "" {
 		return id, inputs, state, nil
@@ -153,7 +154,7 @@ func (*Project) Read(ctx p.Context, id string, inputs ProjectArgs, state Project
 	return id, inputs, state, nil
 }
 
-func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bool) (string, ProjectState, error) {
+func (*Project) Create(ctx context.Context, name string, input ProjectArgs, preview bool) (string, ProjectState, error) {
 	state := ProjectState{ProjectArgs: input}
 	if preview {
 		return name, state, nil
@@ -229,7 +230,7 @@ func (*Project) Create(ctx p.Context, name string, input ProjectArgs, preview bo
 	return name, state, nil
 }
 
-func (*Project) Update(ctx p.Context, id string, olds ProjectState, news ProjectArgs, preview bool) (ProjectState, error) {
+func (*Project) Update(ctx context.Context, id string, olds ProjectState, news ProjectArgs, preview bool) (ProjectState, error) {
 
 	state := ProjectState{
 		ProjectArgs:  news,
@@ -253,7 +254,7 @@ func (*Project) Update(ctx p.Context, id string, olds ProjectState, news Project
 	return state, nil
 }
 
-func (*Project) Delete(ctx p.Context, id string, state ProjectState) error {
+func (*Project) Delete(ctx context.Context, id string, state ProjectState) error {
 	_, err := requests.DeleteProject(ctx, state.ProjectId)
 	if err != nil {
 		if strings.Contains(err.Error(), "record not found") || strings.Contains(err.Error(), "405 Method Not Allowed") {

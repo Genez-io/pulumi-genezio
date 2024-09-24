@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,11 +9,10 @@ import (
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
-	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 )
 
-func GetAuthToken(ctx p.Context) (string, error) {
+func GetAuthToken(ctx context.Context) (string, error) {
 	token := infer.GetConfig[*domain.Config](ctx).AuthToken
 	if token == "" {
 		return "", fmt.Errorf("no authentification token provided")
@@ -21,7 +21,7 @@ func GetAuthToken(ctx p.Context) (string, error) {
 	return token, nil
 }
 
-func IsLoggedIn(ctx p.Context) (string, error) {
+func IsLoggedIn(ctx context.Context) (string, error) {
 	_, authToken, err := GetUser(ctx)
 	if err != nil {
 		return "", err
@@ -31,7 +31,7 @@ func IsLoggedIn(ctx p.Context) (string, error) {
 
 }
 
-func GetUser(ctx p.Context) (string, string, error) {
+func GetUser(ctx context.Context) (string, string, error) {
 
 	authToken, err := GetAuthToken(ctx)
 	if err != nil {

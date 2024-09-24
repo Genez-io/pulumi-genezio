@@ -23,7 +23,3 @@ class _ExportableConfig(types.ModuleType):
     def stage(self) -> Optional[str]:
         return __config__.get('stage')
 
-    @property
-    def version(self) -> Optional[str]:
-        return __config__.get('version')
-

@@ -2,6 +2,7 @@ package requests
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,8 +10,6 @@ import (
 
 	"github.com/Genez-io/pulumi-genezio/provider/constants"
 	"github.com/Genez-io/pulumi-genezio/provider/utils"
-
-	p "github.com/pulumi/pulumi-go-provider"
 )
 
 type ResponseStatus string
@@ -20,7 +19,7 @@ const (
 	Failure ResponseStatus = "error"
 )
 
-func MakeRequest(ctx p.Context, method string, endpoint string, body interface{}, response interface{}) error {
+func MakeRequest(ctx context.Context, method string, endpoint string, body interface{}, response interface{}) error {
 	data, err := json.Marshal(body)
 	if err != nil {
 		return err

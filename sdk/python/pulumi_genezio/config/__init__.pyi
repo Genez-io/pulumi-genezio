@@ -13,5 +13,3 @@ authToken: Optional[str]
 
 stage: Optional[str]
 
-version: Optional[str]
-

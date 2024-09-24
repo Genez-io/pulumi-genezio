@@ -46,12 +46,5 @@ namespace Pulumi.Genezio
             set => _stage.Set(value);
         }
 
-        private static readonly __Value<string?> _version = new __Value<string?>(() => __config.Get("version"));
-        public static string? Version
-        {
-            get => _version.Get();
-            set => _version.Set(value);
-        }
-
     }
 }
