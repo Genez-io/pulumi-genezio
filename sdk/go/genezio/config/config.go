@@ -4,9 +4,9 @@
 package config
 
 import (
+	"example.com/pulumi-genezio/sdk/go/genezio/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
-	"internal"
 )
 
 var _ = internal.GetEnvOrDefault

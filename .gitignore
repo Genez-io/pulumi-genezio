@@ -13,3 +13,5 @@ ci-scripts
 provider/**/schema-embed.json
 /genezio/
 /provider/.env
+/.vscode
+/venv

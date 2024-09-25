@@ -7,10 +7,10 @@ import (
 	"context"
 	"reflect"
 
-	"domain"
 	"errors"
+	"example.com/pulumi-genezio/sdk/go/genezio/domain"
+	"example.com/pulumi-genezio/sdk/go/genezio/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"internal"
 )
 
 // A project resource that will be deployed on the Genezio platform.The project resource is used to group resources together and manage them as a single unit.

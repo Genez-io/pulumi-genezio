@@ -4,17 +4,36 @@
 
 import copy
 import warnings
+import sys
 import pulumi
 import pulumi.runtime
 from typing import Any, Mapping, Optional, Sequence, Union, overload
+if sys.version_info >= (3, 11):
+    from typing import NotRequired, TypedDict, TypeAlias
+else:
+    from typing_extensions import NotRequired, TypedDict, TypeAlias
 from .. import _utilities
 
 __all__ = [
     'AuthenticationProvidersArgs',
+    'AuthenticationProvidersArgsDict',
     'EnvironmentVariableArgs',
+    'EnvironmentVariableArgsDict',
     'GoogleProviderArgs',
+    'GoogleProviderArgsDict',
     'ProjectArgs',
+    'ProjectArgsDict',
 ]
+
+MYPY = False
+
+if not MYPY:
+    class AuthenticationProvidersArgsDict(TypedDict):
+        email: NotRequired[pulumi.Input[bool]]
+        google: NotRequired[pulumi.Input['GoogleProviderArgsDict']]
+        web3: NotRequired[pulumi.Input[bool]]
+elif False:
+    AuthenticationProvidersArgsDict: TypeAlias = Mapping[str, Any]
 
 @pulumi.input_type
 class AuthenticationProvidersArgs:
@@ -57,6 +76,13 @@ class AuthenticationProvidersArgs:
         pulumi.set(self, "web3", value)
 
 
+if not MYPY:
+    class EnvironmentVariableArgsDict(TypedDict):
+        name: pulumi.Input[str]
+        value: pulumi.Input[str]
+elif False:
+    EnvironmentVariableArgsDict: TypeAlias = Mapping[str, Any]
+
 @pulumi.input_type
 class EnvironmentVariableArgs:
     def __init__(__self__, *,
@@ -84,6 +110,13 @@ class EnvironmentVariableArgs:
         pulumi.set(self, "value", value)
 
 
+if not MYPY:
+    class GoogleProviderArgsDict(TypedDict):
+        id: pulumi.Input[str]
+        secret: pulumi.Input[str]
+elif False:
+    GoogleProviderArgsDict: TypeAlias = Mapping[str, Any]
+
 @pulumi.input_type
 class GoogleProviderArgs:
     def __init__(__self__, *,
@@ -110,6 +143,13 @@ class GoogleProviderArgs:
     def secret(self, value: pulumi.Input[str]):
         pulumi.set(self, "secret", value)
 
+
+if not MYPY:
+    class ProjectArgsDict(TypedDict):
+        name: pulumi.Input[str]
+        region: pulumi.Input[str]
+elif False:
+    ProjectArgsDict: TypeAlias = Mapping[str, Any]
 
 @pulumi.input_type
 class ProjectArgs:
