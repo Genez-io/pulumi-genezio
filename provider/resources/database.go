@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"context"
 	_ "embed"
 	"log"
 	"strings"
@@ -58,7 +59,7 @@ func (r *DatabaseState) Annotate(a infer.Annotator) {
 	a.Describe(&r.DatabaseId, `The database ID.`)
 }
 
-func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news DatabaseArgs) (p.DiffResponse, error) {
+func (*Database) Diff(ctx context.Context, id string, olds DatabaseState, news DatabaseArgs) (p.DiffResponse, error) {
 	diff := map[string]p.PropertyDiff{}
 
 	if olds.Name != news.Name {
@@ -117,7 +118,7 @@ func (*Database) Diff(ctx p.Context, id string, olds DatabaseState, news Databas
 
 }
 
-func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState, error) {
+func (*Database) Read(ctx context.Context, id string, inputs DatabaseArgs, state DatabaseState) (string, DatabaseArgs, DatabaseState, error) {
 	databases, err := requests.ListDatabases(ctx)
 	if err != nil {
 		return id, inputs, state, err
@@ -133,7 +134,7 @@ func (*Database) Read(ctx p.Context, id string, inputs DatabaseArgs, state Datab
 	return id, inputs, DatabaseState{}, nil
 }
 
-func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview bool) (string, DatabaseState, error) {
+func (*Database) Create(ctx context.Context, name string, input DatabaseArgs, preview bool) (string, DatabaseState, error) {
 	state := DatabaseState{DatabaseArgs: input}
 	if preview {
 		return name, state, nil
@@ -190,7 +191,7 @@ func (*Database) Create(ctx p.Context, name string, input DatabaseArgs, preview 
 	return name, state, nil
 }
 
-func (*Database) Delete(ctx p.Context, id string, state DatabaseState) error {
+func (*Database) Delete(ctx context.Context, id string, state DatabaseState) error {
 
 	err := requests.DeleteDatabase(ctx, state.DatabaseId)
 	if err != nil {

@@ -4,9 +4,9 @@
 package config
 
 import (
+	"example.com/pulumi-genezio/sdk/go/genezio/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
-	"internal"
 )
 
 var _ = internal.GetEnvOrDefault
@@ -16,7 +16,4 @@ func GetAuthToken(ctx *pulumi.Context) string {
 }
 func GetStage(ctx *pulumi.Context) string {
 	return config.Get(ctx, "genezio:stage")
-}
-func GetVersion(ctx *pulumi.Context) string {
-	return config.Get(ctx, "genezio:version")
 }

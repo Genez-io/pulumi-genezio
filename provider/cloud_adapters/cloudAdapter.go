@@ -1,6 +1,7 @@
 package cloud_adapters
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"path/filepath"
@@ -8,14 +9,12 @@ import (
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
 	"github.com/Genez-io/pulumi-genezio/provider/requests"
 	"github.com/Genez-io/pulumi-genezio/provider/utils"
-
-	p "github.com/pulumi/pulumi-go-provider"
 )
 
 type CloudAdapter interface {
-	Deploy(ctx p.Context, input []domain.GenezioCloudInput, projectConfiguration domain.ProjectConfiguration, cloudAdapterOptions CloudAdapterOptions, stack *string) (domain.GenezioCloudOutput, error)
-	DeployFrontend(ctx p.Context, projectName string, projectRegion string, frontend domain.FrontendConfiguration, stage string) (string, error)
-	DeployFunction(ctx p.Context, projectName string, projectRegion string, function domain.FunctionConfiguration, archivePath string, stage string) (domain.FunctionDetails, error)
+	Deploy(ctx context.Context, input []domain.GenezioCloudInput, projectConfiguration domain.ProjectConfiguration, cloudAdapterOptions CloudAdapterOptions, stack *string) (domain.GenezioCloudOutput, error)
+	DeployFrontend(ctx context.Context, projectName string, projectRegion string, frontend domain.FrontendConfiguration, stage string) (string, error)
+	DeployFunction(ctx context.Context, projectName string, projectRegion string, function domain.FunctionConfiguration, archivePath string, stage string) (domain.FunctionDetails, error)
 }
 
 type genezioCloudAdapter struct {
@@ -25,7 +24,7 @@ func NewGenezioCloudAdapter() CloudAdapter {
 	return &genezioCloudAdapter{}
 }
 
-func (g *genezioCloudAdapter) Deploy(ctx p.Context, input []domain.GenezioCloudInput, projectConfiguration domain.ProjectConfiguration, cloudAdapterOptions CloudAdapterOptions, stack *string) (domain.GenezioCloudOutput, error) {
+func (g *genezioCloudAdapter) Deploy(ctx context.Context, input []domain.GenezioCloudInput, projectConfiguration domain.ProjectConfiguration, cloudAdapterOptions CloudAdapterOptions, stack *string) (domain.GenezioCloudOutput, error) {
 
 	stage := ""
 	if cloudAdapterOptions.Stage != nil {
@@ -93,7 +92,7 @@ func (g *genezioCloudAdapter) Deploy(ctx p.Context, input []domain.GenezioCloudI
 	}, nil
 }
 
-func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, projectRegion string, frontend domain.FrontendConfiguration, stage string) (string, error) {
+func (g *genezioCloudAdapter) DeployFrontend(ctx context.Context, projectName string, projectRegion string, frontend domain.FrontendConfiguration, stage string) (string, error) {
 
 	var finalStageName string
 	if stage != "" && stage != "prod" {
@@ -161,7 +160,7 @@ func (g *genezioCloudAdapter) DeployFrontend(ctx p.Context, projectName string, 
 	return createFrontendResponse.Domain, nil
 }
 
-func (g *genezioCloudAdapter) DeployFunction(ctx p.Context, projectName string, projectRegion string, function domain.FunctionConfiguration, archivePath string, stage string) (domain.FunctionDetails, error) {
+func (g *genezioCloudAdapter) DeployFunction(ctx context.Context, projectName string, projectRegion string, function domain.FunctionConfiguration, archivePath string, stage string) (domain.FunctionDetails, error) {
 
 	presignedUrlResponse, err := requests.GetPresignedUrl(ctx, domain.GetPresignedUrlRequest{
 		ProjectName: projectName,

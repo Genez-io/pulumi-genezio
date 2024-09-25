@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"context"
 	_ "embed"
 	"fmt"
 	"log"
@@ -61,7 +62,7 @@ func (r *AuthenticationState) Annotate(a infer.Annotator) {
 	a.Describe(&r.Region, `The region in which the authentication is deployed.`)
 }
 
-func (*Authentication) Diff(ctx p.Context, id string, olds AuthenticationState, news AuthenticationArgs) (p.DiffResponse, error) {
+func (*Authentication) Diff(ctx context.Context, id string, olds AuthenticationState, news AuthenticationArgs) (p.DiffResponse, error) {
 	diff := map[string]p.PropertyDiff{}
 
 	areProjectsIdentical := utils.CompareProjects(olds.Project, news.Project)
@@ -111,7 +112,7 @@ func (*Authentication) Diff(ctx p.Context, id string, olds AuthenticationState, 
 	}, nil
 }
 
-func (*Authentication) Read(ctx p.Context, id string, inputs AuthenticationArgs, state AuthenticationState) (string, AuthenticationArgs, AuthenticationState, error) {
+func (*Authentication) Read(ctx context.Context, id string, inputs AuthenticationArgs, state AuthenticationState) (string, AuthenticationArgs, AuthenticationState, error) {
 
 	stage := "prod"
 	contextStage := infer.GetConfig[*domain.Config](ctx).Stage
@@ -195,7 +196,7 @@ func (*Authentication) Read(ctx p.Context, id string, inputs AuthenticationArgs,
 	return id, inputs, state, nil
 }
 
-func (*Authentication) Update(ctx p.Context, id string, olds AuthenticationState, news AuthenticationArgs, preview bool) (AuthenticationState, error) {
+func (*Authentication) Update(ctx context.Context, id string, olds AuthenticationState, news AuthenticationArgs, preview bool) (AuthenticationState, error) {
 
 	state := AuthenticationState{AuthenticationArgs: news, Token: olds.Token, Region: olds.Region}
 	if preview {
@@ -305,7 +306,7 @@ func (*Authentication) Update(ctx p.Context, id string, olds AuthenticationState
 	return state, nil
 }
 
-func (*Authentication) Create(ctx p.Context, name string, input AuthenticationArgs, preview bool) (string, AuthenticationState, error) {
+func (*Authentication) Create(ctx context.Context, name string, input AuthenticationArgs, preview bool) (string, AuthenticationState, error) {
 
 	state := AuthenticationState{AuthenticationArgs: input}
 	if preview {
@@ -412,7 +413,7 @@ func (*Authentication) Create(ctx p.Context, name string, input AuthenticationAr
 
 }
 
-func (*Authentication) Delete(ctx p.Context, id string, state AuthenticationState) error {
+func (*Authentication) Delete(ctx context.Context, id string, state AuthenticationState) error {
 	stage := "prod"
 	contextStage := infer.GetConfig[*domain.Config](ctx).Stage
 	if contextStage != nil {

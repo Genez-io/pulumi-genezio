@@ -1,16 +1,15 @@
 package requests
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
 	"github.com/Genez-io/pulumi-genezio/provider/domain"
-
-	p "github.com/pulumi/pulumi-go-provider"
 )
 
 func SetEnvironmentVariables(
-	ctx p.Context,
+	ctx context.Context,
 	projectId string,
 	projectEnvId string,
 	request domain.SetEnvironmentVariablesRequest,

@@ -4,9 +4,14 @@
 
 import copy
 import warnings
+import sys
 import pulumi
 import pulumi.runtime
 from typing import Any, Mapping, Optional, Sequence, Union, overload
+if sys.version_info >= (3, 11):
+    from typing import NotRequired, TypedDict, TypeAlias
+else:
+    from typing_extensions import NotRequired, TypedDict, TypeAlias
 from . import _utilities
 
 __all__ = ['ProviderArgs', 'Provider']
@@ -15,16 +20,13 @@ __all__ = ['ProviderArgs', 'Provider']
 class ProviderArgs:
     def __init__(__self__, *,
                  auth_token: pulumi.Input[str],
-                 stage: Optional[pulumi.Input[str]] = None,
-                 version: Optional[pulumi.Input[str]] = None):
+                 stage: Optional[pulumi.Input[str]] = None):
         """
         The set of arguments for constructing a Provider resource.
         """
         pulumi.set(__self__, "auth_token", auth_token)
         if stage is not None:
             pulumi.set(__self__, "stage", stage)
-        if version is not None:
-            pulumi.set(__self__, "version", version)
 
     @property
     @pulumi.getter(name="authToken")
@@ -44,15 +46,6 @@ class ProviderArgs:
     def stage(self, value: Optional[pulumi.Input[str]]):
         pulumi.set(self, "stage", value)
 
-    @property
-    @pulumi.getter
-    def version(self) -> Optional[pulumi.Input[str]]:
-        return pulumi.get(self, "version")
-
-    @version.setter
-    def version(self, value: Optional[pulumi.Input[str]]):
-        pulumi.set(self, "version", value)
-
 
 class Provider(pulumi.ProviderResource):
     @overload
@@ -61,7 +54,6 @@ class Provider(pulumi.ProviderResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  auth_token: Optional[pulumi.Input[str]] = None,
                  stage: Optional[pulumi.Input[str]] = None,
-                 version: Optional[pulumi.Input[str]] = None,
                  __props__=None):
         """
         Create a Genezio resource with the given unique name, props, and options.
@@ -93,7 +85,6 @@ class Provider(pulumi.ProviderResource):
                  opts: Optional[pulumi.ResourceOptions] = None,
                  auth_token: Optional[pulumi.Input[str]] = None,
                  stage: Optional[pulumi.Input[str]] = None,
-                 version: Optional[pulumi.Input[str]] = None,
                  __props__=None):
         opts = pulumi.ResourceOptions.merge(_utilities.get_resource_opts_defaults(), opts)
         if not isinstance(opts, pulumi.ResourceOptions):
@@ -107,7 +98,6 @@ class Provider(pulumi.ProviderResource):
                 raise TypeError("Missing required property 'auth_token'")
             __props__.__dict__["auth_token"] = auth_token
             __props__.__dict__["stage"] = stage
-            __props__.__dict__["version"] = version
         super(Provider, __self__).__init__(
             'genezio',
             resource_name,
@@ -123,9 +113,4 @@ class Provider(pulumi.ProviderResource):
     @pulumi.getter
     def stage(self) -> pulumi.Output[Optional[str]]:
         return pulumi.get(self, "stage")
-
-    @property
-    @pulumi.getter
-    def version(self) -> pulumi.Output[Optional[str]]:
-        return pulumi.get(self, "version")
 

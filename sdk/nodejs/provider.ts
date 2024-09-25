@@ -21,7 +21,6 @@ export class Provider extends pulumi.ProviderResource {
 
     public readonly authToken!: pulumi.Output<string>;
     public readonly stage!: pulumi.Output<string | undefined>;
-    public readonly version!: pulumi.Output<string | undefined>;
 
     /**
      * Create a Provider resource with the given unique name, arguments, and options.
@@ -39,7 +38,6 @@ export class Provider extends pulumi.ProviderResource {
             }
             resourceInputs["authToken"] = args ? args.authToken : undefined;
             resourceInputs["stage"] = args ? args.stage : undefined;
-            resourceInputs["version"] = args ? args.version : undefined;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         super(Provider.__pulumiType, name, resourceInputs, opts);
@@ -52,5 +50,4 @@ export class Provider extends pulumi.ProviderResource {
 export interface ProviderArgs {
     authToken: pulumi.Input<string>;
     stage?: pulumi.Input<string>;
-    version?: pulumi.Input<string>;
 }

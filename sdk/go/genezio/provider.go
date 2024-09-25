@@ -8,8 +8,8 @@ import (
 	"reflect"
 
 	"errors"
+	"example.com/pulumi-genezio/sdk/go/genezio/internal"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"internal"
 )
 
 type Provider struct {
@@ -17,7 +17,6 @@ type Provider struct {
 
 	AuthToken pulumi.StringOutput    `pulumi:"authToken"`
 	Stage     pulumi.StringPtrOutput `pulumi:"stage"`
-	Version   pulumi.StringPtrOutput `pulumi:"version"`
 }
 
 // NewProvider registers a new resource with the given unique name, arguments, and options.
@@ -42,14 +41,12 @@ func NewProvider(ctx *pulumi.Context,
 type providerArgs struct {
 	AuthToken string  `pulumi:"authToken"`
 	Stage     *string `pulumi:"stage"`
-	Version   *string `pulumi:"version"`
 }
 
 // The set of arguments for constructing a Provider resource.
 type ProviderArgs struct {
 	AuthToken pulumi.StringInput
 	Stage     pulumi.StringPtrInput
-	Version   pulumi.StringPtrInput
 }
 
 func (ProviderArgs) ElementType() reflect.Type {
@@ -95,10 +92,6 @@ func (o ProviderOutput) AuthToken() pulumi.StringOutput {
 
 func (o ProviderOutput) Stage() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.Stage }).(pulumi.StringPtrOutput)
-}
-
-func (o ProviderOutput) Version() pulumi.StringPtrOutput {
-	return o.ApplyT(func(v *Provider) pulumi.StringPtrOutput { return v.Version }).(pulumi.StringPtrOutput)
 }
 
 func init() {

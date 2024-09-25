@@ -6,9 +6,9 @@ package genezio
 import (
 	"fmt"
 
+	"example.com/pulumi-genezio/sdk/go/genezio/internal"
 	"github.com/blang/semver"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"internal"
 )
 
 type module struct {
