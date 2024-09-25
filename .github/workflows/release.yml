@@ -81,6 +81,8 @@ jobs:
         with:
           node-version: ${{matrix.nodeversion}}
           registry-url: ${{env.NPM_REGISTRY_URL}}
+      - name: Build provider
+        run: make provider
       - name: Generate SDK
         run: make ${{ matrix.language }}_sdk
       - name: Check worktree clean
